@@ -1,0 +1,134 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'css/admin/publication.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="publication-management">
+    <div class="management-header">
+        <h1>{% trans "Publication Management" %}</h1>
+    </div>
+
+    <div class="management-tabs">
+        <button class="tab-button active" data-tab="manual">{% trans "Manual Entry" %}</button>
+        <button class="tab-button" data-tab="bibtex">{% trans "BibTeX Import" %}</button>
+    </div>
+
+    <div class="tab-content">
+        <!-- Manual Entry Form -->
+        <div class="tab-pane active" id="manual-entry">
+            <form method="post" class="publication-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="title">{% trans "Title" %}</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="authors">{% trans "Authors (separate with 'and')" %}</label>
+                    <input type="text" id="authors" name="authors" required placeholder="Smith, J. and Johnson, M. and Williams, R.">
+                </div>
+                <div class="form-group">
+                    <label for="journal">{% trans "Journal/Conference" %}</label>
+                    <input type="text" id="journal" name="journal" required>
+                </div>
+                <div class="form-group">
+                    <label for="date">{% trans "Publication Date" %}</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="doi">{% trans "DOI" %}</label>
+                    <input type="text" id="doi" name="doi" placeholder="10.xxxx/xxxxx">
+                </div>
+                <div class="form-group">
+                    <label for="url">{% trans "Paper URL" %}</label>
+                    <input type="url" id="url" name="url">
+                </div>
+                <button type="submit" class="submit-button">{% trans "Add Publication" %}</button>
+            </form>
+        </div>
+
+        <!-- BibTeX Import Form -->
+        <div class="tab-pane" id="bibtex-import">
+            <form method="post" enctype="multipart/form-data" class="bibtex-form">
+                {% csrf_token %}
+                <div class="import-options">
+                    <div class="import-option">
+                        <h3>{% trans "Upload BibTeX File" %}</h3>
+                        <div class="form-group">
+                            <label for="bibtex_file" class="file-upload-label">
+                                <i class="fas fa-file-upload"></i>
+                                <span>{% trans "Choose File" %}</span>
+                            </label>
+                            <input type="file" id="bibtex_file" name="bibtex_file" accept=".bib" class="file-input">
+                            <span class="file-name">{% trans "No file chosen" %}</span>
+                        </div>
+                    </div>
+                    <div class="import-option">
+                        <h3>{% trans "Or Paste BibTeX" %}</h3>
+                        <div class="form-group">
+                            <textarea id="bibtex_text" name="bibtex_text" rows="10" placeholder="Paste your BibTeX entries here..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="submit-button">{% trans "Import Publications" %}</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Existing Publications List -->
+    <div class="existing-publications">
+        <h2>{% trans "Existing Publications" %}</h2>
+        <div class="publications-list">
+            {% for publication in publications %}
+            <div class="publication-item">
+                <div class="publication-info">
+                    <div class="apa-citation">
+                        {{ publication.apa_citation|safe }}
+                    </div>
+                </div>
+                <div class="publication-actions">
+                    <a href="{% url 'admin:publication_change' publication.id %}" class="edit-button">{% trans "Edit" %}</a>
+                    <a href="{% url 'admin:publication_delete' publication.id %}" class="delete-button">{% trans "Delete" %}</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching functionality
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active class from all buttons and panes
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabPanes.forEach(pane => pane.classList.remove('active'));
+
+            // Add active class to clicked button and corresponding pane
+            button.classList.add('active');
+            const tabId = button.dataset.tab;
+            document.getElementById(`${tabId}-import`).classList.add('active');
+        });
+    });
+
+    // File input handling
+    const fileInput = document.getElementById('bibtex_file');
+    const fileName = document.querySelector('.file-name');
+
+    fileInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            fileName.textContent = this.files[0].name;
+        } else {
+            fileName.textContent = "{% trans 'No file chosen' %}";
+        }
+    });
+});
+</script>
+{% endblock %} 

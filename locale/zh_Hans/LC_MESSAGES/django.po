@@ -1,0 +1,399 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: HomePage\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-03-21 10:00+0800\n"
+"PO-Revision-Date: 2024-03-21 10:00+0800\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_Hans\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: .\templates\index.html:8 .\templates\index.html:18
+msgid "MyHomePage"
+msgstr "我的主页"
+
+#: .\templates\index.html:21
+msgid "About"
+msgstr "关于我"
+
+#: .\templates\index.html:22 .\templates\index.html:65
+msgid "Publications"
+msgstr "发表论文"
+
+#: .\templates\index.html:23 .\templates\index.html:87
+msgid "Research"
+msgstr "研究项目"
+
+#: .\templates\index.html:24 .\templates\index.html:112
+msgid "Contact"
+msgstr "联系方式"
+
+#: .\templates\index.html:48
+msgid "About Me"
+msgstr "关于我"
+
+#: .\templates\index.html:51
+msgid "Profile Picture"
+msgstr "个人照片"
+
+#: .\templates\index.html:77
+msgid "View Paper"
+msgstr "查看论文"
+
+#: .\templates\index.html:96
+msgid "Present"
+msgstr "至今"
+
+#: .\templates\index.html:124
+msgid "All rights reserved."
+msgstr "保留所有权利。"
+
+#: myHomePage/admin.py
+msgid "Please login first"
+msgstr "请先登录后再试"
+
+msgid "Unsupported request method"
+msgstr "不支持的请求方法"
+
+msgid "No BibTeX data provided"
+msgstr "未提供 BibTeX 数据"
+
+msgid "No valid BibTeX entries found"
+msgstr "未找到有效的 BibTeX 条目"
+
+msgid "Entry with BibTeX key already exists: %(key)s"
+msgstr "已存在相同 BibTeX key 的条目：%(key)s"
+
+msgid "Failed to parse BibTeX data: %(error)s"
+msgstr "解析 BibTeX 数据失败：%(error)s"
+
+msgid "Successfully imported %(count)d entries"
+msgstr "成功导入 %(count)d 个条目"
+
+msgid "，skipped %(count)d existing entries"
+msgstr "，跳过 %(count)d 个已存在的条目"
+
+msgid "，%(count)d entries failed"
+msgstr "，%(count)d 个条目导入失败"
+
+msgid "Failed to import BibTeX data: %(error)s"
+msgstr "导入 BibTeX 数据失败：%(error)s"
+
+msgid "Success:"
+msgstr "成功："
+
+msgid "Warning:"
+msgstr "注意："
+
+msgid "Error:"
+msgstr "错误："
+
+msgid "Input event triggered"
+msgstr "输入事件触发"
+
+msgid "BibTeX data:"
+msgstr "BibTeX 数据："
+
+msgid "Parsing BibTeX data..."
+msgstr "正在解析 BibTeX 数据..."
+
+msgid "Current URL:"
+msgstr "当前 URL："
+
+msgid "Parse URL:"
+msgstr "解析 URL："
+
+msgid "Parse success:"
+msgstr "解析成功："
+
+msgid "Edit URL:"
+msgstr "编辑 URL："
+
+msgid "Edit existing entry directly"
+msgstr "直接编辑现有条目"
+
+msgid "This entry does not exist or has been deleted. Please modify the BibTeX key and try again."
+msgstr "该条目不存在或已被删除，请修改 BibTeX key 后重试"
+
+msgid "Modify BibTeX key and try again"
+msgstr "修改 BibTeX key 后重试"
+
+msgid "You can:"
+msgstr "您可以选择："
+
+msgid "Set %(field)s to:"
+msgstr "设置 %(field)s 为："
+
+msgid "Field #id_%(field)s not found"
+msgstr "未找到字段 #id_%(field)s"
+
+msgid "Set bibtex_key to:"
+msgstr "设置 bibtex_key 为："
+
+msgid "BibTeX key field not found"
+msgstr "未找到 BibTeX key 字段"
+
+msgid "Parse error:"
+msgstr "解析错误："
+
+msgid "Status:"
+msgstr "状态："
+
+msgid "Response:"
+msgstr "响应："
+
+msgid "Error parsing response:"
+msgstr "解析响应失败："
+
+msgid "Failed to parse BibTeX data"
+msgstr "解析 BibTeX 数据失败"
+
+msgid "You do not have permission to perform this action"
+msgstr "没有权限执行此操作"
+
+msgid "BibTeX data has been successfully parsed and form fields have been filled. Please check and confirm the information before saving."
+msgstr "BibTeX 数据已成功解析并填充表单字段。请检查并确认信息无误后保存。"
+
+msgid "Synchronization Settings"
+msgstr "同步设置"
+
+msgid "Configuration"
+msgstr "配置"
+
+msgid "HomePage Administration"
+msgstr "个人主页管理"
+
+msgid "Basic Information"
+msgstr "基本信息"
+
+msgid "Contact Information"
+msgstr "联系方式"
+
+msgid "Academic Profiles"
+msgstr "学术档案"
+
+msgid "Optional contact information"
+msgstr "可选联系方式"
+
+msgid "Configure automatic synchronization of publications from academic profiles."
+msgstr "配置从学术档案自动同步出版物"
+
+msgid "Display Name"
+msgstr "显示名称"
+
+msgid "Name to be displayed on the homepage"
+msgstr "在主页上显示的名称"
+
+msgid "Automatically sync publications from ORCID"
+msgstr "自动从ORCID同步出版物"
+
+msgid "Automatically sync publications from Google Scholar"
+msgstr "自动从Google Scholar同步出版物"
+
+msgid "System Configuration"
+msgstr "系统配置"
+
+msgid "Category"
+msgstr "分类"
+
+msgid "Name"
+msgstr "名称"
+
+msgid "Value"
+msgstr "值"
+
+msgid "Description"
+msgstr "描述"
+
+msgid "Created at"
+msgstr "创建时间"
+
+msgid "Updated at"
+msgstr "更新时间"
+
+msgid "Successfully synchronized %(count)d publications for %(name)s"
+msgstr "成功为%(name)s同步了%(count)d篇出版物"
+
+msgid "Time since last sync is less than the configured interval, but forced sync"
+msgstr "距离上次同步时间未超过设定间隔，但已强制同步"
+
+msgid "ORCID sync failed: %(error)s"
+msgstr "ORCID 同步失败: %(error)s"
+
+msgid "Google Scholar sync failed: %(error)s"
+msgstr "Google Scholar 同步失败: %(error)s"
+
+msgid "Successfully synchronized %(count)d publications"
+msgstr "成功同步 %(count)d 篇出版物"
+
+msgid "No new publications to sync"
+msgstr "没有新的出版物需要同步"
+
+msgid "Sync failed: %(error)s"
+msgstr "同步失败: %(error)s"
+
+msgid "Never synced"
+msgstr "从未同步"
+
+msgid "Recently synced"
+msgstr "最近同步"
+
+msgid "Synced today"
+msgstr "今天同步"
+
+msgid "Synced %(days)d days ago"
+msgstr "%(days)d 天前同步"
+
+msgid "Sync Status"
+msgstr "同步状态"
+
+msgid "Profile %(id)d: Time since last sync is less than the configured interval, but forced sync"
+msgstr "Profile %(id)d 距离上次同步时间未超过设定间隔，但已强制同步"
+
+msgid "Sync failed (Profile %(id)d): %(error)s"
+msgstr "同步失败 (Profile %(id)d): %(error)s"
+
+msgid "Sync selected profiles"
+msgstr "同步选中的用户"
+
+msgid "Actions"
+msgstr "操作"
+
+msgid "Sync now"
+msgstr "立即同步"
+
+msgid "Sync"
+msgstr "同步"
+
+msgid "Failed to sync %(name)s: %(error)s"
+msgstr "同步%(name)s失败：%(error)s"
+
+msgid "Successfully synchronized %(count)d publications from %(profiles)d profiles"
+msgstr "成功从%(profiles)d个档案同步了%(count)d篇出版物"
+
+msgid "Failed to synchronize %(count)d profiles"
+msgstr "%(count)d个档案同步失败"
+
+msgid "Synchronize selected profiles"
+msgstr "同步选中的档案"
+
+msgid "Admin"
+msgstr "管理系统"
+
+msgid "ORCID Client ID"
+msgstr "ORCID 客户端 ID"
+
+msgid "ORCID Client Secret"
+msgstr "ORCID 客户端密钥"
+
+msgid "ORCID Access Token"
+msgstr "ORCID 访问令牌"
+
+msgid "Google Scholar Proxy"
+msgstr "Google Scholar 代理"
+
+msgid "Sync Interval"
+msgstr "同步间隔"
+
+msgid "GitHub Token"
+msgstr "GitHub 令牌"
+
+msgid "ResearchGate Token"
+msgstr "ResearchGate 令牌"
+
+msgid "LinkedIn Token"
+msgstr "LinkedIn 令牌"
+
+msgid "Highlighted Authors"
+msgstr "高亮作者"
+
+msgid "Description of this configuration"
+msgstr "此配置的描述"
+
+msgid "Is Active"
+msgstr "是否激活"
+
+msgid "System Configurations"
+msgstr "系统配置"
+
+msgid "ORCID access token not configured"
+msgstr "ORCID 访问令牌未配置"
+
+msgid "Not configured"
+msgstr "未配置"
+
+msgid "News"
+msgstr "新闻"
+
+msgid "Title"
+msgstr "标题"
+
+msgid "Content"
+msgstr "内容"
+
+msgid "Active"
+msgstr "激活"
+
+msgid "Order"
+msgstr "排序"
+
+msgid "Profiles"
+msgstr "用户档案"
+
+msgid "User Management"
+msgstr "用户管理"
+
+msgid "Users"
+msgstr "用户"
+
+msgid "Groups"
+msgstr "用户组"
+
+msgid "Add User"
+msgstr "添加用户"
+
+msgid "Username"
+msgstr "用户名"
+
+msgid "Email"
+msgstr "邮箱"
+
+msgid "Name"
+msgstr "姓名"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "Actions"
+msgstr "操作"
+
+msgid "Active"
+msgstr "启用"
+
+msgid "Inactive"
+msgstr "禁用"
+
+msgid "Edit"
+msgstr "编辑"
+
+msgid "Delete"
+msgstr "删除"
+
+msgid "Add Group"
+msgstr "添加用户组"
+
+msgid "Group Name"
+msgstr "用户组名称"
+
+msgid "Members"
+msgstr "成员数"

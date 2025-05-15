@@ -1,23 +1,219 @@
+{% extends 'base.html' %}
+{% load i18n %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>MyHomePage</title>
-    <link href="{% static 'css/all.min.css' %}" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/index.css' %}">
-    <script src="{% static 'js/all.min.js' %}"></script>
-</head>
-<body>
-    <div class="top-bar">
 
-    </div>
-    <div class="container">
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin/publication.css' %}">
+{% endblock %}
 
-    </div>
-    <div class="footer">
+{% block title %}{{ profile.get_html_title }}{% endblock %}
 
+{% block content %}
+<div class="container">
+    <!-- About Section -->
+    <section id="about" class="section">
+        <div class="container">
+            <h2 class="section-title">{% trans "About Me" %}</h2>
+            <div class="about-content">
+                <div class="about-left">
+                    <div class="profile-photo">
+                        {% if profile.profile_image %}
+                            <img src="{{ profile.profile_image.url }}" alt="{{ profile.get_html_title }}" class="img-fluid rounded">
+                        {% else %}
+                            <i class="fas fa-user"></i>
+                        {% endif %}
+                    </div>
+                    <div class="profile-basic">
+                        <h3>{{ profile.get_formatted_display_name }}</h3>
+                        <div class="institution">
+                            {% for inst in profile.get_institutions %}
+                                <p>{{ inst }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="profile-contact">
+                        {% if profile.address %}
+                        <p><i class="fas fa-map-marker-alt"></i> {{ profile.address }}</p>
+                        {% endif %}
+                        {% if profile.email %}
+                        <p><a href="mailto:{{ profile.email }}"><i class="fas fa-envelope"></i> {{ profile.email }}</a></p>
+                        {% endif %}
+                        {% if profile.phone %}
+                        <p><i class="fas fa-phone"></i> {{ profile.phone }}</p>
+                        {% endif %}
+                        {% if profile.orcid_id %}
+                        <a href="https://orcid.org/{{ profile.orcid_id }}" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-orcid"></i> ORCID
+                        </a>
+                        {% endif %}
+                        {% if profile.google_scholar_id %}
+                        <a href="https://scholar.google.com/citations?user={{ profile.google_scholar_id }}" target="_blank" rel="noopener noreferrer">
+                            <i class="fas fa-graduation-cap"></i> Google Scholar
+                        </a>
+                        {% endif %}
+                        {% if profile.github_username %}
+                        <a href="https://github.com/{{ profile.github_username }}" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-github"></i> GitHub
+                        </a>
+                        {% endif %}
+                        {% if profile.researchgate_url %}
+                        <a href="{{ profile.researchgate_url }}" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-researchgate"></i> ResearchGate
+                        </a>
+                        {% endif %}
+                        {% if profile.linkedin_url %}
+                        <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-linkedin"></i> LinkedIn
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="about-right">
+                    {% if profile.bio %}
+                    <div class="bio">
+                        {{ profile.get_formatted_bio|safe }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Publications Section -->
+    <section id="publications" class="section">
+        <div class="container">
+            <h2 class="section-title">{% trans "Publications" %}</h2>
+            <div class="publications">
+                {% for pub in publications %}
+                <div class="publication-item">
+                    <div class="publication-content">
+                        <h4>{{ pub.title }}</h4>
+                        <p class="authors">{{ pub.get_formatted_authors|safe }}</p>
+                        <p class="journal">{{ pub.journal }}</p>
+                        <p class="year">{{ pub.year }}</p>
+                        {% if pub.doi %}
+                        <p class="doi">DOI: <a href="https://doi.org/{{ pub.doi }}" target="_blank">{{ pub.doi }}</a></p>
+                        {% endif %}
+                        {% if pub.url %}
+                        <p class="url"><a href="{{ pub.url }}" target="_blank" class="paper-link">{% trans "View Paper" %}</a></p>
+                        {% endif %}
+                    </div>
+                    {% if pub.image %}
+                    <div class="publication-image">
+                        <img src="{{ pub.image.url }}" alt="{{ pub.title }}">
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- News Section -->
+    <section id="news" class="section">
+        <div class="container">
+            <h2 class="section-title">{% trans "News" %}</h2>
+            <div class="news">
+                {% for news in news_list %}
+                <div class="news-item">
+                    <div class="news-content">
+                        <h4>{% trans news.title %}</h4>
+                        <p class="date">{{ news.created_at|date:"Y-m-d" }}</p>
+                        <div class="content">{{ news.get_formatted_content|safe }}</div>
+                    </div>
+                    {% if news.image %}
+                    <div class="news-image">
+                        <img src="{{ news.image.url }}" alt="{{ news.title }}">
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Research Section -->
+    <section id="research" class="section">
+        <div class="container">
+            <h2 class="section-title">{% trans "Research" %}</h2>
+            <div class="research">
+                {% for research in research_list %}
+                <div class="research-item">
+                    <div class="research-content">
+                        <h4>{{ research.title }}</h4>
+                        <p class="research-date">
+                            {% if research.is_current %}
+                                {% trans "Current" %} ({{ research.start_date|date:"Y-m" }} - {% trans "Present" %})
+                            {% else %}
+                                {{ research.start_date|date:"Y-m" }} - {{ research.end_date|date:"Y-m" }}
+                            {% endif %}
+                        </p>
+                        <div class="description">{{ research.description|linebreaks }}</div>
+                    </div>
+                    {% if research.image %}
+                    <div class="research-image">
+                        <img src="{{ research.image.url }}" alt="{{ research.title }}">
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Dynamic Sections -->
+    {% for section in sections %}
+    <div class="section">
+        <h3>{{ section.title }}</h3>
+        <div class="section-content">
+            {{ section.content|linebreaks }}
+        </div>
     </div>
-    <script src="/static/js/index.js"></script>
-</body>
-</html>
+    {% endfor %}
+
+    <!-- Contact Section -->
+    <section id="contact" class="section">
+        <div class="container">
+            <h2 class="section-title">{% trans "Contact" %}</h2>
+            <div class="contact-content">
+                <div class="profile-contact">
+                    {% if profile.address %}
+                    <p><i class="fas fa-map-marker-alt"></i> {{ profile.address }}</p>
+                    {% endif %}
+                    {% if profile.email %}
+                    <p><a href="mailto:{{ profile.email }}"><i class="fas fa-envelope"></i> {{ profile.email }}</a></p>
+                    {% endif %}
+                    {% if profile.phone %}
+                    <p><i class="fas fa-phone"></i> {{ profile.phone }}</p>
+                    {% endif %}
+                    {% if profile.orcid_id %}
+                    <a href="https://orcid.org/{{ profile.orcid_id }}" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-orcid"></i> ORCID
+                    </a>
+                    {% endif %}
+                    {% if profile.google_scholar_id %}
+                    <a href="https://scholar.google.com/citations?user={{ profile.google_scholar_id }}" target="_blank" rel="noopener noreferrer">
+                        <i class="fas fa-graduation-cap"></i> Google Scholar
+                    </a>
+                    {% endif %}
+                    {% if profile.github_username %}
+                    <a href="https://github.com/{{ profile.github_username }}" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                    {% endif %}
+                    {% if profile.researchgate_url %}
+                    <a href="{{ profile.researchgate_url }}" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-researchgate"></i> ResearchGate
+                    </a>
+                    {% endif %}
+                    {% if profile.linkedin_url %}
+                    <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-linkedin"></i> LinkedIn
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

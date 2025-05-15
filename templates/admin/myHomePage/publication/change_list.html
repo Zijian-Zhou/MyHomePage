@@ -1,0 +1,51 @@
+{% extends "admin/change_list.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'css/admin/publication_admin.css' %}">
+{% endblock %}
+
+{% block object-tools-items %}
+{{ block.super }}
+<li>
+    <a href="#" class="addlink" id="import-bibtex-btn">
+        {% trans "Import BibTeX" %}
+    </a>
+</li>
+{% endblock %}
+
+{% block content %}
+{{ block.super }}
+
+<!-- BibTeX Import Modal -->
+<div id="import-bibtex-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>{% trans "Import BibTeX" %}</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="import-bibtex-form" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-row">
+                    <label for="id_bibtex_file">{% trans "BibTeX File" %}:</label>
+                    <input type="file" name="bibtex_file" id="id_bibtex_file" accept=".bib">
+                </div>
+                <div class="form-row">
+                    <label for="id_bibtex_text">{% trans "Or paste BibTeX here" %}:</label>
+                    <textarea name="bibtex_text" id="id_bibtex_text" rows="10"></textarea>
+                </div>
+                <div class="submit-row">
+                    <input type="submit" value="{% trans 'Import' %}" class="default">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+{{ block.super }}
+<script src="{% static 'js/admin/publication_admin.js' %}"></script>
+{% endblock %} 

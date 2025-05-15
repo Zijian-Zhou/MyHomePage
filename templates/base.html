@@ -1,0 +1,117 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if profile %}{{ profile.get_formatted_display_name }}{% else %}{% trans "MyHomePage" %}{% endif %}</title>
+    <link href="{% static 'css/all.min.css' %}" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/index.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin/publication.css' %}">
+    <script src="{% static 'js/all.min.js' %}"></script>
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <div class="container">
+                <div class="navbar-brand">
+                    <a href="{% url 'index' %}" class="logo">{% trans "MyHomePage" %}</a>
+                </div>
+                <div class="navbar-menu">
+                    <a href="#about" class="nav-item">{% trans "About" %}</a>
+                    <a href="#publications" class="nav-item">{% trans "Publications" %}</a>
+                    <a href="#research" class="nav-item">{% trans "Research" %}</a>
+                    <a href="#contact" class="nav-item">{% trans "Contact" %}</a>
+                    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div class="language-switcher">
+                        <form action="{% url 'set_language' %}" method="post" class="language-form">
+                            {% csrf_token %}
+                            <input name="next" type="hidden" value="{{ request.path }}">
+                            <select name="language" onchange="this.form.submit()">
+                                {% get_current_language as CURRENT_LANGUAGE %}
+                                {% get_available_languages as LANGUAGES %}
+                                {% for lang_code, lang_name in LANGUAGES %}
+                                    <option value="{{ lang_code }}" {% if lang_code == CURRENT_LANGUAGE %}selected{% endif %}>
+                                        {{ lang_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </div>
+                    {% if user.is_authenticated and user.is_staff %}
+                    <a href="{% url 'admin:index' %}" class="nav-item admin-link">
+                        <i class="fas fa-cog"></i> {% trans "Admin" %}
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="back-to-top" aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <main class="main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; {% now "Y" %} {{ profile.name }}. {% trans "All rights reserved." %}</p>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/index.js' %}"></script>
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        const icon = themeToggle.querySelector('i');
+
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            html.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+
+        function updateThemeIcon(theme) {
+            icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+        }
+
+        // Back to top functionality
+        const backToTopButton = document.getElementById('back-to-top');
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.add('show');
+            } else {
+                backToTopButton.classList.remove('show');
+            }
+        });
+
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
+</body>
+</html> 

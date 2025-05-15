@@ -1,0 +1,51 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/admin/custom.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin/dark_mode.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin/publication.css' %}">
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="{% static 'js/admin/dark_mode.js' %}"></script>
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        {{ site_header|default:_('Django administration') }}
+    </a>
+</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block usertools %}
+<div id="user-tools">
+    {% if user.is_authenticated %}
+    <div class="language-switcher">
+        <form action="{% url 'set_language' %}" method="post" class="language-form">
+            {% csrf_token %}
+            <input name="next" type="hidden" value="{{ request.path }}">
+            <select name="language" onchange="this.form.submit()">
+                {% get_current_language as CURRENT_LANGUAGE %}
+                {% get_available_languages as LANGUAGES %}
+                {% for lang_code, lang_name in LANGUAGES %}
+                    <option value="{{ lang_code }}" {% if lang_code == CURRENT_LANGUAGE %}selected{% endif %}>
+                        {{ lang_name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+    {% endif %}
+    {{ block.super }}
+</div>
+{% endblock %} 
