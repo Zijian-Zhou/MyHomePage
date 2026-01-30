@@ -1,0 +1,167 @@
+.user-management {
+    padding: 20px;
+}
+
+.management-header {
+    margin-bottom: 20px;
+}
+
+.management-header h1 {
+    color: #333;
+    font-size: 24px;
+    margin: 0;
+}
+
+.management-tabs {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.tab-button {
+    padding: 10px 20px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #666;
+    border-bottom: 2px solid transparent;
+    margin-right: 10px;
+}
+
+.tab-button:hover {
+    color: #333;
+}
+
+.tab-button.active {
+    color: #417690;
+    border-bottom-color: #417690;
+}
+
+.tab-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+.action-bar {
+    margin-bottom: 20px;
+}
+
+.button {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #417690;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    margin-right: 10px;
+}
+
+.button:hover {
+    background: #295570;
+}
+
+.button.delete {
+    background: #ba2121;
+}
+
+.button.delete:hover {
+    background: #a41515;
+}
+
+.user-table,
+.group-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.user-table th,
+.user-table td,
+.group-table th,
+.group-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.user-table th,
+.group-table th {
+    background: #f5f5f5;
+    font-weight: bold;
+    color: #333;
+}
+
+.status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.status.active {
+    background: #dff0d8;
+    color: #3c763d;
+}
+
+.status.inactive {
+    background: #f2dede;
+    color: #a94442;
+}
+
+/* Dark mode support */
+[data-theme="dark"] .user-management {
+    background: #1a1a1a;
+    color: #fff;
+}
+
+[data-theme="dark"] .management-header h1 {
+    color: #fff;
+}
+
+[data-theme="dark"] .tab-button {
+    color: #ccc;
+}
+
+[data-theme="dark"] .tab-button:hover,
+[data-theme="dark"] .tab-button.active {
+    color: #fff;
+}
+
+[data-theme="dark"] .tab-content {
+    background: #2d2d2d;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+[data-theme="dark"] .user-table th,
+[data-theme="dark"] .group-table th {
+    background: #333;
+    color: #fff;
+}
+
+[data-theme="dark"] .user-table td,
+[data-theme="dark"] .group-table td {
+    border-bottom-color: #444;
+}
+
+[data-theme="dark"] .status.active {
+    background: #2d5a27;
+    color: #dff0d8;
+}
+
+[data-theme="dark"] .status.inactive {
+    background: #a94442;
+    color: #f2dede;
+} 

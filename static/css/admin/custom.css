@@ -1,0 +1,720 @@
+/* 系统配置样式 */
+.field-get_config_name {
+    font-weight: bold;
+}
+
+.field-value input[type="text"],
+.field-value textarea {
+    width: 100%;
+    max-width: 500px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.field-description {
+    color: #666;
+    font-style: italic;
+}
+
+/* 同步按钮样式 */
+.sync-button {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: var(--primary-color);
+    color: white !important;
+    border: 2px solid var(--primary-color);
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.sync-button:hover {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    color: white !important;
+}
+
+.sync-button.disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* 同步状态样式 */
+.sync-status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+.sync-status.never {
+    background-color: #f5f5f5;
+    color: #999;
+}
+
+.sync-status.recent {
+    background-color: #dff0d8;
+    color: #3c763d;
+}
+
+.sync-status.today {
+    background-color: #d9edf7;
+    color: #31708f;
+}
+
+.sync-status.old {
+    background-color: #fcf8e3;
+    color: #8a6d3b;
+}
+
+/* 时间戳样式 */
+.field-created_at,
+.field-updated_at {
+    color: #999;
+    font-size: 12px;
+}
+
+/* 分类标签样式 */
+.field-category {
+    font-weight: bold;
+    color: #333;
+}
+
+/* 配置值样式 */
+.field-value {
+    font-family: monospace;
+    background-color: #f9f9f9;
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+
+/* 表格样式 */
+#changelist table thead th {
+    background: var(--primary-color);
+    color: white;
+    text-align: center;
+    padding: 8px;
+}
+
+#changelist table tbody td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 8px;
+}
+
+#changelist table tbody tr:nth-child(even) {
+    background-color: var(--secondary-color);
+}
+
+#changelist table tbody tr:hover {
+    background-color: var(--nav-hover);
+}
+
+/* Actions 按钮样式 */
+#changelist .actions {
+    background: var(--primary-color);
+    color: white;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+#changelist .actions select {
+    color: #333;
+    background: #f5f5f5;
+    border: 2px solid #f5f5f5;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-weight: bold;
+    margin: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 13px;
+    height: 36px;
+}
+
+#changelist .actions button {
+    color: #333;
+    background: #f5f5f5;
+    border: 2px solid #f5f5f5;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-weight: bold;
+    margin: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 13px;
+    height: 36px;
+}
+
+#changelist .actions select option {
+    font-size: 13px;
+    padding: 8px;
+    background: #f5f5f5;
+    color: #333;
+}
+
+#changelist .actions select option:hover {
+    background: #e0e0e0;
+    color: #333;
+}
+
+#changelist .actions select:hover,
+#changelist .actions button:hover {
+    background: #f5f5f5;
+    color: #333;
+}
+
+#changelist .actions select:focus,
+#changelist .actions button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+}
+
+/* 复选框样式 */
+#changelist .actions input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    vertical-align: middle;
+    cursor: pointer;
+    accent-color: #333;
+}
+
+#changelist .actions label {
+    color: #333;
+    font-weight: bold;
+    margin: 0;
+    cursor: pointer;
+    font-size: 14px;
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+#changelist .actions label:hover {
+    color: #333;
+}
+
+#changelist .actions span {
+    color: #333;
+    font-size: 14px;
+}
+
+[data-theme="dark"] #changelist .actions {
+    background: var(--primary-color);
+    color: white;
+}
+
+[data-theme="dark"] #changelist .actions select,
+[data-theme="dark"] #changelist .actions button {
+    color: #e0e0e0;
+    background: #333;
+    border: 2px solid #333;
+}
+
+[data-theme="dark"] #changelist .actions select option {
+    background: #333;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] #changelist .actions select option:hover {
+    background: #444;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] #changelist .actions select:hover,
+[data-theme="dark"] #changelist .actions button:hover {
+    background: #333;
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] #changelist .actions label {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] #changelist .actions label:hover {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] #changelist .actions span {
+    color: #e0e0e0;
+}
+
+[data-theme="dark"] #changelist .actions input[type="checkbox"] {
+    accent-color: #e0e0e0;
+}
+
+[data-theme="dark"] #changelist .actions button {
+    background: #333;
+    border: 1px solid #e0e0e0;
+    color: #e0e0e0;
+}
+
+/* 分类过滤器样式 */
+#changelist-filter h2 {
+    background-color: #337ab7;
+    color: white;
+    padding: 10px 15px;
+    margin: 0;
+    font-size: 14px;
+}
+
+#changelist-filter h3 {
+    font-size: 12px;
+    color: #666;
+    padding: 5px 15px;
+    margin: 0;
+    border-bottom: 1px solid #eee;
+}
+
+#changelist-filter ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#changelist-filter li {
+    padding: 5px 15px;
+}
+
+#changelist-filter li.selected {
+    background-color: #f5f5f5;
+    border-left: 3px solid #337ab7;
+}
+
+/* 消息样式 */
+.messagelist {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.messagelist li {
+    padding: 10px 15px;
+    margin: 0 0 10px 0;
+    border-radius: 4px;
+}
+
+.messagelist li.success {
+    background-color: #dff0d8;
+    border: 1px solid #d6e9c6;
+    color: #3c763d;
+}
+
+.messagelist li.error {
+    background-color: #f2dede;
+    border: 1px solid #ebccd1;
+    color: #a94442;
+}
+
+.messagelist li.warning {
+    background-color: #fcf8e3;
+    border: 1px solid #faebcc;
+    color: #8a6d3b;
+}
+
+/* 响应式布局 */
+@media (max-width: 767px) {
+    .field-value input[type="text"],
+    .field-value textarea {
+        max-width: 100%;
+    }
+
+    .sync-button {
+        display: block;
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    .sync-status {
+        display: block;
+        text-align: center;
+        margin-top: 5px;
+    }
+}
+
+/* 字段集样式 */
+.module {
+    margin-bottom: 20px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.module h2 {
+    background: #f8f8f8;
+    color: #333;
+    padding: 10px 15px;
+    margin: 0;
+    font-size: 14px;
+    border-bottom: 1px solid #ddd;
+}
+
+.module .description {
+    padding: 10px 15px;
+    color: #666;
+    font-style: italic;
+    border-bottom: 1px solid #eee;
+}
+
+.module .form-row {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.module .form-row:last-child {
+    border-bottom: none;
+}
+
+/* 只读字段样式 */
+.readonly {
+    background-color: #f9f9f9;
+    padding: 6px;
+    border-radius: 3px;
+    color: #666;
+}
+
+/* Dark mode styles */
+.dark-mode {
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
+
+.dark-mode #header {
+    background-color: #2d2d2d;
+    color: #ffffff;
+}
+
+.dark-mode #branding h1 {
+    color: #ffffff;
+}
+
+.dark-mode .module {
+    background-color: #2d2d2d;
+    border-color: #404040;
+}
+
+.dark-mode .module h2, 
+.dark-mode .module caption {
+    background-color: #404040;
+    color: #ffffff;
+}
+
+.dark-mode .submit-row {
+    background-color: #2d2d2d;
+    border-color: #404040;
+}
+
+.dark-mode .button, 
+.dark-mode input[type=submit], 
+.dark-mode input[type=button], 
+.dark-mode .submit-row input {
+    background-color: #404040;
+    color: #ffffff;
+}
+
+.dark-mode .button:hover, 
+.dark-mode input[type=submit]:hover, 
+.dark-mode input[type=button]:hover {
+    background-color: #505050;
+}
+
+.dark-mode #changelist-filter {
+    background-color: #2d2d2d;
+    border-color: #404040;
+}
+
+.dark-mode #changelist-filter h2 {
+    background-color: #404040;
+    color: #ffffff;
+}
+
+.dark-mode #changelist-filter li.selected a {
+    color: #ffffff;
+}
+
+.dark-mode .paginator {
+    background-color: #2d2d2d;
+    border-color: #404040;
+}
+
+.dark-mode .paginator a:link, 
+.dark-mode .paginator a:visited {
+    background-color: #404040;
+    color: #ffffff;
+}
+
+.dark-mode .paginator a:hover {
+    background-color: #505050;
+}
+
+/* Dark mode toggle button */
+.dark-mode-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    padding: 10px;
+    border-radius: 50%;
+    background-color: #404040;
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.dark-mode-toggle:hover {
+    background-color: #505050;
+}
+
+/* Form fields in dark mode */
+.dark-mode input[type=text],
+.dark-mode input[type=password],
+.dark-mode input[type=email],
+.dark-mode input[type=number],
+.dark-mode input[type=url],
+.dark-mode input[type=tel],
+.dark-mode textarea,
+.dark-mode select {
+    background-color: #404040;
+    color: #ffffff;
+    border-color: #505050;
+}
+
+.dark-mode input[type=text]:focus,
+.dark-mode input[type=password]:focus,
+.dark-mode input[type=email]:focus,
+.dark-mode input[type=number]:focus,
+.dark-mode input[type=url]:focus,
+.dark-mode input[type=tel]:focus,
+.dark-mode textarea:focus,
+.dark-mode select:focus {
+    border-color: #666666;
+    box-shadow: 0 0 5px rgba(255,255,255,0.2);
+}
+
+/* Links in dark mode */
+.dark-mode a:link,
+.dark-mode a:visited {
+    color: #66b3ff;
+}
+
+.dark-mode a:hover {
+    color: #99ccff;
+}
+
+/* Table styles in dark mode */
+.dark-mode #changelist table thead th {
+    background-color: #404040;
+    color: #ffffff;
+}
+
+.dark-mode #changelist table tbody tr:nth-child(odd) {
+    background-color: #2d2d2d;
+}
+
+.dark-mode #changelist table tbody tr:nth-child(even) {
+    background-color: #333333;
+}
+
+/* Messages in dark mode */
+.dark-mode .messagelist {
+    background-color: #2d2d2d;
+}
+
+.dark-mode .success {
+    background-color: #2d4d2d;
+}
+
+.dark-mode .warning {
+    background-color: #4d4d2d;
+}
+
+.dark-mode .error {
+    background-color: #4d2d2d;
+}
+
+/* Language switcher styles */
+.language-switcher {
+    display: inline-block;
+    margin-right: 20px;
+}
+
+.language-switcher select {
+    background: var(--header-bg);
+    color: var(--header-fg);
+    border: 1px solid var(--header-fg);
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+.language-switcher select:hover {
+    background: var(--header-bg);
+    border-color: var(--header-fg);
+}
+
+.language-switcher select:focus {
+    outline: none;
+    border-color: var(--header-fg);
+}
+
+/* Dark mode styles */
+[data-theme="dark"] .language-switcher select {
+    background: var(--header-bg);
+    color: var(--header-fg);
+    border-color: var(--header-fg);
+}
+
+[data-theme="dark"] .language-switcher select:hover {
+    background: var(--header-bg);
+    border-color: var(--header-fg);
+}
+
+/* User tools styles */
+#user-tools {
+    text-align: center;
+    padding: 10px 0;
+}
+
+#user-tools > * {
+    display: inline-block;
+    margin: 0 10px;
+    vertical-align: middle;
+}
+
+.language-switcher {
+    display: inline-block;
+    margin: 0 10px;
+}
+
+/* Actions column styles */
+.field-actions_column {
+    text-align: center !important;
+}
+
+.field-actions_column a {
+    display: inline-block;
+    padding: 4px 8px;
+    margin: 0 4px;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+    color: #333 !important;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    border: 1px solid #ddd;
+}
+
+.field-actions_column a:hover {
+    background-color: var(--primary-color);
+    color: white !important;
+    border-color: var(--primary-color);
+}
+
+.field-actions_column a.disabled {
+    background-color: #f5f5f5;
+    border-color: #ddd;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+[data-theme="dark"] .field-actions_column a {
+    background-color: #2d2d2d;
+    color: white !important;
+    border-color: #404040;
+}
+
+[data-theme="dark"] .field-actions_column a:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+[data-theme="dark"] .field-actions_column a.disabled {
+    background-color: #2d2d2d;
+    border-color: #404040;
+}
+
+/* 操作按钮样式 */
+.submit-row {
+    text-align: center;
+    padding: 12px 14px;
+    margin: 0 0 20px;
+    background: var(--darkened-bg);
+    border: 1px solid var(--hairline-color);
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.submit-row input {
+    margin: 0;
+    padding: 8px 16px;
+    border-radius: 4px;
+    background: var(--primary);
+    color: var(--primary-fg);
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.submit-row input:hover {
+    background: var(--primary-hover);
+}
+
+[data-theme="dark"] .submit-row {
+    background: var(--darkened-bg);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .submit-row input {
+    background: var(--primary);
+    color: var(--primary-fg);
+}
+
+[data-theme="dark"] .submit-row input:hover {
+    background: var(--primary-hover);
+}
+
+/* 表格操作按钮样式 */
+.row-actions {
+    text-align: center;
+    white-space: nowrap;
+}
+
+.row-actions a {
+    display: inline-block;
+    padding: 4px 8px;
+    margin: 0 4px;
+    border-radius: 4px;
+    color: var(--primary-fg);
+    background: var(--primary);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.row-actions a:hover {
+    background: var(--primary-hover);
+    color: var(--primary-fg);
+}
+
+[data-theme="dark"] .row-actions a {
+    background: var(--primary);
+    color: var(--primary-fg);
+}
+
+[data-theme="dark"] .row-actions a:hover {
+    background: var(--primary-hover);
+} 

@@ -1,0 +1,29 @@
+/* News Section */
+.news {
+    margin-top: 20px;
+}
+
+.news-item {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.news-item h4 {
+    color: var(--primary-color);
+    margin: 0 0 10px 0;
+    font-size: 1.2em;
+}
+
+.news-item .date {
+    color: var(--text-muted);
+    font-size: 0.9em;
+    margin-bottom: 10px;
+}
+
+.news-item .content {
+    color: var(--text-color);
+    line-height: 1.6;
+} 

@@ -1,0 +1,621 @@
+/* Light mode variables (default) */
+:root {
+    --primary: #79aec8;
+    --secondary: #417690;
+    --accent: #f5dd5d;
+    --primary-fg: #fff;
+    --body-fg: #333;
+    --body-bg: #fff;
+    --body-quiet-color: #666;
+    --body-loud-color: #000;
+    --header-color: #2c2c2c;
+    --header-branding-color: var(--accent);
+    --header-bg: #417690;
+    --header-fg: #ffffff;
+    --header-link-color: #ffffff;
+    --header-link-hover-color: #ffffff;
+    --breadcrumbs-fg: #c4dce8;
+    --breadcrumbs-link-fg: var(--body-fg);
+    --breadcrumbs-bg: var(--primary);
+    --link-fg: #447e9b;
+    --link-hover-color: #036;
+    --link-selected-fg: #6f94c6;
+    --hairline-color: #e8e8e8;
+    --border-color: #ddd;
+    --error-fg: #ba2121;
+    --message-success-bg: #dfd;
+    --message-warning-bg: #fcf;
+    --message-error-bg: #fef;
+    --darkened-bg: #f8f8f8;
+    --selected-bg: #e4e4e4;
+    --selected-row: #e4e4e4;
+    --button-fg: #fff;
+    --button-bg: var(--primary);
+    --button-hover-bg: #609ab6;
+    --default-button-bg: var(--secondary);
+    --default-button-hover-bg: #205067;
+    --close-button-bg: #888;
+    --close-button-hover-bg: #747474;
+    --delete-button-bg: #ba2121;
+    --delete-button-hover-bg: #a41515;
+    --object-tools-fg: var(--button-fg);
+    --object-tools-bg: var(--close-button-bg);
+    --object-tools-hover-bg: var(--close-button-hover-bg);
+    --table-cell-bg: #ffffff;
+    --table-cell-fg: #212529;
+    --table-header-bg: #f8f9fa;
+    --table-header-fg: #212529;
+}
+
+/* Dark mode variables */
+[data-theme="dark"] {
+    --primary: #79aec8;
+    --secondary: #417690;
+    --accent: #f5dd5d;
+    --primary-fg: #fff;
+    --body-fg: #eee;
+    --body-bg: #121212;
+    --body-quiet-color: #e0e0e0;
+    --body-loud-color: #ffffff;
+    --header-color: #cccccc;
+    --header-branding-color: var(--accent);
+    --header-bg: #2b2b2b;
+    --header-fg: #ffffff;
+    --header-link-color: #ffffff;
+    --header-link-hover-color: #ffffff;
+    --breadcrumbs-fg: #c4dce8;
+    --breadcrumbs-link-fg: var(--body-fg);
+    --breadcrumbs-bg: var(--primary);
+    --link-fg: #81d4fa;
+    --link-hover-color: #4fc3f7;
+    --link-selected-fg: #6f94c6;
+    --hairline-color: #272727;
+    --border-color: #272727;
+    --error-fg: #e35f5f;
+    --message-success-bg: #006b1b;
+    --message-warning-bg: #f58300;
+    --message-error-bg: #ba2121;
+    --darkened-bg: #212121;
+    --selected-bg: #1b1b1b;
+    --selected-row: #00363a;
+    --button-fg: #fff;
+    --button-bg: var(--primary);
+    --button-hover-bg: #609ab6;
+    --default-button-bg: var(--secondary);
+    --default-button-hover-bg: #205067;
+    --close-button-bg: #888;
+    --close-button-hover-bg: #747474;
+    --delete-button-bg: #ba2121;
+    --delete-button-hover-bg: #a41515;
+    --object-tools-fg: var(--button-fg);
+    --object-tools-bg: var(--close-button-bg);
+    --object-tools-hover-bg: var(--close-button-hover-bg);
+    --table-cell-bg: #2b2b2b;
+    --table-cell-fg: #ffffff;
+    --table-header-bg: #1f1f1f;
+    --table-header-fg: #ffffff;
+    --form-field-bg: var(--darkened-bg);
+    --form-field-border: var(--hairline-color);
+}
+
+/* Base styles for both themes */
+body {
+    background-color: var(--body-bg);
+    color: var(--body-fg);
+}
+
+/* Header styles */
+#header {
+    background: var(--header-bg);
+    color: var(--header-fg);
+}
+
+#branding h1 {
+    color: var(--header-branding-color);
+}
+
+#user-tools a {
+    color: var(--header-link-color);
+}
+
+/* Module styles */
+.module h2, 
+.module caption, 
+.inline-group h2 {
+    background: var(--header-bg);
+    color: var(--header-color);
+}
+
+.module {
+    background: var(--body-bg);
+    border: 1px solid var(--hairline-color);
+}
+
+.module caption {
+    background: var(--header-bg);
+}
+
+/* Breadcrumbs */
+div.breadcrumbs {
+    background: var(--breadcrumbs-bg);
+    color: var(--breadcrumbs-fg);
+}
+
+/* Filter list styles */
+#changelist-filter {
+    background: var(--darkened-bg);
+    border: 1px solid var(--hairline-color);
+    padding: 0;
+    margin: 0;
+    width: 200px;
+    position: relative;
+    overflow: hidden;
+}
+
+#changelist-filter h3 {
+    color: var(--header-color);
+    background: var(--header-bg);
+    padding: 8px 16px;
+    margin: 0;
+    border-bottom: 1px solid var(--hairline-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#changelist-filter ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    width: 100%;
+}
+
+#changelist-filter li {
+    border-bottom: 1px solid var(--hairline-color);
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow: hidden;
+}
+
+#changelist-filter li:last-child {
+    border-bottom: none;
+}
+
+#changelist-filter li a {
+    color: var(--link-fg);
+    display: block;
+    padding: 8px 16px;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#changelist-filter li a:hover {
+    color: var(--link-hover-color);
+    background: var(--selected-bg);
+}
+
+#changelist-filter li.selected {
+    background: var(--selected-bg);
+    border-left: 3px solid var(--primary);
+    width: 100%;
+    overflow: hidden;
+}
+
+#changelist-filter li.selected a {
+    color: var(--link-selected-fg);
+    font-weight: bold;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Table styles */
+#changelist table thead th {
+    background: var(--table-header-bg);
+    color: var(--table-header-fg);
+}
+
+#changelist table tbody tr:hover {
+    background: var(--selected-row);
+}
+
+.row1 {
+    background: var(--body-bg);
+}
+
+.row2 {
+    background: var(--darkened-bg);
+}
+
+/* Table cell styles */
+#changelist table td {
+    background: var(--table-cell-bg);
+    color: var(--table-cell-fg);
+}
+
+#changelist table td.field-value {
+    background: var(--table-cell-bg);
+    color: var(--table-cell-fg);
+}
+
+/* Dark mode specific table styles */
+[data-theme="dark"] #changelist table td {
+    background: var(--table-cell-bg);
+    color: var(--table-cell-fg);
+}
+
+[data-theme="dark"] #changelist table td.field-value {
+    background: var(--table-cell-bg);
+    color: var(--table-cell-fg);
+}
+
+/* Content styles */
+#content {
+    background: var(--body-bg);
+    color: var(--body-fg);
+}
+
+#content-related {
+    background: var(--darkened-bg);
+}
+
+#content-related .module {
+    background: var(--body-bg);
+}
+
+/* Button styles */
+.button, 
+input[type=submit], 
+input[type=button], 
+.submit-row input {
+    background: var(--button-bg);
+    color: var(--button-fg);
+}
+
+.button:hover, 
+input[type=submit]:hover, 
+input[type=button]:hover {
+    background: var(--button-hover-bg);
+}
+
+.button.default {
+    background: var(--default-button-bg);
+}
+
+.button.default:hover {
+    background: var(--default-button-hover-bg);
+}
+
+.button.delete {
+    background: var(--delete-button-bg);
+}
+
+.button.delete:hover {
+    background: var(--delete-button-hover-bg);
+}
+
+/* Object tools */
+.object-tools a {
+    background: var(--object-tools-bg);
+    color: var(--object-tools-fg);
+}
+
+.object-tools a:hover {
+    background: var(--object-tools-hover-bg);
+}
+
+/* Dark mode toggle button */
+.dark-mode-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    background: var(--button-bg);
+    color: var(--button-fg);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.dark-mode-toggle:hover {
+    background: var(--button-hover-bg);
+    transform: scale(1.1);
+}
+
+.dark-mode-toggle i {
+    font-size: 20px;
+}
+
+/* Model list specific styles */
+#changelist table tbody tr.model-publication,
+#changelist table tbody tr.model-research,
+#changelist table tbody tr.model-systemconfig {
+    background: var(--darkened-bg);
+}
+
+#changelist table tbody tr.model-publication:hover,
+#changelist table tbody tr.model-research:hover,
+#changelist table tbody tr.model-systemconfig:hover {
+    background: var(--selected-row);
+}
+
+/* Navigation sidebar */
+.dark-mode #nav-sidebar {
+    background-color: #2d2d2d !important;
+    border-right: 1px solid #404040 !important;
+}
+
+.dark-mode #nav-sidebar .current-app .section:link,
+.dark-mode #nav-sidebar .current-app .section:visited {
+    color: #ffffff !important;
+    background-color: #404040 !important;
+}
+
+.dark-mode #nav-sidebar .current-model {
+    background-color: #404040 !important;
+}
+
+.dark-mode .sticky {
+    background-color: #2d2d2d !important;
+}
+
+.dark-mode #nav-sidebar a {
+    color: #cccccc !important;
+}
+
+.dark-mode #nav-sidebar a:hover {
+    color: #ffffff !important;
+    background-color: #404040 !important;
+}
+
+/* Dashboard styles */
+.dark-mode #content-main {
+    background-color: #1a1a1a;
+}
+
+.dark-mode .dashboard .module {
+    background-color: #2d2d2d !important;
+    border: 1px solid #404040 !important;
+}
+
+.dark-mode .dashboard .module h2 {
+    background-color: #404040 !important;
+    color: #ffffff !important;
+}
+
+.dark-mode .dashboard .module table th {
+    background-color: #404040 !important;
+    color: #ffffff !important;
+}
+
+.dark-mode .dashboard .module table td {
+    color: #ffffff !important;
+}
+
+/* Changelist styles */
+.dark-mode #changelist {
+    background-color: #1a1a1a;
+}
+
+.dark-mode #changelist-form {
+    background-color: #1a1a1a;
+}
+
+.dark-mode #changelist .actions {
+    background-color: #2d2d2d !important;
+    border: 1px solid #404040 !important;
+    color: #ffffff !important;
+}
+
+.dark-mode #changelist .actions.selected {
+    background-color: #404040 !important;
+}
+
+.dark-mode #changelist .actions .button {
+    background-color: #404040 !important;
+    color: #ffffff !important;
+    border: 1px solid #505050 !important;
+}
+
+.dark-mode #changelist .actions .button:hover {
+    background-color: #505050 !important;
+}
+
+.dark-mode #changelist-filter {
+    background-color: #2d2d2d !important;
+    border: 1px solid #404040 !important;
+}
+
+.dark-mode #changelist-filter h2 {
+    background-color: #404040 !important;
+    color: #ffffff !important;
+}
+
+.dark-mode #changelist-filter h3 {
+    color: #ffffff !important;
+}
+
+.dark-mode #changelist-filter li {
+    border-bottom: 1px solid #404040 !important;
+}
+
+.dark-mode #changelist-filter li.selected {
+    border-left: 3px solid #66b3ff !important;
+}
+
+.dark-mode #changelist-filter li.selected a {
+    color: #ffffff !important;
+}
+
+.dark-mode #changelist-filter li a {
+    color: #cccccc !important;
+}
+
+.dark-mode #changelist-filter li a:hover {
+    color: #ffffff !important;
+}
+
+/* Toolbar styles */
+.dark-mode #toolbar {
+    background-color: #2d2d2d !important;
+    border-bottom: 1px solid #404040 !important;
+    color: #ffffff !important;
+}
+
+.dark-mode #toolbar form input {
+    background-color: #404040 !important;
+    color: #ffffff !important;
+    border: 1px solid #505050 !important;
+}
+
+.dark-mode #toolbar form input:focus {
+    border-color: #66b3ff !important;
+}
+
+/* Pagination */
+.dark-mode .paginator {
+    background-color: #2d2d2d !important;
+    border: 1px solid #404040 !important;
+    color: #ffffff !important;
+}
+
+.dark-mode .paginator a:link,
+.dark-mode .paginator a:visited {
+    background-color: #404040 !important;
+    color: #ffffff !important;
+    border: 1px solid #505050 !important;
+}
+
+.dark-mode .paginator a:hover {
+    background-color: #505050 !important;
+}
+
+.dark-mode .paginator .this-page {
+    background-color: #66b3ff !important;
+    color: #ffffff !important;
+}
+
+/* Search bar */
+.dark-mode #searchbar {
+    background-color: #2d2d2d !important;
+    border: 1px solid #404040 !important;
+}
+
+.dark-mode #searchbar input[type="text"] {
+    background-color: #404040 !important;
+    color: #ffffff !important;
+    border: 1px solid #505050 !important;
+}
+
+/* Date hierarchy */
+.dark-mode .date-hierarchy {
+    background-color: #2d2d2d !important;
+    border-bottom: 1px solid #404040 !important;
+}
+
+.dark-mode .date-hierarchy a {
+    color: #66b3ff !important;
+}
+
+.dark-mode .date-hierarchy a:hover {
+    color: #99ccff !important;
+}
+
+/* Object tools */
+.dark-mode .object-tools {
+    background-color: #2d2d2d !important;
+}
+
+.dark-mode .object-tools a {
+    background-color: #404040 !important;
+    color: #ffffff !important;
+    border: 1px solid #505050 !important;
+}
+
+.dark-mode .object-tools a:hover {
+    background-color: #505050 !important;
+}
+
+/* Messages */
+.dark-mode .messagelist {
+    background-color: #2d2d2d !important;
+    color: #ffffff !important;
+}
+
+.dark-mode .messagelist li {
+    background-color: #2d2d2d !important;
+    border: 1px solid #404040 !important;
+}
+
+.dark-mode .messagelist li.success {
+    background-color: #2d4d2d !important;
+    color: #ffffff !important;
+}
+
+.dark-mode .messagelist li.warning {
+    background-color: #4d4d2d !important;
+    color: #ffffff !important;
+}
+
+.dark-mode .messagelist li.error {
+    background-color: #4d2d2d !important;
+    color: #ffffff !important;
+}
+
+/* Form field styles */
+.form-row {
+    background: var(--form-field-bg);
+    border-bottom: 1px solid var(--form-field-border);
+}
+
+[data-theme="dark"] .form-row {
+    background: var(--form-field-bg);
+    border-bottom: 1px solid var(--form-field-border);
+}
+
+[data-theme="dark"] .form-row field-value {
+    background: var(--form-field-bg);
+}
+
+[data-theme="dark"] .form-row .field-value {
+    background: var(--form-field-bg);
+    color: var(--body-fg);
+}
+
+/* 输入框样式 */
+[data-theme="dark"] input[type="text"],
+[data-theme="dark"] input[type="password"],
+[data-theme="dark"] input[type="email"],
+[data-theme="dark"] input[type="number"],
+[data-theme="dark"] input[type="url"],
+[data-theme="dark"] input[type="tel"],
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+    background-color: var(--form-field-bg);
+    color: var(--body-fg);
+    border-color: var(--form-field-border);
+}
+
+[data-theme="dark"] input[type="text"]:focus,
+[data-theme="dark"] input[type="password"]:focus,
+[data-theme="dark"] input[type="email"]:focus,
+[data-theme="dark"] input[type="number"]:focus,
+[data-theme="dark"] input[type="url"]:focus,
+[data-theme="dark"] input[type="tel"]:focus,
+[data-theme="dark"] textarea:focus,
+[data-theme="dark"] select:focus {
+    background-color: var(--form-field-bg);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(121, 174, 200, 0.2);
+} 

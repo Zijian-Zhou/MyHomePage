@@ -1,0 +1,453 @@
+.field-bibtex_input textarea {
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.4;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-height: 150px;
+    transition: background-color 0.3s ease;
+}
+
+.field-bibtex_file input[type="file"] {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    width: 100%;
+    transition: background-color 0.3s ease;
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.alert strong {
+    font-weight: bold;
+}
+
+.alert ul {
+    margin: 10px 0 0 0;
+    padding-left: 20px;
+}
+
+.alert li {
+    margin-bottom: 5px;
+}
+
+.alert li:last-child {
+    margin-bottom: 0;
+}
+
+.alert-success {
+    color: #3c763d;
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+}
+
+.alert-warning {
+    color: #8a6d3b;
+    background-color: #fcf8e3;
+    border-color: #faebcc;
+}
+
+.alert-error {
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Highlight effect for filled fields */
+.highlight {
+    animation: highlight 2s ease-out;
+}
+
+@keyframes highlight {
+    0% {
+        background-color: #e8f5e9;
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+/* 错误高亮效果 */
+.form-row.error-highlight {
+    animation: errorHighlight 2s ease-in-out;
+    background-color: #f2dede;
+    transition: background-color 0.3s ease;
+}
+
+@keyframes errorHighlight {
+    0% {
+        background-color: #f8d7da;
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+/* 字段高亮效果 */
+.form-row.highlight {
+    animation: highlight 2s ease-in-out;
+    background-color: #dff0d8;
+    transition: background-color 0.3s ease;
+}
+
+@keyframes highlight {
+    0% {
+        background-color: #e8f5e9;
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+/* 输入框样式优化 */
+.form-row input[type="text"],
+.form-row input[type="number"],
+.form-row textarea {
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.form-row input[type="text"]:focus,
+.form-row input[type="number"]:focus,
+.form-row textarea:focus {
+    border-color: #4caf50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+    background-color: #fff;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.4);
+    overflow-y: auto;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 800px;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    position: relative;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0;
+}
+
+.modal-header h2 {
+    margin: 0;
+    color: #417690;
+}
+
+.close {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0 5px;
+}
+
+.close:hover {
+    color: black;
+}
+
+.modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.form-row {
+    margin-bottom: 15px;
+}
+
+.form-row label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-row input[type="file"],
+.form-row textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.submit-row {
+    margin-top: 20px;
+    text-align: right;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+    flex-shrink: 0;
+}
+
+.submit-row input[type="submit"] {
+    margin-left: 10px;
+}
+
+/* Alert messages */
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-success {
+    color: #3c763d;
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+}
+
+.alert-warning {
+    color: #8a6d3b;
+    background-color: #fcf8e3;
+    border-color: #faebcc;
+}
+
+.alert-error {
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+}
+
+.error-details {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f8f8f8;
+    border-radius: 4px;
+}
+
+.error-details h4 {
+    margin-top: 0;
+    color: #a94442;
+}
+
+.error-details ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.error-details li {
+    color: #856404;
+    margin-bottom: 5px;
+}
+
+.error-details li:last-child {
+    margin-bottom: 0;
+}
+
+/* Dark mode support */
+[data-theme="dark"] .field-bibtex_input textarea,
+[data-theme="dark"] .field-bibtex_file input[type="file"] {
+    background-color: #2d2d2d;
+    border-color: #404040;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .alert-success {
+    color: #dff0d8;
+    background-color: #3c763d;
+    border-color: #2e6da4;
+}
+
+[data-theme="dark"] .alert-warning {
+    color: #fcf8e3;
+    background-color: #8a6d3b;
+    border-color: #66512c;
+}
+
+[data-theme="dark"] .alert-error {
+    color: #f2dede;
+    background-color: #a94442;
+    border-color: #843534;
+}
+
+[data-theme="dark"] .form-row.highlight {
+    background-color: #3c763d;
+}
+
+[data-theme="dark"] .form-row.error-highlight {
+    background-color: #a94442;
+}
+
+[data-theme="dark"] .error-details {
+    background-color: #2d2d2d;
+}
+
+[data-theme="dark"] .error-details h4 {
+    color: #f2dede;
+}
+
+/* BibTeX import feedback effects */
+.field-bibtex_input.success textarea,
+.field-bibtex_file.success input[type="file"] {
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+    animation: successHighlight 2s ease-out;
+}
+
+.field-bibtex_input.error textarea,
+.field-bibtex_file.error input[type="file"] {
+    background-color: #f2dede;
+    border-color: #ebccd1;
+    animation: errorHighlight 2s ease-out;
+}
+
+@keyframes successHighlight {
+    0% {
+        background-color: #dff0d8;
+    }
+    100% {
+        background-color: #f8f9fa;
+    }
+}
+
+@keyframes errorHighlight {
+    0% {
+        background-color: #f2dede;
+    }
+    100% {
+        background-color: #f8f9fa;
+    }
+}
+
+/* Dark mode support */
+[data-theme="dark"] .field-bibtex_input.success textarea,
+[data-theme="dark"] .field-bibtex_file.success input[type="file"] {
+    background-color: #3c763d;
+    border-color: #2e6da4;
+}
+
+[data-theme="dark"] .field-bibtex_input.error textarea,
+[data-theme="dark"] .field-bibtex_file.error input[type="file"] {
+    background-color: #a94442;
+    border-color: #843534;
+}
+
+/* Feedback messages */
+.feedback-message {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 4px;
+    font-size: 14px;
+    animation: slideIn 0.3s ease-out;
+}
+
+.feedback-message.success {
+    background-color: #dff0d8;
+    border: 1px solid #d6e9c6;
+    color: #3c763d;
+}
+
+.feedback-message.error {
+    background-color: #f2dede;
+    border: 1px solid #ebccd1;
+    color: #a94442;
+}
+
+/* Form row states */
+.form-row.success {
+    background-color: #dff0d8;
+    transition: background-color 0.3s ease;
+}
+
+.form-row.error {
+    background-color: #f2dede;
+    transition: background-color 0.3s ease;
+}
+
+/* Edit link */
+.edit-link {
+    display: inline-block;
+    margin-left: 10px;
+    color: #721c24;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.edit-link:hover {
+    color: #a94442;
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Dark mode support */
+[data-theme="dark"] .feedback-message.success {
+    background-color: #3c763d;
+    border-color: #2e6da4;
+    color: #dff0d8;
+}
+
+[data-theme="dark"] .feedback-message.error {
+    background-color: #a94442;
+    border-color: #843534;
+    color: #f2dede;
+}
+
+[data-theme="dark"] .form-row.success {
+    background-color: #3c763d;
+}
+
+[data-theme="dark"] .form-row.error {
+    background-color: #a94442;
+}
+
+[data-theme="dark"] .edit-link {
+    color: #f2dede;
+}
+
+[data-theme="dark"] .edit-link:hover {
+    color: #f8d7da;
+} 

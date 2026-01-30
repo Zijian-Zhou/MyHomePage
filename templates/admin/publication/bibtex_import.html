@@ -1,0 +1,71 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/admin/publication.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="bibtex-import">
+    <h1>{% trans "Import Publications from BibTeX" %}</h1>
+    
+    <div class="import-options">
+        <div class="import-option">
+            <h3>{% trans "Upload BibTeX File" %}</h3>
+            <form method="post" enctype="multipart/form-data" class="file-upload-form">
+                {% csrf_token %}
+                <div class="file-upload-container">
+                    <label for="bibtex_file" class="file-upload-label">
+                        <i class="fas fa-file-upload"></i>
+                        <span>{% trans "Choose File" %}</span>
+                    </label>
+                    <input type="file" name="bibtex_file" id="bibtex_file" class="file-input" accept=".bib">
+                    <span class="file-name">{% trans "No file chosen" %}</span>
+                </div>
+                <button type="submit" class="button" name="import_type" value="file">
+                    {% trans "Import from File" %}
+                </button>
+            </form>
+        </div>
+
+        <div class="import-option">
+            <h3>{% trans "Paste BibTeX" %}</h3>
+            <form method="post" class="bibtex-form">
+                {% csrf_token %}
+                <div class="bibtex-textarea-container">
+                    <textarea name="bibtex_text" placeholder="{% trans 'Paste your BibTeX entries here...' %}" required></textarea>
+                </div>
+                <button type="submit" class="button" name="import_type" value="text">
+                    {% trans "Import from Text" %}
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('bibtex_file');
+    const fileName = document.querySelector('.file-name');
+
+    fileInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            fileName.textContent = this.files[0].name;
+        } else {
+            fileName.textContent = "{% trans 'No file chosen' %}";
+        }
+    });
+});
+</script>
+{% endblock %} 

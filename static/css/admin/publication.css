@@ -1,0 +1,675 @@
+.publication-management {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.management-header {
+    margin-bottom: 2rem;
+}
+
+.management-header h1 {
+    color: var(--primary-color);
+    font-size: 2rem;
+}
+
+/* Tabs */
+.management-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 1rem;
+}
+
+.tab-button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    background: none;
+    color: var(--text-color);
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+    background-color: var(--nav-hover);
+}
+
+.tab-button.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Tab Content */
+.tab-content {
+    margin-bottom: 3rem;
+}
+
+.tab-pane {
+    display: none;
+    padding: 1rem;
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+/* Forms */
+.publication-form,
+.bibtex-form {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.submit-button {
+    padding: 0.75rem 1.5rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.submit-button:hover {
+    background-color: var(--accent-color);
+    transform: translateY(-2px);
+}
+
+/* Existing Publications */
+.existing-publications {
+    margin-top: 3rem;
+}
+
+.existing-publications h2 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+}
+
+.publications-list {
+    display: grid;
+    gap: 1.5rem;
+}
+
+/* Common styles for all items */
+.publication-item,
+.news-item,
+.research-item {
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px var(--shadow-color);
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease;
+}
+
+.publication-item:hover,
+.news-item:hover,
+.research-item:hover {
+    transform: translateY(-2px);
+}
+
+/* Section containers */
+.publications,
+.news,
+.research {
+    margin-top: 1.5rem;
+}
+
+/* Research item specific styles */
+.research-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background-color: var(--card-bg);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px var(--shadow-color);
+    margin-bottom: 3rem;
+}
+
+.research-image {
+    flex-shrink: 0;
+    width: 150px;
+    height: 150px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.research-item img {
+    width: 150px;
+    height: 150px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-left: 1.5rem;
+}
+
+.research-content {
+    flex: 1;
+    margin-right: 2rem;
+}
+
+/* 在移动设备上调整布局 */
+@media (max-width: 768px) {
+    .research-item {
+        flex-direction: column;
+    }
+
+    .research-image {
+        align-self: flex-end;
+    }
+
+    .research-item img {
+        margin-left: 0;
+        margin-top: 1rem;
+    }
+
+    .research-content {
+        margin-right: 0;
+        margin-bottom: 1.5rem;
+    }
+}
+
+/* Existing styles remain unchanged */
+.publication-item h4,
+.news-item h4,
+.research-item h4 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.publication-item p,
+.news-item p,
+.research-item p {
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+
+.publication-item .authors {
+    font-style: italic;
+}
+
+.publication-item .journal {
+    font-weight: 500;
+}
+
+.publication-item .year {
+    color: var(--text-muted);
+}
+
+.publication-item .doi a,
+.publication-item .url a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.publication-item .doi a:hover,
+.publication-item .url a:hover {
+    color: var(--accent-color);
+    text-decoration: underline;
+}
+
+.publication-actions {
+    display: flex;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
+.edit-button,
+.delete-button {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.edit-button {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.delete-button {
+    background-color: #dc3545;
+    color: white;
+}
+
+.edit-button:hover,
+.delete-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+/* BibTeX Import Form */
+.import-options {
+    display: grid;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.import-option {
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.import-option h3 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.file-upload-container {
+    margin-bottom: 1rem;
+}
+
+.file-upload-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.file-upload-label:hover {
+    background-color: var(--accent-color);
+    transform: translateY(-2px);
+}
+
+.file-upload-label i {
+    font-size: 1.2rem;
+}
+
+.file-input {
+    display: none;
+}
+
+.file-name {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.bibtex-textarea-container {
+    margin-bottom: 1rem;
+}
+
+.bibtex-form textarea {
+    width: 100%;
+    min-height: 300px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    resize: vertical;
+    tab-size: 4;
+}
+
+.bibtex-form textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+}
+
+.button {
+    padding: 0.75rem 1.5rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.button:hover {
+    background-color: var(--accent-color);
+    transform: translateY(-2px);
+}
+
+/* Messages */
+.messagelist {
+    margin: 1rem 0;
+    padding: 0;
+    list-style: none;
+}
+
+.messagelist li {
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+}
+
+.messagelist li.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.messagelist li.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Dark mode message styles */
+[data-theme="dark"] .messagelist li {
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .messagelist li.success {
+    background-color: #1e3a2f !important;
+    border-color: #2d5a4a !important;
+}
+
+[data-theme="dark"] .messagelist li.error {
+    background-color: #3a1e1e !important;
+    border-color: #5a2d2d !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .publication-management {
+        padding: 1rem;
+    }
+
+    .management-tabs {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .publication-item {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .publication-info {
+        margin-right: 0;
+    }
+
+    .publication-actions {
+        justify-content: flex-start;
+    }
+
+    .apa-citation {
+        font-size: 0.95rem;
+    }
+
+    .import-options {
+        gap: 1rem;
+    }
+
+    .import-option {
+        padding: 1rem;
+    }
+
+    .file-upload-label {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .file-name {
+        text-align: center;
+    }
+
+    .bibtex-form textarea {
+        min-height: 200px;
+    }
+}
+
+.publication-separator {
+    margin: 1rem 0;
+    border: none;
+    border-top: 1px solid var(--border-color);
+}
+
+.publications {
+    margin-top: 2rem;
+}
+
+.publication-item {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    border-radius: 8px;
+    background-color: var(--bg-secondary);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.publication-content {
+    flex: 1;
+}
+
+.publication-image {
+    flex: 0 0 200px;
+    max-width: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.publication-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .publication-item {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .publication-image {
+        flex: 0 0 auto;
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    .publication-image img {
+        max-width: 300px;
+    }
+}
+
+/* News item specific styles */
+.news-item {
+    display: flex;
+    gap: 2rem;
+    background-color: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px var(--shadow-color);
+    margin-bottom: 1.5rem;
+}
+
+.news-content {
+    flex: 1;
+}
+
+.news-image {
+    flex: 0 0 200px;
+    max-width: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.news-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .news-item {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .news-image {
+        flex: 0 0 auto;
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    .news-image img {
+        max-width: 300px;
+    }
+}
+
+.news-item h4 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.news-item .date {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.news-item .content {
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* Markdown content styles */
+.news-item .content h1,
+.news-item .content h2,
+.news-item .content h3,
+.news-item .content h4,
+.news-item .content h5,
+.news-item .content h6 {
+    color: var(--primary-color);
+    margin: 1.5rem 0 1rem;
+}
+
+.news-item .content p {
+    margin-bottom: 1rem;
+}
+
+.news-item .content ul,
+.news-item .content ol {
+    margin: 1rem 0;
+    padding-left: 2rem;
+}
+
+.news-item .content li {
+    margin-bottom: 0.5rem;
+}
+
+.news-item .content code {
+    background-color: var(--bg-secondary);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.news-item .content pre {
+    background-color: var(--bg-secondary);
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+.news-item .content pre code {
+    background-color: transparent;
+    padding: 0;
+}
+
+.news-item .content blockquote {
+    border-left: 4px solid var(--primary-color);
+    margin: 1rem 0;
+    padding: 0.5rem 1rem;
+    background-color: var(--bg-secondary);
+}
+
+.news-item .content a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.news-item .content a:hover {
+    color: var(--accent-color);
+    text-decoration: underline;
+}
+
+.news-item .content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin: 1rem 0;
+}
+
+.news-item .content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+.news-item .content th,
+.news-item .content td {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.news-item .content th {
+    background-color: var(--bg-secondary);
+    font-weight: bold;
+} 
