@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,12 +22,24 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-*k62dymua!sf!4d3k8h15^#x_m84^aspzg2247%xnhs3o_$8^='
+DEFAULT_SECRET_KEY = 'django-insecure-*k62dymua!sf!4d3k8h15^#x_m84^aspzg2247%xnhs3o_$8^='
+SECRET_KEY = os.getenv('SECRET_KEY', DEFAULT_SECRET_KEY)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True').lower() in {'1', 'true', 'yes', 'on'}
 
-ALLOWED_HOSTS = ["*"]
+def _get_env_list(name, default=''):
+    value = os.getenv(name, default)
+    return [v.strip() for v in value.split(',') if v.strip()]
+
+
+ALLOWED_HOSTS = _get_env_list('ALLOWED_HOSTS', '127.0.0.1,localhost')
+
+if not DEBUG:
+    if SECRET_KEY == DEFAULT_SECRET_KEY:
+        raise ImproperlyConfigured('SECRET_KEY must be set in environment when DEBUG=False')
+    if not ALLOWED_HOSTS:
+        raise ImproperlyConfigured('ALLOWED_HOSTS must be set when DEBUG=False')
 
 
 # Application definition
@@ -49,6 +62,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'myHomePage.middleware.LoginEncryptionMiddleware',
+    'myHomePage.middleware.AdminLoginRateLimitMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'myHomePage.middleware.SessionSecurityMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -155,3 +169,22 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Session security
 SESSION_COOKIE_AGE = 1800  # 30 minutes
 SESSION_SAVE_EVERY_REQUEST = True
+
+# Production security defaults (can be overridden via env vars)
+SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'True' if not DEBUG else 'False').lower() in {'1', 'true', 'yes', 'on'}
+SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'True' if not DEBUG else 'False').lower() in {'1', 'true', 'yes', 'on'}
+CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE', 'True' if not DEBUG else 'False').lower() in {'1', 'true', 'yes', 'on'}
+SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '31536000' if not DEBUG else '0'))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'True' if not DEBUG else 'False').lower() in {'1', 'true', 'yes', 'on'}
+SECURE_HSTS_PRELOAD = os.getenv('SECURE_HSTS_PRELOAD', 'True' if not DEBUG else 'False').lower() in {'1', 'true', 'yes', 'on'}
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = os.getenv('X_FRAME_OPTIONS', 'DENY')
+SECURE_REFERRER_POLICY = os.getenv('SECURE_REFERRER_POLICY', 'same-origin')
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = True
+ENABLE_IP_GEO_LANGUAGE = os.getenv('ENABLE_IP_GEO_LANGUAGE', 'False').lower() in {'1', 'true', 'yes', 'on'}
+
+LOGIN_MAX_ATTEMPTS = int(os.getenv('LOGIN_MAX_ATTEMPTS', '5'))
+LOGIN_ATTEMPT_WINDOW_SECONDS = int(os.getenv('LOGIN_ATTEMPT_WINDOW_SECONDS', '600'))
+LOGIN_LOCKOUT_SECONDS = int(os.getenv('LOGIN_LOCKOUT_SECONDS', '900'))

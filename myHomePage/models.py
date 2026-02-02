@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.translation import gettext_lazy as _
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 import markdown
 
 class Profile(models.Model):
@@ -45,10 +47,10 @@ class Profile(models.Model):
         return self.display_name or self.user.get_full_name() or self.user.username
     
     def get_formatted_bio(self):
-        """将 bio 字段的 Markdown 内容转换为 HTML"""
+        """Convert markdown bio to safe HTML (raw HTML is escaped)."""
         if not self.bio:
             return ''
-        return markdown.markdown(self.bio, extensions=['extra', 'codehilite'])
+        return markdown.markdown(escape(self.bio), extensions=['extra'])
     
     def get_institutions(self):
         """获取机构列表，每个机构独占一行"""
@@ -145,7 +147,7 @@ class Publication(models.Model):
     keywords = models.TextField(_('Keywords'), blank=True, help_text=_('Keywords separated by commas'))
 
     class Meta:
-        ordering = ['-year', '-order']
+        ordering = ['-order', '-year']
         verbose_name = _('Publication')
         verbose_name_plural = _('Publications')
 
@@ -153,40 +155,31 @@ class Publication(models.Model):
         return self.title
 
     def get_formatted_authors(self):
-        """Format authors with highlighting and corresponding author markers, including global highlighted authors from SystemConfig"""
+        """Render authors safely and only inject controlled markup tags."""
         if not self.authors:
             return ''
-        
-        # Split authors and clean up
-        author_list = [a.strip() for a in self.authors.split(' and ')]
-        
-        # Get highlighted and corresponding authors from entry
-        highlighted = [a.strip() for a in self.highlighted_authors.split(';')] if self.highlighted_authors else []
-        corresponding = [a.strip() for a in self.corresponding_authors.split(';')] if self.corresponding_authors else []
-        
-        # Get global highlighted authors from SystemConfig
-        from .models import SystemConfig
-        global_highlighted = []
+
+        author_list = [a.strip() for a in self.authors.split(' and ') if a.strip()]
+        highlighted = {a.strip() for a in self.highlighted_authors.split(';') if a.strip()} if self.highlighted_authors else set()
+        corresponding = {a.strip() for a in self.corresponding_authors.split(';') if a.strip()} if self.corresponding_authors else set()
+
+        global_highlighted = set()
         try:
-            global_highlighted = [a.strip() for a in SystemConfig.get_highlighted_authors().split(';') if a.strip()]
+            global_highlighted = {a.strip() for a in SystemConfig.get_highlighted_authors().split(';') if a.strip()}
         except Exception:
             pass
-        # 合并去重
-        all_highlighted = set(highlighted) | set(global_highlighted)
-        
-        # Format each author
-        formatted_authors = []
+        highlighted |= global_highlighted
+
+        rendered = []
         for author in author_list:
-            author_name = author
-            # Add highlighting if author is in highlighted list
-            if author in all_highlighted:
-                author_name = f'<strong>{author_name}</strong>'
-            # Add corresponding author marker as superscript
+            display_name = escape(author)
+            if author in highlighted:
+                display_name = f'<strong>{display_name}</strong>'
             if author in corresponding:
-                author_name = f'{author_name}<sup>*</sup>'
-            formatted_authors.append(author_name)
-        
-        return ' and '.join(formatted_authors)
+                display_name = f'{display_name}<sup>*</sup>'
+            rendered.append(display_name)
+
+        return mark_safe(' and '.join(rendered))
 
 class Research(models.Model):
     """研究项目模型"""
@@ -224,7 +217,7 @@ class SystemConfig(models.Model):
     ]
     
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, verbose_name=_('Category'))
-    value = models.TextField(verbose_name=_('Value'))
+    value = models.TextField(verbose_name=_('Value'), blank=True, default='')
     description = models.TextField(verbose_name=_('Description'), blank=True, help_text=_('Description of this configuration'))
     is_active = models.BooleanField(default=True, verbose_name=_('Is Active'))
     created_at = models.DateTimeField(auto_now_add=True)
@@ -263,9 +256,9 @@ class SystemConfig(models.Model):
     def get_sync_interval_hours(cls):
         """Get synchronization interval (hours)"""
         try:
-            return float(cls.get_value('sync_interval', 1))
+            return float(cls.get_value('sync_interval', 24))
         except (ValueError, TypeError):
-            return 1.0  # Default 1 hour
+            return 24.0  # Default 24 hours
 
     @classmethod
     def get_sync_interval_seconds(cls):
@@ -340,10 +333,10 @@ class News(models.Model):
         return self.title
 
     def get_formatted_content(self):
-        """将 content 字段的 Markdown 内容转换为 HTML"""
+        """Convert markdown content to safe HTML (raw HTML is escaped)."""
         if not self.content:
             return ''
-        return markdown.markdown(self.content, extensions=['extra', 'codehilite'])
+        return markdown.markdown(escape(self.content), extensions=['extra'])
 
 class Section(models.Model):
     title = models.CharField(_('Title'), max_length=200)

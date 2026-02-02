@@ -16,10 +16,10 @@ logger = logging.getLogger(__name__)
 class Index(View):
     def get(self, request):
         profile = Profile.objects.filter(is_active=True).first()
-        publications = Publication.objects.filter(is_active=True).order_by('-year')
-        research_list = Research.objects.filter(is_active=True).order_by('order')
-        news_list = News.objects.filter(is_active=True).order_by('-created_at')
-        sections = Section.objects.filter(is_active=True).order_by('order')
+        publications = Publication.objects.filter(is_active=True).order_by('-order', '-year')
+        research_list = Research.objects.filter(is_active=True).order_by('-order')
+        news_list = News.objects.filter(is_active=True).order_by('-order', '-created_at')
+        sections = Section.objects.filter(is_active=True).order_by('-order')
         
         context = {
             'profile': profile,
@@ -32,10 +32,10 @@ class Index(View):
 
     def post(self, request):
         profile = Profile.objects.filter(is_active=True).first()
-        publications = Publication.objects.filter(is_active=True).order_by('-year')
-        research_list = Research.objects.filter(is_active=True).order_by('order')
-        news_list = News.objects.filter(is_active=True).order_by('-created_at')
-        sections = Section.objects.filter(is_active=True).order_by('order')
+        publications = Publication.objects.filter(is_active=True).order_by('-order', '-year')
+        research_list = Research.objects.filter(is_active=True).order_by('-order')
+        news_list = News.objects.filter(is_active=True).order_by('-order', '-created_at')
+        sections = Section.objects.filter(is_active=True).order_by('-order')
         
         context = {
             'profile': profile,
@@ -49,10 +49,10 @@ class Index(View):
 def index(request):
     """Homepage view"""
     profile = Profile.objects.filter(is_active=True).first()
-    publications = Publication.objects.filter(is_active=True).order_by('-year')
-    research_list = Research.objects.filter(is_active=True).order_by('order')
-    news_list = News.objects.filter(is_active=True).order_by('-created_at')
-    sections = Section.objects.filter(is_active=True).order_by('order')
+    publications = Publication.objects.filter(is_active=True).order_by('-order', '-year')
+    research_list = Research.objects.filter(is_active=True).order_by('-order')
+    news_list = News.objects.filter(is_active=True).order_by('-order', '-created_at')
+    sections = Section.objects.filter(is_active=True).order_by('-order')
     
     context = {
         'profile': profile,

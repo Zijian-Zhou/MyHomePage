@@ -56,4 +56,52 @@
 .action-counter {
     margin-left: 5px;
     color: #666;
-} 
+}
+
+.sync-progress-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(15, 23, 42, 0.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.sync-progress-card {
+    width: min(360px, 92vw);
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.2);
+    padding: 18px 20px;
+    text-align: center;
+}
+
+.sync-spinner {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 3px solid #dbeafe;
+    border-top-color: #2563eb;
+    margin: 0 auto 10px;
+    animation: sync-spin 0.9s linear infinite;
+}
+
+.sync-progress-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 4px;
+}
+
+.sync-progress-text {
+    font-size: 13px;
+    color: #475569;
+}
+
+@keyframes sync-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

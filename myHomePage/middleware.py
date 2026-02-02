@@ -1,49 +1,44 @@
 from django.utils import translation
 from django.conf import settings
-import requests
+from django.core.cache import cache
 from django.contrib.auth import logout
 from django.utils import timezone
+from django.shortcuts import render
+import requests
+import time
 
 from .security import decrypt_identity, decrypt_login_field, identity_digest
+
 
 class IPBasedLanguageMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
-        # 如果用户已经选择了语言，则尊重用户的选择
+        # Keep request path fast unless geo language detection is explicitly enabled.
+        if not getattr(settings, 'ENABLE_IP_GEO_LANGUAGE', False):
+            return self.get_response(request)
+
         if 'django_language' in request.session:
             return self.get_response(request)
 
-        # 获取客户端IP
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0]
-        else:
-            ip = request.META.get('REMOTE_ADDR')
+        ip = (x_forwarded_for.split(',')[0] if x_forwarded_for else request.META.get('REMOTE_ADDR', '')).strip()
 
-        # 如果是本地访问，使用默认语言
         if ip in ['127.0.0.1', 'localhost', '::1']:
             return self.get_response(request)
 
         try:
-            # 使用 ip-api.com 的免费服务获取IP地理位置信息
-            response = requests.get(f'http://ip-api.com/json/{ip}')
+            response = requests.get(f'http://ip-api.com/json/{ip}', timeout=2.5)
             if response.status_code == 200:
                 data = response.json()
                 if data.get('status') == 'success':
                     country_code = data.get('countryCode')
-                    # 如果IP来自中国，设置为中文
-                    if country_code == 'CN':
-                        translation.activate('zh-hans')
-                    else:
-                        translation.activate('en')
-        except:
-            # 如果API调用失败，使用默认语言
+                    translation.activate('zh-hans' if country_code == 'CN' else 'en')
+        except requests.RequestException:
             translation.activate(settings.LANGUAGE_CODE)
 
-        response = self.get_response(request)
-        return response 
+        return self.get_response(request)
 
 
 class SessionSecurityMiddleware:
@@ -102,3 +97,107 @@ class LoginEncryptionMiddleware:
                 request._post = data
                 request.POST = data
         return self.get_response(request)
+
+
+class AdminLoginRateLimitMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if not request.path.endswith('/admin/login/'):
+            return self.get_response(request)
+
+        identifier = self._build_identifier(request)
+        lock_remaining = self._lock_remaining_seconds(identifier)
+        if lock_remaining > 0:
+            return self._locked_response(request, lock_remaining)
+
+        if request.method != 'POST':
+            return self.get_response(request)
+
+        response = self.get_response(request)
+
+        if self._is_login_success(response):
+            self._clear_attempts(identifier)
+        else:
+            self._register_failure(identifier)
+            lock_remaining = self._lock_remaining_seconds(identifier)
+            if lock_remaining > 0:
+                return self._locked_response(request, lock_remaining)
+
+        return response
+
+    def _build_identifier(self, request):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        ip = (x_forwarded_for.split(',')[0] if x_forwarded_for else request.META.get('REMOTE_ADDR', '')).strip()
+        return ip or 'unknown'
+
+    def _attempt_key(self, identifier):
+        return 'admin_login_attempt:{}'.format(identifier)
+
+    def _lock_key(self, identifier):
+        return 'admin_login_lock:{}'.format(identifier)
+
+    def _max_attempts(self):
+        try:
+            return int(getattr(settings, 'LOGIN_MAX_ATTEMPTS', 5))
+        except (TypeError, ValueError):
+            return 5
+
+    def _window_seconds(self):
+        try:
+            return int(getattr(settings, 'LOGIN_ATTEMPT_WINDOW_SECONDS', 600))
+        except (TypeError, ValueError):
+            return 600
+
+    def _lockout_seconds(self):
+        try:
+            return int(getattr(settings, 'LOGIN_LOCKOUT_SECONDS', 900))
+        except (TypeError, ValueError):
+            return 900
+
+    def _lock_remaining_seconds(self, identifier):
+        lock_data = cache.get(self._lock_key(identifier))
+        if not lock_data:
+            return 0
+        until_ts = int(lock_data.get('until', 0))
+        if until_ts <= 0:
+            return 0
+        return max(until_ts - int(time.time()), 0)
+
+    def _clear_attempts(self, identifier):
+        cache.delete(self._attempt_key(identifier))
+        cache.delete(self._lock_key(identifier))
+
+    def _register_failure(self, identifier):
+        attempt_key = self._attempt_key(identifier)
+        attempts = cache.get(attempt_key, 0)
+        attempts = int(attempts) + 1
+        cache.set(attempt_key, attempts, timeout=self._window_seconds())
+        if attempts >= self._max_attempts():
+            lockout_seconds = self._lockout_seconds()
+            cache.set(
+                self._lock_key(identifier),
+                {'until': int(time.time()) + lockout_seconds},
+                timeout=lockout_seconds + 5
+            )
+
+    def _is_login_success(self, response):
+        if response.status_code not in (301, 302):
+            return False
+        location = response.get('Location', '') or ''
+        return '/admin/login/' not in location
+
+    def _locked_response(self, request, remaining_seconds):
+        minutes = max(1, (remaining_seconds + 59) // 60)
+        response = render(
+            request,
+            'admin/login_locked.html',
+            {
+                'remaining_seconds': remaining_seconds,
+                'remaining_minutes': minutes,
+            },
+            status=429
+        )
+        response['Retry-After'] = str(remaining_seconds)
+        return response

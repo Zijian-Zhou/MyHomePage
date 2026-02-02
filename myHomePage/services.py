@@ -95,14 +95,33 @@ class ORCIDService:
         else:
             logger.info(f"Using proxy for ORCID: {self.proxy}")
         logger.info(f"Initialized ORCIDService for ORCID ID: {orcid_id}")
+
+    def _request_orcid(self, url):
+        # Prefer proxy if configured, then fall back to direct connection.
+        attempts = []
+        if self.proxy:
+            attempts.append(("proxy", {'http': self.proxy, 'https': self.proxy}))
+        # Force-disable environment proxy variables for direct mode
+        attempts.append(("direct", {'http': None, 'https': None}))
+
+        last_error = None
+        for mode, proxies in attempts:
+            try:
+                logger.info(f"Requesting ORCID via {mode}: {url}")
+                response = requests.get(url, headers=self.headers, proxies=proxies, timeout=30)
+                response.raise_for_status()
+                return response
+            except requests.exceptions.RequestException as e:
+                last_error = e
+                logger.warning(f"ORCID request failed via {mode}: {str(e)}")
+        raise last_error
     
     def get_works(self):
         """获取ORCID作品列表"""
         url = f"{self.BASE_URL}/{self.orcid_id}/works"
         try:
             logger.info(f"Fetching works from ORCID API: {url}")
-            proxies = {'https': self.proxy} if self.proxy else None
-            response = requests.get(url, headers=self.headers, proxies=proxies)
+            response = self._request_orcid(url)
             response.raise_for_status()
             data = response.json()
             logger.info(f"Successfully fetched {len(data.get('group', []))} works from ORCID")
@@ -118,8 +137,7 @@ class ORCIDService:
         url = f"{self.BASE_URL}/{self.orcid_id}/work/{put_code}"
         try:
             logger.info(f"Fetching work details from ORCID API: {url}")
-            proxies = {'https': self.proxy} if self.proxy else None
-            response = requests.get(url, headers=self.headers, proxies=proxies)
+            response = self._request_orcid(url)
             response.raise_for_status()
             data = response.json()
             logger.info(f"Successfully fetched work details for put_code: {put_code}")
@@ -347,6 +365,32 @@ class GoogleScholarService:
         else:
             logger.info(f"Using proxy for Google Scholar: {self.proxy}")
         logger.info(f"Initialized GoogleScholarService for Scholar ID: {scholar_id}")
+
+    def _request_scholar(self, params, headers):
+        # Prefer proxy if configured, then fall back to direct connection.
+        attempts = []
+        if self.proxy:
+            attempts.append(("proxy", {'http': self.proxy, 'https': self.proxy}))
+        # Force-disable environment proxy variables for direct mode
+        attempts.append(("direct", {'http': None, 'https': None}))
+
+        last_error = None
+        for mode, proxies in attempts:
+            try:
+                logger.info(f"Fetching Google Scholar via {mode} for user: {self.scholar_id}")
+                response = requests.get(
+                    self.base_url,
+                    params=params,
+                    proxies=proxies,
+                    headers=headers,
+                    timeout=30
+                )
+                response.raise_for_status()
+                return response
+            except requests.exceptions.RequestException as e:
+                last_error = e
+                logger.warning(f"Google Scholar request failed via {mode}: {str(e)}")
+        raise last_error
     
     def get_publications(self, start=0, count=100):
         """获取Google Scholar出版物"""
@@ -358,7 +402,6 @@ class GoogleScholarService:
         }
         
         try:
-            proxies = {'https': self.proxy} if self.proxy else None
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -369,15 +412,8 @@ class GoogleScholarService:
                 'Cache-Control': 'max-age=0'
             }
             
-            logger.info(f"Fetching publications from Google Scholar for user: {self.scholar_id}")
             try:
-                response = requests.get(
-                    self.base_url,
-                    params=params,
-                    proxies=proxies,
-                    headers=headers,
-                    timeout=30
-                )
+                response = self._request_scholar(params, headers)
                 response.raise_for_status()
                 logger.info(f"Successfully received response from Google Scholar. Status code: {response.status_code}")
                 
@@ -385,11 +421,11 @@ class GoogleScholarService:
                 logger.debug(f"Response content preview: {response.text[:1000]}")
                 
             except requests.exceptions.ProxyError as e:
-                error_msg = f"代理服务器连接失败: {str(e)}"
+                error_msg = f"请求失败（代理/直连均不可用）: {str(e)}"
                 logger.error(error_msg)
                 raise Exception(error_msg)
             except requests.exceptions.ConnectTimeout:
-                error_msg = "连接超时，请检查代理服务器是否可用"
+                error_msg = "连接超时，直连和代理都未成功"
                 logger.error(error_msg)
                 raise Exception(error_msg)
             except requests.exceptions.RequestException as e:

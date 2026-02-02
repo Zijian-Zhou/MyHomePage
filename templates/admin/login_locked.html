@@ -1,0 +1,110 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  .lock-wrap {
+    max-width: 520px;
+    margin: 8vh auto;
+    padding: 30px 32px;
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1px solid #e8edf5;
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
+    text-align: center;
+  }
+  [data-theme="dark"] .lock-wrap {
+    background: #1f2430;
+    border-color: #30394a;
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+  }
+  .lock-icon {
+    font-size: 34px;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+  .lock-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 10px;
+    color: #111827;
+  }
+  [data-theme="dark"] .lock-title {
+    color: #e7ecf5;
+  }
+  .lock-desc {
+    margin: 0;
+    color: #4b5563;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  [data-theme="dark"] .lock-desc {
+    color: #b8c3d4;
+  }
+  .lock-time {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #1f2937;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  [data-theme="dark"] .lock-time {
+    background: #2a3140;
+    color: #d7e0ee;
+  }
+  .countdown {
+    font-variant-numeric: tabular-nums;
+    margin-left: 4px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="lock-wrap">
+  <div class="lock-icon">🔒</div>
+  {% if LANGUAGE_CODE|lower == "zh-hans" or LANGUAGE_CODE|lower == "zh-cn" %}
+    <h1 class="lock-title">登录暂时受限</h1>
+    <p class="lock-desc">检测到当前网络存在多次登录失败。</p>
+    <p class="lock-desc">请稍后再试。</p>
+    <div class="lock-time">
+      约 {{ remaining_minutes }} 分钟后可重试（
+      <span id="countdown" class="countdown">{{ remaining_seconds }}</span> 秒）
+    </div>
+  {% else %}
+    <h1 class="lock-title">{% trans "Login Temporarily Disabled" %}</h1>
+    <p class="lock-desc">
+      {% trans "Too many failed login attempts were detected from your current network." %}
+    </p>
+    <p class="lock-desc">
+      {% trans "Please wait a moment before trying again." %}
+    </p>
+    <div class="lock-time">
+      {% blocktrans with seconds=remaining_seconds minutes=remaining_minutes %}
+        Retry after about {{ minutes }} minute(s)
+      {% endblocktrans %}
+      (<span id="countdown" class="countdown">{{ remaining_seconds }}</span>s)
+    </div>
+  {% endif %}
+</div>
+<script>
+  (function () {
+    var el = document.getElementById('countdown');
+    if (!el) return;
+    var remaining = parseInt(el.textContent, 10);
+    if (isNaN(remaining) || remaining < 0) return;
+    var timer = setInterval(function () {
+      remaining -= 1;
+      if (remaining <= 0) {
+        remaining = 0;
+        clearInterval(timer);
+      }
+      el.textContent = String(remaining);
+    }, 1000);
+  })();
+</script>
+{% endblock %}

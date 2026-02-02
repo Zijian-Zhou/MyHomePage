@@ -121,6 +121,7 @@ class ProfileAdmin(admin.ModelAdmin):
         css = {
             'all': ('css/admin.css',)
         }
+        js = ('js/admin/sync_overlay.js',)
     
     def get_admin_display_name(self, obj):
         """获取管理界面显示名称"""
@@ -324,7 +325,7 @@ class ProfileAdmin(admin.ModelAdmin):
     def orcid_link(self, obj):
         if obj.orcid_id:
             return format_html(
-                '<a href="https://orcid.org/{}" target="_blank">{}</a>',
+                '<a href="https://orcid.org/{}" target="_blank" rel="noopener noreferrer">{}</a>',
                 obj.orcid_id,
                 obj.orcid_id
             )
@@ -334,7 +335,7 @@ class ProfileAdmin(admin.ModelAdmin):
     def google_scholar_link(self, obj):
         if obj.google_scholar_id:
             return format_html(
-                '<a href="https://scholar.google.com/citations?user={}" target="_blank">{}</a>',
+                '<a href="https://scholar.google.com/citations?user={}" target="_blank" rel="noopener noreferrer">{}</a>',
                 obj.google_scholar_id,
                 obj.google_scholar_id
             )
@@ -390,7 +391,7 @@ class PublicationAdmin(BaseAdmin):
         }
 
     def get_formatted_authors(self, obj):
-        return format_html(obj.get_formatted_authors())
+        return obj.get_formatted_authors()
     get_formatted_authors.short_description = _('Authors')
 
     def get_urls(self):
@@ -631,15 +632,41 @@ class ResearchAdmin(BaseAdmin):
 
 @admin.register(SystemConfig)
 class SystemConfigAdmin(admin.ModelAdmin):
-    list_display = ('category', 'value', 'description', 'is_active')
+    list_display = ('category', 'value', 'description_display', 'is_active')
     list_filter = ('category', 'is_active')
     search_fields = ('category', 'value', 'description')
-    
+
+    def description_display(self, obj):
+        category_map = {
+            'orcid_client_id': _('ORCID Client ID'),
+            'orcid_client_secret': _('ORCID Client Secret'),
+            'orcid_access_token': _('ORCID Access Token'),
+            'scholar_proxy': _('Google Scholar Proxy'),
+            'sync_interval': _('Sync Interval'),
+            'github_token': _('GitHub Token'),
+            'researchgate_token': _('ResearchGate Token'),
+            'linkedin_token': _('LinkedIn Token'),
+            'highlighted_authors': _('Highlighted Authors'),
+        }
+        return category_map.get(obj.category, obj.description)
+    description_display.short_description = _('Description')
+
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
+        if 'value' in form.base_fields:
+            form.base_fields['value'].required = False
         if obj and obj.category == 'scholar_proxy':
             form.base_fields['value'].help_text = _('Format: http://username:password@host:port or http://host:port')
         return form
+
+    def save_model(self, request, obj, form, change):
+        # Allow empty values for all categories except sync_interval, which defaults to 24 hours.
+        value = (obj.value or '').strip()
+        if obj.category == 'sync_interval' and not value:
+            obj.value = '24'
+        else:
+            obj.value = value
+        super().save_model(request, obj, form, change)
     
     def get_urls(self):
         urls = super().get_urls()
