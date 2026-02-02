@@ -20,6 +20,7 @@ class Index(View):
         research_list = Research.objects.filter(is_active=True).order_by('-order')
         news_list = News.objects.filter(is_active=True).order_by('-order', '-created_at')
         sections = Section.objects.filter(is_active=True).order_by('-order')
+        footer_items = SystemConfig.get_footer_items()
         
         context = {
             'profile': profile,
@@ -27,6 +28,7 @@ class Index(View):
             'research_list': research_list,
             'news_list': news_list,
             'sections': sections,
+            'footer_items': footer_items,
         }
         return render(request, 'index.html', context)
 
@@ -36,6 +38,7 @@ class Index(View):
         research_list = Research.objects.filter(is_active=True).order_by('-order')
         news_list = News.objects.filter(is_active=True).order_by('-order', '-created_at')
         sections = Section.objects.filter(is_active=True).order_by('-order')
+        footer_items = SystemConfig.get_footer_items()
         
         context = {
             'profile': profile,
@@ -43,6 +46,7 @@ class Index(View):
             'research_list': research_list,
             'news_list': news_list,
             'sections': sections,
+            'footer_items': footer_items,
         }
         return render(request, 'index.html', context)
 
@@ -53,6 +57,7 @@ def index(request):
     research_list = Research.objects.filter(is_active=True).order_by('-order')
     news_list = News.objects.filter(is_active=True).order_by('-order', '-created_at')
     sections = Section.objects.filter(is_active=True).order_by('-order')
+    footer_items = SystemConfig.get_footer_items()
     
     context = {
         'profile': profile,
@@ -60,6 +65,7 @@ def index(request):
         'research_list': research_list,
         'news_list': news_list,
         'sections': sections,
+        'footer_items': footer_items,
     }
     return render(request, 'index.html', context)
 

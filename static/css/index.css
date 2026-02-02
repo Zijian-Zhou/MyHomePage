@@ -403,10 +403,40 @@ body {
     border-top: 1px solid var(--border-color);
 }
 
+.footer p {
+    margin: 0;
+    color: var(--text-muted);
+}
+
+.footer a {
+    color: var(--text-color);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.footer a:hover {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
 [data-theme="dark"] .footer {
     background-color: var(--card-bg);
     color: var(--text-color);
     border-top-color: var(--border-color);
+}
+
+[data-theme="dark"] .footer p {
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .footer a {
+    color: #cbd5e1;
+}
+
+[data-theme="dark"] .footer a:hover {
+    color: #93c5fd;
+    border-bottom-color: #93c5fd;
 }
 
 /* Admin Dashboard Link */

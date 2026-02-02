@@ -49,3 +49,18 @@
     {{ block.super }}
 </div>
 {% endblock %} 
+
+{% block footer %}
+<div id="footer" class="admin-footer">
+    {% if footer_items %}
+        {% for item in footer_items %}
+            {% if item.href %}
+                <a href="{{ item.href }}" target="_blank" rel="noopener noreferrer">{{ item.content }}</a>
+            {% else %}
+                <span>{{ item.content }}</span>
+            {% endif %}
+            {% if not forloop.last %}<span class="admin-footer-sep">|</span>{% endif %}
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}

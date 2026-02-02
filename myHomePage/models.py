@@ -214,6 +214,7 @@ class SystemConfig(models.Model):
         ('researchgate_token', _('ResearchGate Token')),
         ('linkedin_token', _('LinkedIn Token')),
         ('highlighted_authors', _('Highlighted Authors')),
+        ('footer_items', _('Footer Items')),
     ]
     
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, verbose_name=_('Category'))
@@ -313,6 +314,46 @@ class SystemConfig(models.Model):
     @classmethod
     def get_highlighted_authors(cls):
         return cls.get_value('highlighted_authors', '')
+
+    @classmethod
+    def get_footer_items(cls):
+        """
+        Parse footer item configuration from JSON.
+        Expected base format:
+        {
+            "item": {"content": "...", "href": "..."}
+        }
+        Also supports a list in "item" for multiple entries.
+        """
+        raw = cls.get_value('footer_items', '')
+        if not raw:
+            return []
+
+        try:
+            import json
+            data = json.loads(raw)
+        except Exception:
+            return []
+
+        item_data = data.get('item')
+        if isinstance(item_data, dict):
+            item_data = [item_data]
+        if not isinstance(item_data, list):
+            return []
+
+        items = []
+        for entry in item_data:
+            if not isinstance(entry, dict):
+                continue
+            content = str(entry.get('content', '')).strip()
+            href = str(entry.get('href', '')).strip()
+            if not content:
+                continue
+            items.append({
+                'content': content,
+                'href': href,
+            })
+        return items
 
 class News(models.Model):
     """News model for sharing information"""

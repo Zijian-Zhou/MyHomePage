@@ -3,6 +3,7 @@ from django.urls import path
 from django.http import HttpResponseRedirect, JsonResponse
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import get_language
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils import timezone
@@ -22,6 +23,85 @@ import logging
 from django.shortcuts import redirect
 
 logger = logging.getLogger(__name__)
+
+
+def _category_label_map():
+    language = (get_language() or '').lower()
+    if language.startswith('zh'):
+        return {
+            'orcid_client_id': 'ORCID 客户端 ID',
+            'orcid_client_secret': 'ORCID 客户端密钥',
+            'orcid_access_token': 'ORCID 访问令牌',
+            'scholar_proxy': 'Google Scholar 代理',
+            'sync_interval': '同步间隔',
+            'github_token': 'GitHub 令牌',
+            'researchgate_token': 'ResearchGate 令牌',
+            'linkedin_token': 'LinkedIn 令牌',
+            'highlighted_authors': '高亮作者',
+            'footer_items': '页脚显示项',
+        }
+    return {
+        'orcid_client_id': 'ORCID Client ID',
+        'orcid_client_secret': 'ORCID Client Secret',
+        'orcid_access_token': 'ORCID Access Token',
+        'scholar_proxy': 'Google Scholar Proxy',
+        'sync_interval': 'Sync Interval',
+        'github_token': 'GitHub Token',
+        'researchgate_token': 'ResearchGate Token',
+        'linkedin_token': 'LinkedIn Token',
+        'highlighted_authors': 'Highlighted Authors',
+        'footer_items': 'Footer Items',
+    }
+
+
+def _validate_footer_items_json(value):
+    lang = (get_language() or '').lower()
+    is_zh = lang.startswith('zh')
+
+    def msg(zh_text, en_text):
+        return zh_text if is_zh else en_text
+
+    value = (value or '').strip()
+    if not value:
+        return value
+    try:
+        payload = json.loads(value)
+    except (ValueError, TypeError):
+        raise forms.ValidationError(msg('页脚显示项必须是合法 JSON。', 'Footer Items value must be valid JSON.'))
+
+    item_data = payload.get('item')
+    if isinstance(item_data, dict):
+        item_data = [item_data]
+    if not isinstance(item_data, list) or not item_data:
+        raise forms.ValidationError(msg('页脚显示项必须包含 "item"（对象或数组）。', 'Footer Items must contain "item" as an object or list.'))
+
+    for entry in item_data:
+        if not isinstance(entry, dict) or not str(entry.get('content', '')).strip():
+            raise forms.ValidationError(msg('每个 item 都必须包含非空 "content"。', 'Each footer item must include a non-empty "content".'))
+    return value
+
+
+class SystemConfigAdminForm(forms.ModelForm):
+    class Meta:
+        model = SystemConfig
+        fields = '__all__'
+
+    def clean_value(self):
+        value = self.cleaned_data.get('value', '')
+        category = self.cleaned_data.get('category') or getattr(self.instance, 'category', '')
+        if category == 'footer_items':
+            return _validate_footer_items_json(value)
+        return (value or '').strip()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'category' in self.fields:
+            labels = _category_label_map()
+            self.fields['category'].choices = [
+                (key, labels.get(key, label))
+                for key, label in self.fields['category'].choices
+            ]
+
 
 def is_staff_user(user):
     return user.is_authenticated and user.is_staff
@@ -51,6 +131,7 @@ class CustomAdminSite(AdminSite):
         context['site_title'] = _('HomePage Administration')
         context['site_header'] = _('HomePage Administration')
         context['index_title'] = _('HomePage Administration')
+        context['footer_items'] = SystemConfig.get_footer_items()
         return context
 
     def index(self, request, extra_context=None):
@@ -632,23 +713,36 @@ class ResearchAdmin(BaseAdmin):
 
 @admin.register(SystemConfig)
 class SystemConfigAdmin(admin.ModelAdmin):
-    list_display = ('category', 'value', 'description_display', 'is_active')
+    form = SystemConfigAdminForm
+    list_display = ('category_display', 'value', 'description_display', 'is_active')
     list_filter = ('category', 'is_active')
     search_fields = ('category', 'value', 'description')
 
+    change_form_template = 'admin/myHomePage/systemconfig/change_form.html'
+
+    def _category_map(self):
+        return _category_label_map()
+
+    def _ensure_config_entries(self):
+        expected = [choice[0] for choice in SystemConfig.CATEGORY_CHOICES]
+        existing = set(SystemConfig.objects.values_list('category', flat=True))
+        for category in expected:
+            if category in existing:
+                continue
+            default_value = '24' if category == 'sync_interval' else ''
+            SystemConfig.objects.create(
+                category=category,
+                value=default_value,
+                description='',
+                is_active=True,
+            )
+
+    def category_display(self, obj):
+        return self._category_map().get(obj.category, obj.category)
+    category_display.short_description = _('Category')
+
     def description_display(self, obj):
-        category_map = {
-            'orcid_client_id': _('ORCID Client ID'),
-            'orcid_client_secret': _('ORCID Client Secret'),
-            'orcid_access_token': _('ORCID Access Token'),
-            'scholar_proxy': _('Google Scholar Proxy'),
-            'sync_interval': _('Sync Interval'),
-            'github_token': _('GitHub Token'),
-            'researchgate_token': _('ResearchGate Token'),
-            'linkedin_token': _('LinkedIn Token'),
-            'highlighted_authors': _('Highlighted Authors'),
-        }
-        return category_map.get(obj.category, obj.description)
+        return self._category_map().get(obj.category, obj.description)
     description_display.short_description = _('Description')
 
     def get_form(self, request, obj=None, **kwargs):
@@ -657,16 +751,26 @@ class SystemConfigAdmin(admin.ModelAdmin):
             form.base_fields['value'].required = False
         if obj and obj.category == 'scholar_proxy':
             form.base_fields['value'].help_text = _('Format: http://username:password@host:port or http://host:port')
+        if obj and obj.category == 'footer_items':
+            form.base_fields['value'].help_text = _(
+                'JSON format: {"item":{"content":"Text","href":"https://example.com"}} '
+                'or {"item":[{"content":"Text1"},{"content":"Text2","href":"https://example.com"}]}'
+            )
         return form
 
     def save_model(self, request, obj, form, change):
         # Allow empty values for all categories except sync_interval, which defaults to 24 hours.
         value = (obj.value or '').strip()
+        if obj.category == 'footer_items':
+            value = _validate_footer_items_json(value)
         if obj.category == 'sync_interval' and not value:
             obj.value = '24'
         else:
             obj.value = value
         super().save_model(request, obj, form, change)
+
+    class Media:
+        js = ('js/admin/systemconfig_json_validate.js', 'js/admin/systemconfig_switch_category.js')
     
     def get_urls(self):
         urls = super().get_urls()
@@ -689,9 +793,25 @@ class SystemConfigAdmin(admin.ModelAdmin):
             return redirect('admin:myHomePage_systemconfig_changelist')
     
     def changelist_view(self, request, extra_context=None):
+        self._ensure_config_entries()
         extra_context = extra_context or {}
         extra_context['show_orcid_auth'] = True
         return super().changelist_view(request, extra_context=extra_context)
+
+    def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
+        self._ensure_config_entries()
+        extra_context = extra_context or {}
+        category_switch_map = {}
+        for config in SystemConfig.objects.all().only('id', 'category'):
+            category_switch_map[config.category] = reverse('admin:myHomePage_systemconfig_change', args=[config.id])
+        current_category = ''
+        if object_id:
+            obj = self.get_object(request, object_id)
+            if obj:
+                current_category = obj.category
+        extra_context['systemconfig_category_switch_map'] = category_switch_map
+        extra_context['systemconfig_current_category'] = current_category
+        return super().changeform_view(request, object_id, form_url, extra_context)
 
 class NewsAdmin(BaseAdmin):
     list_display = ('title', 'is_active', 'order', 'created_at', 'updated_at')

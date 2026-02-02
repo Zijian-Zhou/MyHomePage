@@ -717,4 +717,42 @@
 
 [data-theme="dark"] .row-actions a:hover {
     background: var(--primary-hover);
-} 
+}
+
+/* Admin footer items from system config */
+.admin-footer {
+    text-align: center;
+    color: #6b7280;
+    padding: 10px 12px 16px;
+    font-size: 12px;
+}
+
+.admin-footer a {
+    color: #4b5563;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.admin-footer a:hover {
+    color: #1f4f90;
+    border-bottom-color: #1f4f90;
+}
+
+.admin-footer-sep {
+    margin: 0 8px;
+    color: #9ca3af;
+}
+
+[data-theme="dark"] .admin-footer {
+    color: #9aa6b8;
+}
+
+[data-theme="dark"] .admin-footer a {
+    color: #c6d1e2;
+}
+
+[data-theme="dark"] .admin-footer a:hover {
+    color: #9ec5ff;
+    border-bottom-color: #9ec5ff;
+}

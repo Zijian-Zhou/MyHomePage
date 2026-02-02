@@ -64,7 +64,19 @@
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; {% now "Y" %} {{ profile.name }}. {% trans "All rights reserved." %}</p>
+            <p>
+                &copy; {% now "Y" %} {{ profile.get_formatted_display_name }}. {% trans "All rights reserved." %}
+                {% if footer_items %}
+                    {% for item in footer_items %}
+                        &nbsp;|&nbsp;
+                        {% if item.href %}
+                            <a href="{{ item.href }}" target="_blank" rel="noopener noreferrer">{{ item.content }}</a>
+                        {% else %}
+                            {{ item.content }}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </p>
         </div>
     </footer>
 
