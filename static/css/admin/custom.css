@@ -672,6 +672,8 @@
 
 .submit-row input:hover {
     background: var(--primary-hover);
+    color: var(--primary-fg);
+    border-color: var(--primary-hover);
 }
 
 [data-theme="dark"] .submit-row {
@@ -686,6 +688,23 @@
 
 [data-theme="dark"] .submit-row input:hover {
     background: var(--primary-hover);
+    color: var(--primary-fg);
+}
+
+.quick-entry-links .button {
+    color: var(--body-fg, #2f3747) !important;
+}
+
+.quick-entry-links .button:hover {
+    color: var(--body-fg, #2f3747) !important;
+}
+
+[data-theme="dark"] .quick-entry-links .button {
+    color: var(--button-fg, #fff) !important;
+}
+
+[data-theme="dark"] .quick-entry-links .button:hover {
+    color: var(--button-fg, #fff) !important;
 }
 
 /* 表格操作按钮样式 */
@@ -755,4 +774,15 @@
 [data-theme="dark"] .admin-footer a:hover {
     color: #9ec5ff;
     border-bottom-color: #9ec5ff;
+}
+
+.quick-entry {
+    margin-bottom: 18px;
+}
+
+.quick-entry-links {
+    padding: 12px 14px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
 }

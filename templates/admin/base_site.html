@@ -30,6 +30,7 @@
 {% block usertools %}
 <div id="user-tools">
     {% if user.is_authenticated %}
+    {% if show_language_switcher %}
     <div class="language-switcher">
         <form action="{% url 'set_language' %}" method="post" class="language-form">
             {% csrf_token %}
@@ -45,6 +46,7 @@
             </select>
         </form>
     </div>
+    {% endif %}
     {% endif %}
     {{ block.super }}
 </div>

@@ -4,6 +4,7 @@ from django.core.cache import cache
 from django.contrib.auth import logout
 from django.utils import timezone
 from django.shortcuts import render
+from django.http import HttpResponseRedirect
 import requests
 import time
 
@@ -37,6 +38,42 @@ class IPBasedLanguageMiddleware:
                     translation.activate('zh-hans' if country_code == 'CN' else 'en')
         except requests.RequestException:
             translation.activate(settings.LANGUAGE_CODE)
+
+        return self.get_response(request)
+
+
+class ChineseModeUrlMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # Keep i18n language-post endpoint working as-is.
+        if request.path.startswith('/i18n/setlang'):
+            return self.get_response(request)
+
+        try:
+            from .models import SystemConfig
+            chinese_enabled = SystemConfig.is_chinese_enabled()
+        except Exception:
+            chinese_enabled = True
+
+        if not chinese_enabled:
+            path = request.path
+            lowered = path.lower()
+            if lowered.startswith('/zh-hans/'):
+                target = '/en/' + path[len('/zh-hans/'):]
+                if request.META.get('QUERY_STRING'):
+                    target += '?' + request.META['QUERY_STRING']
+                return HttpResponseRedirect(target)
+            if lowered == '/zh-hans':
+                return HttpResponseRedirect('/en/')
+            if lowered.startswith('/zh-cn/'):
+                target = '/en/' + path[len('/zh-cn/'):]
+                if request.META.get('QUERY_STRING'):
+                    target += '?' + request.META['QUERY_STRING']
+                return HttpResponseRedirect(target)
+            if lowered == '/zh-cn':
+                return HttpResponseRedirect('/en/')
 
         return self.get_response(request)
 
@@ -201,3 +238,20 @@ class AdminLoginRateLimitMiddleware:
         )
         response['Retry-After'] = str(remaining_seconds)
         return response
+
+
+class MediaFileAccessMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        media_url = getattr(settings, 'MEDIA_URL', '/media/')
+        if request.path.startswith(media_url + 'markdown_assets/'):
+            rel_name = request.path[len(media_url):]
+            from .models import MediaFile
+            media_file = MediaFile.objects.filter(file=rel_name).first()
+            if media_file and not media_file.is_active:
+                user = getattr(request, 'user', None)
+                if not (user and user.is_authenticated and user.is_staff):
+                    return render(request, '404.html', status=404)
+        return self.get_response(request)

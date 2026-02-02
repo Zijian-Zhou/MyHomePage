@@ -11,6 +11,7 @@
 {% block content %}
 <div class="container">
     <!-- About Section -->
+    {% if show_about %}
     <section id="about" class="section">
         <div class="container">
             <h2 class="section-title">{% trans "About Me" %}</h2>
@@ -32,8 +33,8 @@
                         </div>
                     </div>
                     <div class="profile-contact">
-                        {% if profile.address %}
-                        <p><i class="fas fa-map-marker-alt"></i> {{ profile.address }}</p>
+                        {% if profile.get_display_address %}
+                        <p><i class="fas fa-map-marker-alt"></i> {{ profile.get_display_address }}</p>
                         {% endif %}
                         {% if profile.email %}
                         <p><a href="mailto:{{ profile.email }}"><i class="fas fa-envelope"></i> {{ profile.email }}</a></p>
@@ -78,9 +79,10 @@
             </div>
         </div>
     </section>
+    {% endif %}
 
     <!-- Publications Section -->
-    {% if publications %}
+    {% if show_publications %}
     <section id="publications" class="section">
         <div class="container">
             <h2 class="section-title">{% trans "Publications" %}</h2>
@@ -107,12 +109,23 @@
                 </div>
                 {% endfor %}
             </div>
+            {% if publications_page.paginator.num_pages > 1 %}
+            <div class="section-pagination">
+                {% for num in publications_page.paginator.page_range %}
+                    {% if num == publications_page.number %}
+                        <span class="page-btn active">{{ num }}</span>
+                    {% else %}
+                        <a class="page-btn" href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}pub_page={{ num }}#publications">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
     </section>
     {% endif %}
 
     <!-- News Section -->
-    {% if news_list %}
+    {% if show_news %}
     <section id="news" class="section">
         <div class="container">
             <h2 class="section-title">{% trans "News" %}</h2>
@@ -120,7 +133,7 @@
                 {% for news in news_list %}
                 <div class="news-item">
                     <div class="news-content">
-                        <h4>{% trans news.title %}</h4>
+                        <h4>{{ news.get_display_title }}</h4>
                         <p class="date">{{ news.created_at|date:"Y-m-d" }}</p>
                         <div class="content">{{ news.get_formatted_content|safe }}</div>
                     </div>
@@ -132,12 +145,23 @@
                 </div>
                 {% endfor %}
             </div>
+            {% if news_page.paginator.num_pages > 1 %}
+            <div class="section-pagination">
+                {% for num in news_page.paginator.page_range %}
+                    {% if num == news_page.number %}
+                        <span class="page-btn active">{{ num }}</span>
+                    {% else %}
+                        <a class="page-btn" href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}news_page={{ num }}#news">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
     </section>
     {% endif %}
 
     <!-- Research Section -->
-    {% if research_list %}
+    {% if show_research %}
     <section id="research" class="section">
         <div class="container">
             <h2 class="section-title">{% trans "Research" %}</h2>
@@ -145,15 +169,16 @@
                 {% for research in research_list %}
                 <div class="research-item">
                     <div class="research-content">
-                        <h4>{{ research.title }}</h4>
+                        <h4>{{ research.get_display_title }}</h4>
                         <p class="research-date">
                             {% if research.is_current %}
-                                {% trans "Current" %} ({{ research.start_date|date:"Y-m" }} - {% trans "Present" %})
+                                {% if LANGUAGE_CODE|slice:":2" == "zh" %}正在进行{% else %}{% trans "Current" %}{% endif %}
+                                ({{ research.start_date|date:"Y-m" }} - {% if LANGUAGE_CODE|slice:":2" == "zh" %}至今{% else %}{% trans "Present" %}{% endif %})
                             {% else %}
                                 {{ research.start_date|date:"Y-m" }} - {{ research.end_date|date:"Y-m" }}
                             {% endif %}
                         </p>
-                        <div class="description">{{ research.description|linebreaks }}</div>
+                        <div class="description">{{ research.get_display_description|linebreaks }}</div>
                     </div>
                     {% if research.image %}
                     <div class="research-image">
@@ -163,30 +188,65 @@
                 </div>
                 {% endfor %}
             </div>
+            {% if research_page.paginator.num_pages > 1 %}
+            <div class="section-pagination">
+                {% for num in research_page.paginator.page_range %}
+                    {% if num == research_page.number %}
+                        <span class="page-btn active">{{ num }}</span>
+                    {% else %}
+                        <a class="page-btn" href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}research_page={{ num }}#research">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
     </section>
     {% endif %}
 
     <!-- Dynamic Sections -->
-    {% if sections %}
+    {% if show_custom_sections %}
     {% for section in sections %}
-    <div class="section">
-        <h3>{{ section.title }}</h3>
-        <div class="section-content">
-            {{ section.content|linebreaks }}
+    <section class="section custom-section" id="section-{{ section.id }}">
+        <div class="container">
+            <h2 class="section-title">{{ section.get_display_title }}</h2>
+            {% if section.get_display_content %}
+            <div class="section-content section-intro">{{ section.get_formatted_content|safe }}</div>
+            {% endif %}
+            {% if section.visible_items %}
+            <div class="section-items">
+                {% for item in section.visible_items %}
+                <article class="section-item">
+                    {% if item.get_display_title %}<h4>{{ item.get_display_title }}</h4>{% endif %}
+                    <div class="section-content">{{ item.get_formatted_content|safe }}</div>
+                </article>
+                {% endfor %}
+            </div>
+            {% if section.visible_items_page.paginator.num_pages > 1 %}
+            <div class="section-pagination">
+                {% for num in section.visible_items_page.paginator.page_range %}
+                    {% if num == section.visible_items_page.number %}
+                        <span class="page-btn active">{{ num }}</span>
+                    {% else %}
+                        <a class="page-btn" href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}sec_{{ section.id }}_page={{ num }}#section-{{ section.id }}">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endif %}
         </div>
-    </div>
+    </section>
     {% endfor %}
     {% endif %}
 
     <!-- Contact Section -->
+    {% if show_contact %}
     <section id="contact" class="section">
         <div class="container">
             <h2 class="section-title">{% trans "Contact" %}</h2>
             <div class="contact-content">
                 <div class="profile-contact">
-                    {% if profile.address %}
-                    <p><i class="fas fa-map-marker-alt"></i> {{ profile.address }}</p>
+                    {% if profile.get_display_address %}
+                    <p><i class="fas fa-map-marker-alt"></i> {{ profile.get_display_address }}</p>
                     {% endif %}
                     {% if profile.email %}
                     <p><a href="mailto:{{ profile.email }}"><i class="fas fa-envelope"></i> {{ profile.email }}</a></p>
@@ -223,5 +283,6 @@
             </div>
         </div>
     </section>
+    {% endif %}
 </div>
 {% endblock %}

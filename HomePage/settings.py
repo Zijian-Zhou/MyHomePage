@@ -57,6 +57,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'myHomePage.middleware.ChineseModeUrlMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'myHomePage.middleware.IPBasedLanguageMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -64,6 +65,7 @@ MIDDLEWARE = [
     'myHomePage.middleware.LoginEncryptionMiddleware',
     'myHomePage.middleware.AdminLoginRateLimitMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'myHomePage.middleware.MediaFileAccessMiddleware',
     'myHomePage.middleware.SessionSecurityMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',

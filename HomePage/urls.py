@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf.urls.i18n import i18n_patterns
 from django.conf import settings
 from django.conf.urls.static import static
@@ -22,18 +22,21 @@ from django.views.i18n import set_language
 from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required, user_passes_test
 from myHomePage.admin import admin_site
+from myHomePage import views as home_views
 
 def is_staff_user(user):
     return user.is_authenticated and user.is_staff
 
 urlpatterns = [
+    re_path(r'^media/markdown_assets/(?P<path>.*)$', home_views.media_asset_access, name='media_asset_access'),
+    path('media-file/<slug:access_key>/', home_views.media_file_access, name='media_file_access'),
 ]
 
 urlpatterns += i18n_patterns(
     path('i18n/setlang/', set_language, name='set_language'),
     path('admin/', admin_site.urls),
     path('', include('myHomePage.urls')),
-    path('access-denied/', TemplateView.as_view(template_name='404.html'), name='access_denied'),
+    path('access-denied/', TemplateView.as_view(template_name='access_denied.html'), name='access_denied'),
     prefix_default_language=True
 )
 

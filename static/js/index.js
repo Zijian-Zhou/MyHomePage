@@ -50,4 +50,48 @@ document.addEventListener('DOMContentLoaded', function() {
             navbarMenu.classList.toggle('active');
         });
     }
+
+    // Section pagination: keep per-section page state and refresh section only.
+    document.addEventListener('click', function (e) {
+        const link = e.target.closest('.section-pagination a.page-btn');
+        if (!link) return;
+
+        e.preventDefault();
+
+        const currentUrl = new URL(window.location.href);
+        const nextUrl = new URL(currentUrl.toString());
+        const clickedUrl = new URL(link.href, window.location.origin);
+        const targetSection = link.closest('section');
+
+        if (!targetSection) return;
+
+        clickedUrl.searchParams.forEach((value, key) => {
+            nextUrl.searchParams.set(key, value);
+        });
+        nextUrl.hash = '#' + targetSection.id;
+
+        targetSection.classList.add('section-loading');
+
+        fetch(nextUrl.toString(), {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+            .then(function (response) {
+                if (!response.ok) throw new Error('Request failed');
+                return response.text();
+            })
+            .then(function (html) {
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                const freshSection = doc.getElementById(targetSection.id);
+
+                if (!freshSection) throw new Error('Section not found');
+
+                if (targetSection.parentNode) {
+                    targetSection.parentNode.replaceChild(freshSection, targetSection);
+                }
+                window.history.replaceState({}, '', nextUrl.pathname + nextUrl.search + nextUrl.hash);
+            })
+            .catch(function () {
+                window.location.href = nextUrl.toString();
+            });
+    });
 });

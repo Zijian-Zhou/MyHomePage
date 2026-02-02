@@ -1,0 +1,110 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE|default:'en' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% trans "Error" %}{% endblock %}</title>
+    <style>
+        :root {
+            --bg: #f5f7fb;
+            --fg: #1f2937;
+            --muted: #5b6474;
+            --card: #ffffff;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --border: #dbe1ea;
+            --shadow: rgba(17, 24, 39, 0.1);
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #0f172a;
+                --fg: #e5e7eb;
+                --muted: #94a3b8;
+                --card: #111827;
+                --accent: #60a5fa;
+                --accent-hover: #93c5fd;
+                --border: #334155;
+                --shadow: rgba(0, 0, 0, 0.35);
+            }
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: var(--fg);
+            background:
+                radial-gradient(1200px 500px at -10% -10%, rgba(37,99,235,0.12), transparent 60%),
+                radial-gradient(900px 400px at 110% 120%, rgba(56,189,248,0.12), transparent 60%),
+                var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .error-card {
+            width: 100%;
+            max-width: 640px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: var(--card);
+            box-shadow: 0 20px 40px var(--shadow);
+            padding: 28px;
+            text-align: center;
+        }
+        .error-code {
+            margin: 0;
+            font-size: 72px;
+            line-height: 1;
+            letter-spacing: 1px;
+            color: var(--accent);
+        }
+        .error-title {
+            margin: 12px 0 8px;
+            font-size: 28px;
+        }
+        .error-message {
+            margin: 0 auto;
+            max-width: 520px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+        .actions {
+            margin-top: 24px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 16px;
+            border-radius: 10px;
+            text-decoration: none;
+            border: 1px solid var(--border);
+            color: var(--fg);
+            transition: all 0.2s ease;
+        }
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+        .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+        .btn:hover { transform: translateY(-1px); }
+    </style>
+</head>
+<body>
+    <main class="error-card">
+        <h1 class="error-code">{% block code %}500{% endblock %}</h1>
+        <h2 class="error-title">{% block heading %}{% trans "Something went wrong" %}{% endblock %}</h2>
+        <p class="error-message">{% block message %}{% trans "Please try again later." %}{% endblock %}</p>
+        <div class="actions">
+            <a class="btn btn-primary" href="/">{% trans "Go to Homepage" %}</a>
+            <a class="btn" href="javascript:history.back();">{% trans "Go Back" %}</a>
+        </div>
+    </main>
+</body>
+</html>
+

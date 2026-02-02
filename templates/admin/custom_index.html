@@ -1,0 +1,17 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="module quick-entry">
+  <h2>{% trans "Quick Actions" %}</h2>
+  <div class="quick-entry-links">
+    <a class="button" href="{% url 'admin:myHomePage_section_add' %}">
+      {% trans "Add Custom Section" %}
+    </a>
+    <a class="button" href="{% url 'admin:myHomePage_mediafile_add' %}">
+      {% trans "Upload Media File" %}
+    </a>
+  </div>
+</div>
+{{ block.super }}
+{% endblock %}

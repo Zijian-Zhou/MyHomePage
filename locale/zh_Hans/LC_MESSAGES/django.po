@@ -171,7 +171,7 @@ msgid "Configuration"
 msgstr "配置"
 
 msgid "HomePage Administration"
-msgstr "个人主页管理"
+msgstr "主页管理"
 
 msgid "Basic Information"
 msgstr "基本信息"
@@ -321,7 +321,7 @@ msgid "Description of this configuration"
 msgstr "此配置的描述"
 
 msgid "Is Active"
-msgstr "是否激活"
+msgstr "启用"
 
 msgid "System Configurations"
 msgstr "系统配置"
@@ -442,7 +442,73 @@ msgid "Publication"
 msgstr "出版物"
 
 msgid "Section"
-msgstr "段落"
+msgstr "栏目"
 
 msgid "Sections"
-msgstr "段落"
+msgstr "栏目"
+
+msgid "Custom Sections"
+msgstr "自定义栏目"
+
+msgid "Section Item"
+msgstr "栏目条目"
+
+msgid "Section Items"
+msgstr "栏目条目"
+
+msgid "Quick Actions"
+msgstr "快捷操作"
+
+msgid "Add Custom Section"
+msgstr "新增自定义栏目"
+
+msgid "Upload Media File"
+msgstr "上传媒体文件"
+
+msgid "Footer Items"
+msgstr "页脚显示项"
+
+msgid "Footer Items value must be valid JSON."
+msgstr "页脚显示项必须是合法的 JSON。"
+
+msgid "Footer Items must contain \"item\" as an object or list."
+msgstr "页脚显示项必须包含 \"item\"（对象或数组）。"
+
+msgid "Each footer item must include a non-empty \"content\"."
+msgstr "每个 item 必须包含非空的 \"content\"。"
+
+msgid "Homepage Content"
+msgstr "主页内容"
+
+msgid "Research Projects"
+msgstr "研究项目"
+
+msgid "Media Files"
+msgstr "媒体文件"
+
+msgid "JSON format: {\"item\":{\"content\":\"Text\",\"href\":\"https://example.com\"}} or {\"item\":[{\"content\":\"Text1\"},{\"content\":\"Text2\",\"href\":\"https://example.com\"}]}"
+msgstr "JSON ???{\"item\":{\"content\":\"Text\",\"href\":\"https://example.com\"}} ? {\"item\":[{\"content\":\"Text1\"},{\"content\":\"Text2\",\"href\":\"https://example.com\"}]}"
+
+msgid "Enable Chinese"
+msgstr "????"
+
+msgid "Cards Per Page"
+msgstr "?????"
+
+msgid "Enabled"
+msgstr "??"
+
+msgid "Disabled"
+msgstr "??"
+
+msgid "Control whether Chinese content fields are enabled across the site."
+msgstr "????????????????"
+
+msgid "Maximum number of cards displayed per page in each homepage section."
+msgstr "????????????????????"
+
+msgid "Cards Per Page must be a positive integer."
+msgstr "????????????"
+
+msgid "Enable Chinese must be \"1\" (enabled) or \"0\" (disabled)."
+msgstr "????????? \"1\"????? \"0\"?????"

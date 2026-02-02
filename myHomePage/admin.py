@@ -8,7 +8,7 @@ from django.utils.html import format_html
 from django.urls import reverse
 from django.utils import timezone
 from datetime import timedelta, datetime
-from .models import Profile, Publication, Research, SystemConfig, News, Section
+from .models import Profile, Publication, Research, SystemConfig, News, Section, SectionItem, MediaFile
 from .services import sync_publications, ORCIDService, GoogleScholarService, ORCIDOAuth, deduplicate_publications
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.admin.sites import AdminSite
@@ -25,13 +25,18 @@ from django.shortcuts import redirect
 logger = logging.getLogger(__name__)
 
 
+def _is_zh_mode():
+    return (get_language() or '').lower().startswith('zh')
+
+
 def _category_label_map():
-    language = (get_language() or '').lower()
-    if language.startswith('zh'):
+    if _is_zh_mode():
         return {
-            'orcid_client_id': 'ORCID 客户端 ID',
-            'orcid_client_secret': 'ORCID 客户端密钥',
-            'orcid_access_token': 'ORCID 访问令牌',
+            'enable_chinese': '启用中文',
+            'cards_per_page': '每页卡片数',
+            'orcid_client_id': 'ORCID Client ID',
+            'orcid_client_secret': 'ORCID Client Secret',
+            'orcid_access_token': 'ORCID Access Token',
             'scholar_proxy': 'Google Scholar 代理',
             'sync_interval': '同步间隔',
             'github_token': 'GitHub 令牌',
@@ -41,44 +46,61 @@ def _category_label_map():
             'footer_items': '页脚显示项',
         }
     return {
-        'orcid_client_id': 'ORCID Client ID',
-        'orcid_client_secret': 'ORCID Client Secret',
-        'orcid_access_token': 'ORCID Access Token',
-        'scholar_proxy': 'Google Scholar Proxy',
-        'sync_interval': 'Sync Interval',
-        'github_token': 'GitHub Token',
-        'researchgate_token': 'ResearchGate Token',
-        'linkedin_token': 'LinkedIn Token',
-        'highlighted_authors': 'Highlighted Authors',
-        'footer_items': 'Footer Items',
+        'enable_chinese': _('Enable Chinese'),
+        'cards_per_page': _('Cards Per Page'),
+        'orcid_client_id': _('ORCID Client ID'),
+        'orcid_client_secret': _('ORCID Client Secret'),
+        'orcid_access_token': _('ORCID Access Token'),
+        'scholar_proxy': _('Google Scholar Proxy'),
+        'sync_interval': _('Sync Interval'),
+        'github_token': _('GitHub Token'),
+        'researchgate_token': _('ResearchGate Token'),
+        'linkedin_token': _('LinkedIn Token'),
+        'highlighted_authors': _('Highlighted Authors'),
+        'footer_items': _('Footer Items'),
     }
 
 
 def _validate_footer_items_json(value):
-    lang = (get_language() or '').lower()
-    is_zh = lang.startswith('zh')
-
-    def msg(zh_text, en_text):
-        return zh_text if is_zh else en_text
-
     value = (value or '').strip()
     if not value:
         return value
     try:
         payload = json.loads(value)
     except (ValueError, TypeError):
-        raise forms.ValidationError(msg('页脚显示项必须是合法 JSON。', 'Footer Items value must be valid JSON.'))
+        raise forms.ValidationError(_('Footer Items value must be valid JSON.'))
 
     item_data = payload.get('item')
     if isinstance(item_data, dict):
         item_data = [item_data]
     if not isinstance(item_data, list) or not item_data:
-        raise forms.ValidationError(msg('页脚显示项必须包含 "item"（对象或数组）。', 'Footer Items must contain "item" as an object or list.'))
+        raise forms.ValidationError(_('Footer Items must contain "item" as an object or list.'))
 
     for entry in item_data:
         if not isinstance(entry, dict) or not str(entry.get('content', '')).strip():
-            raise forms.ValidationError(msg('每个 item 都必须包含非空 "content"。', 'Each footer item must include a non-empty "content".'))
+            raise forms.ValidationError(_('Each footer item must include a non-empty "content".'))
     return value
+
+
+def _strip_zh_fields(fieldsets):
+    cleaned = []
+    for title, opts in fieldsets:
+        fields = tuple(f for f in opts.get('fields', ()) if not str(f).endswith('_zh'))
+        if not fields:
+            continue
+        copied = dict(opts)
+        copied['fields'] = fields
+        cleaned.append((title, copied))
+    return tuple(cleaned)
+
+
+def _apply_zh_field_labels(form, label_map):
+    if not _is_zh_mode():
+        return form
+    for field_name, label in label_map.items():
+        if field_name in form.base_fields:
+            form.base_fields[field_name].label = label
+    return form
 
 
 class SystemConfigAdminForm(forms.ModelForm):
@@ -89,6 +111,33 @@ class SystemConfigAdminForm(forms.ModelForm):
     def clean_value(self):
         value = self.cleaned_data.get('value', '')
         category = self.cleaned_data.get('category') or getattr(self.instance, 'category', '')
+        if category == 'enable_chinese':
+            normalized = str(value).strip().lower()
+            if normalized in ('1', 'true', 'on', 'yes'):
+                return '1'
+            if normalized in ('0', 'false', 'off', 'no'):
+                return '0'
+            raise forms.ValidationError(
+                '启用中文配置必须是 "1"（启用）或 "0"（禁用）。'
+                if _is_zh_mode()
+                else _('Enable Chinese must be "1" (enabled) or "0" (disabled).')
+            )
+        if category == 'cards_per_page':
+            try:
+                parsed = int(float(str(value).strip() or '6'))
+            except (ValueError, TypeError):
+                raise forms.ValidationError(
+                    '每页卡片数必须是正整数。'
+                    if _is_zh_mode()
+                    else _('Cards Per Page must be a positive integer.')
+                )
+            if parsed < 1:
+                raise forms.ValidationError(
+                    '每页卡片数必须是正整数。'
+                    if _is_zh_mode()
+                    else _('Cards Per Page must be a positive integer.')
+                )
+            return str(parsed)
         if category == 'footer_items':
             return _validate_footer_items_json(value)
         return (value or '').strip()
@@ -103,10 +152,29 @@ class SystemConfigAdminForm(forms.ModelForm):
             ]
 
 
+class SystemConfigCategoryFilter(admin.SimpleListFilter):
+    title = _('Category')
+    parameter_name = 'category'
+
+    def lookups(self, request, model_admin):
+        labels = _category_label_map()
+        keys = [choice[0] for choice in SystemConfig.CATEGORY_CHOICES]
+        return [(key, labels.get(key, key)) for key in keys]
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if not value:
+            return queryset
+        return queryset.filter(category=value)
+
+
 def is_staff_user(user):
     return user.is_authenticated and user.is_staff
 
 class CustomAdminSite(AdminSite):
+    index_template = 'admin/custom_index.html'
+    app_index_template = 'admin/custom_app_index.html'
+
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
@@ -132,6 +200,7 @@ class CustomAdminSite(AdminSite):
         context['site_header'] = _('HomePage Administration')
         context['index_title'] = _('HomePage Administration')
         context['footer_items'] = SystemConfig.get_footer_items()
+        context['show_language_switcher'] = SystemConfig.is_chinese_enabled()
         return context
 
     def index(self, request, extra_context=None):
@@ -146,15 +215,31 @@ class CustomAdminSite(AdminSite):
         return TemplateResponse(request, self.index_template or 'admin/index.html', context)
 
     def get_app_list(self, request):
+        model_name_map = {
+            'profile': _('Profiles'),
+            'publication': _('Publications'),
+            'research': _('Research Projects'),
+            'systemconfig': _('System Configurations'),
+            'news': _('News'),
+            'section': _('Custom Sections'),
+            'mediafile': _('Media Files'),
+        }
+
         app_list = super().get_app_list(request)
         for app in app_list:
+            if app.get('app_label') == 'myHomePage':
+                app['name'] = _('Homepage Content')
             for model in app['models']:
                 info = (app['app_label'], model['object_name'].lower())
                 try:
                     model['admin_url'] = reverse(f'admin:{info[0]}_{info[1]}_changelist')
-                except:
+                except Exception:
                     continue
+                model_name = model_name_map.get(model['object_name'].lower())
+                if model_name:
+                    model['name'] = model_name
         return app_list
+
 
 admin_site = CustomAdminSite(name='admin')
 
@@ -184,6 +269,31 @@ admin_site.register(User, UserAdmin)
 admin_site.register(Group, GroupAdmin)
 
 # Add dark mode support to all admin classes
+
+
+class DraftSaveMixin:
+    def _save_as_draft(self, request, obj):
+        if '_saveasdraft' not in request.POST:
+            return False
+        if hasattr(obj, 'is_draft'):
+            obj.is_draft = True
+            obj.save(update_fields=['is_draft'])
+            self.message_user(request, _('Saved as draft.'))
+        return True
+
+    def response_change(self, request, obj):
+        if self._save_as_draft(request, obj):
+            url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.model_name), args=[obj.pk])
+            return HttpResponseRedirect(url)
+        return super().response_change(request, obj)
+
+    def response_add(self, request, obj, post_url_continue=None):
+        if self._save_as_draft(request, obj):
+            url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.model_name), args=[obj.pk])
+            return HttpResponseRedirect(url)
+        return super().response_add(request, obj, post_url_continue)
+
+
 class BaseAdmin(admin.ModelAdmin):
     class Media:
         css = {
@@ -192,9 +302,9 @@ class BaseAdmin(admin.ModelAdmin):
         js = ('js/admin/dark_mode.js',)
 
 @admin.register(Profile)
-class ProfileAdmin(admin.ModelAdmin):
+class ProfileAdmin(DraftSaveMixin, BaseAdmin):
     list_display = ('get_admin_display_name', 'orcid_link', 'google_scholar_link', 'sync_status', 'actions_column')
-    list_filter = ('auto_sync_orcid', 'auto_sync_google_scholar')
+    list_filter = ('auto_sync_orcid', 'auto_sync_google_scholar', 'is_draft')
     search_fields = ('user__username', 'orcid_id', 'google_scholar_id')
     actions = ['sync_selected']
     
@@ -203,6 +313,37 @@ class ProfileAdmin(admin.ModelAdmin):
             'all': ('css/admin.css',)
         }
         js = ('js/admin/sync_overlay.js',)
+
+    def get_fields(self, request, obj=None):
+        fields = super().get_fields(request, obj)
+        if SystemConfig.is_chinese_enabled():
+            return fields
+        return tuple(f for f in fields if f not in ('bio_zh', 'address_zh'))
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        return _apply_zh_field_labels(form, {
+            'display_name': '显示名称',
+            'title': '职称',
+            'institution': '机构',
+            'bio': '简介',
+            'bio_zh': '简介（中文）',
+            'profile_image': '头像',
+            'address': '地址',
+            'address_zh': '地址（中文）',
+            'email': '邮箱',
+            'phone': '电话',
+            'orcid_id': 'ORCID ID',
+            'google_scholar_id': 'Google Scholar ID',
+            'github_username': 'GitHub 用户名',
+            'researchgate_url': 'ResearchGate 链接',
+            'linkedin_url': 'LinkedIn 链接',
+            'auto_sync_orcid': '自动同步 ORCID',
+            'auto_sync_google_scholar': '自动同步 Google Scholar',
+            'is_active': '启用',
+            'is_draft': '草稿',
+            'order': '排序',
+        })
     
     def get_admin_display_name(self, obj):
         """获取管理界面显示名称"""
@@ -438,15 +579,15 @@ class PublicationAdminForm(forms.ModelForm):
         model = Publication
         fields = '__all__'
 
-class PublicationAdmin(BaseAdmin):
+class PublicationAdmin(DraftSaveMixin, BaseAdmin):
     form = PublicationAdminForm
-    list_display = ('title', 'get_formatted_authors', 'journal', 'year', 'is_active', 'order')
+    list_display = ('title', 'get_formatted_authors', 'journal', 'year', 'is_active', 'is_draft', 'order')
     search_fields = ('title', 'authors', 'journal')
-    list_filter = ('is_active', 'year')
+    list_filter = ('is_active', 'is_draft', 'year')
     
     fieldsets = (
         (_('Basic Information'), {
-            'fields': ('title', 'authors', 'journal', 'year', 'date', 'is_active', 'order', 'image')
+            'fields': ('title', 'authors', 'journal', 'year', 'date', 'is_active', 'is_draft', 'order', 'image')
         }),
         (_('Author Settings'), {
             'fields': ('highlighted_authors', 'corresponding_authors'),
@@ -470,6 +611,29 @@ class PublicationAdmin(BaseAdmin):
         css = {
             'all': ('css/admin/publication_admin.css',)
         }
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        return _apply_zh_field_labels(form, {
+            'title': '标题',
+            'authors': '作者',
+            'journal': '期刊/会议',
+            'year': '年份',
+            'date': '发表日期',
+            'doi': 'DOI',
+            'url': 'URL',
+            'image': '图片',
+            'highlighted_authors': '高亮作者',
+            'corresponding_authors': '通讯作者',
+            'bibtex_key': 'BibTeX 键',
+            'bibtex_type': 'BibTeX 类型',
+            'raw_bibtex': '原始 BibTeX',
+            'is_active': '启用',
+            'is_draft': '草稿',
+            'order': '排序',
+            'bibtex_input': 'BibTeX 输入',
+            'bibtex_file': 'BibTeX 文件',
+        })
 
     def get_formatted_authors(self, obj):
         return obj.get_formatted_authors()
@@ -689,14 +853,14 @@ class PublicationAdmin(BaseAdmin):
         except Exception as e:
             return JsonResponse({'error': _('Failed to import BibTeX data: %(error)s') % {'error': str(e)}}, status=400)
 
-class ResearchAdmin(BaseAdmin):
-    list_display = ('title', 'is_active', 'order', 'start_date', 'end_date', 'is_current')
-    search_fields = ('title', 'description')
-    list_filter = ('is_current', 'is_active', 'start_date')
+class ResearchAdmin(DraftSaveMixin, BaseAdmin):
+    list_display = ('title', 'is_active', 'is_draft', 'order', 'start_date', 'end_date', 'is_current')
+    search_fields = ('title', 'title_zh', 'description', 'description_zh')
+    list_filter = ('is_current', 'is_active', 'is_draft', 'start_date')
     date_hierarchy = 'start_date'
     fieldsets = (
         (_('Basic Information'), {
-            'fields': ('title', 'description', 'is_active', 'order')
+            'fields': ('title', 'title_zh', 'description', 'description_zh', 'is_active', 'is_draft', 'order')
         }),
         (_('Timeline'), {
             'fields': ('start_date', 'end_date', 'is_current')
@@ -711,11 +875,33 @@ class ResearchAdmin(BaseAdmin):
     )
     readonly_fields = ('created_at', 'updated_at')
 
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        return _apply_zh_field_labels(form, {
+            'title': '标题',
+            'title_zh': '标题（中文）',
+            'description': '描述',
+            'description_zh': '描述（中文）',
+            'start_date': '开始时间',
+            'end_date': '结束时间',
+            'is_current': '正在进行',
+            'image': '图片',
+            'is_active': '启用',
+            'is_draft': '草稿',
+            'order': '排序',
+        })
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj)
+        if not SystemConfig.is_chinese_enabled():
+            return _strip_zh_fields(fieldsets)
+        return fieldsets
+
 @admin.register(SystemConfig)
 class SystemConfigAdmin(admin.ModelAdmin):
     form = SystemConfigAdminForm
     list_display = ('category_display', 'value', 'description_display', 'is_active')
-    list_filter = ('category', 'is_active')
+    list_filter = (SystemConfigCategoryFilter, 'is_active')
     search_fields = ('category', 'value', 'description')
 
     change_form_template = 'admin/myHomePage/systemconfig/change_form.html'
@@ -729,7 +915,14 @@ class SystemConfigAdmin(admin.ModelAdmin):
         for category in expected:
             if category in existing:
                 continue
-            default_value = '24' if category == 'sync_interval' else ''
+            if category == 'sync_interval':
+                default_value = '24'
+            elif category == 'enable_chinese':
+                default_value = '1'
+            elif category == 'cards_per_page':
+                default_value = '6'
+            else:
+                default_value = ''
             SystemConfig.objects.create(
                 category=category,
                 value=default_value,
@@ -749,22 +942,61 @@ class SystemConfigAdmin(admin.ModelAdmin):
         form = super().get_form(request, obj, **kwargs)
         if 'value' in form.base_fields:
             form.base_fields['value'].required = False
+        if obj and obj.category == 'enable_chinese':
+            enabled_label = '启用' if _is_zh_mode() else _('Enabled')
+            disabled_label = '禁用' if _is_zh_mode() else _('Disabled')
+            help_text = '控制是否在全站启用中文内容字段。' if _is_zh_mode() else _(
+                'Control whether Chinese content fields are enabled across the site.'
+            )
+            form.base_fields['value'].widget = forms.RadioSelect(choices=(
+                ('1', enabled_label),
+                ('0', disabled_label),
+            ))
+            form.base_fields['value'].help_text = help_text
+        if obj and obj.category == 'cards_per_page':
+            form.base_fields['value'].help_text = (
+                '设置首页每个栏目每页最多显示的卡片数量。'
+                if _is_zh_mode()
+                else _('Maximum number of cards displayed per page in each homepage section.')
+            )
         if obj and obj.category == 'scholar_proxy':
             form.base_fields['value'].help_text = _('Format: http://username:password@host:port or http://host:port')
         if obj and obj.category == 'footer_items':
-            form.base_fields['value'].help_text = _(
-                'JSON format: {"item":{"content":"Text","href":"https://example.com"}} '
-                'or {"item":[{"content":"Text1"},{"content":"Text2","href":"https://example.com"}]}'
-            )
-        return form
+            if _is_zh_mode():
+                form.base_fields['value'].help_text = (
+                    'JSON 格式：{"item":{"content":"Text","href":"https://example.com"}} '
+                    '或 {"item":[{"content":"Text1"},{"content":"Text2","href":"https://example.com"}]}'
+                )
+            else:
+                form.base_fields['value'].help_text = _(
+                    'JSON format: {"item":{"content":"Text","href":"https://example.com"}} '
+                    'or {"item":[{"content":"Text1"},{"content":"Text2","href":"https://example.com"}]}'
+                )
+        return _apply_zh_field_labels(form, {
+            'category': '分类',
+            'value': '值',
+            'description': '描述',
+            'is_active': '启用',
+        })
 
     def save_model(self, request, obj, form, change):
         # Allow empty values for all categories except sync_interval, which defaults to 24 hours.
         value = (obj.value or '').strip()
+        if obj.category == 'enable_chinese':
+            value = '1' if str(value).strip().lower() in ('1', 'true', 'on', 'yes') else '0'
+        if obj.category == 'cards_per_page':
+            try:
+                value = str(max(1, int(float(value or '6'))))
+            except (ValueError, TypeError):
+                value = '6'
         if obj.category == 'footer_items':
             value = _validate_footer_items_json(value)
         if obj.category == 'sync_interval' and not value:
             obj.value = '24'
+        elif obj.category == 'enable_chinese' and not value:
+            obj.value = '1'
+        elif obj.category == 'cards_per_page' and not value:
+            obj.value = '6'
         else:
             obj.value = value
         super().save_model(request, obj, form, change)
@@ -813,14 +1045,14 @@ class SystemConfigAdmin(admin.ModelAdmin):
         extra_context['systemconfig_current_category'] = current_category
         return super().changeform_view(request, object_id, form_url, extra_context)
 
-class NewsAdmin(BaseAdmin):
-    list_display = ('title', 'is_active', 'order', 'created_at', 'updated_at')
-    list_filter = ('is_active',)
-    search_fields = ('title', 'content')
+class NewsAdmin(DraftSaveMixin, BaseAdmin):
+    list_display = ('title', 'is_active', 'is_draft', 'order', 'created_at', 'updated_at')
+    list_filter = ('is_active', 'is_draft')
+    search_fields = ('title', 'title_zh', 'content', 'content_zh')
     ordering = ('-order', '-created_at')
     fieldsets = (
         (_('Basic Information'), {
-            'fields': ('title', 'content', 'is_active', 'order')
+            'fields': ('title', 'title_zh', 'content', 'content_zh', 'is_active', 'is_draft', 'order')
         }),
         (_('Media'), {
             'fields': ('image',)
@@ -832,21 +1064,66 @@ class NewsAdmin(BaseAdmin):
     )
     readonly_fields = ('created_at', 'updated_at')
 
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj)
+        if not SystemConfig.is_chinese_enabled():
+            return _strip_zh_fields(fieldsets)
+        return fieldsets
+
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
-        form.base_fields['title'].label = _('Title')
-        form.base_fields['content'].label = _('Content')
-        return form
+        return _apply_zh_field_labels(form, {
+            'title': '标题',
+            'title_zh': '标题（中文）',
+            'content': '内容',
+            'content_zh': '内容（中文）',
+            'image': '图片',
+            'is_active': '启用',
+            'is_draft': '草稿',
+            'order': '排序',
+        })
+
+
+
+class SectionItemInline(admin.TabularInline):
+    model = SectionItem
+    extra = 1
+    fields = ('title', 'title_zh', 'content', 'content_zh', 'is_active', 'is_draft', 'order')
+    ordering = ('order', 'id')
+
+    def get_fields(self, request, obj=None):
+        fields = super().get_fields(request, obj)
+        if not SystemConfig.is_chinese_enabled():
+            return tuple(f for f in fields if not str(f).endswith('_zh'))
+        return fields
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        formfield = super().formfield_for_dbfield(db_field, request, **kwargs)
+        if _is_zh_mode():
+            label_map = {
+                'title': '标题',
+                'title_zh': '标题（中文）',
+                'content': '内容',
+                'content_zh': '内容（中文）',
+                'is_active': '启用',
+                'is_draft': '草稿',
+                'order': '排序',
+            }
+            if db_field.name in label_map:
+                formfield.label = label_map[db_field.name]
+        return formfield
+
 
 @admin.register(Section)
-class SectionAdmin(admin.ModelAdmin):
-    list_display = ('title', 'order', 'is_active', 'created_at', 'updated_at')
-    list_filter = ('is_active',)
-    search_fields = ('title', 'content')
+class SectionAdmin(DraftSaveMixin, BaseAdmin):
+    list_display = ('title', 'order', 'is_active', 'is_draft', 'created_at', 'updated_at')
+    inlines = (SectionItemInline,)
+    list_filter = ('is_active', 'is_draft')
+    search_fields = ('title', 'title_zh', 'content', 'content_zh')
     ordering = ('order', '-created_at')
     fieldsets = (
         (_('Basic Information'), {
-            'fields': ('title', 'content', 'is_active', 'order')
+            'fields': ('title', 'title_zh', 'content', 'content_zh', 'is_active', 'is_draft', 'order')
         }),
         (_('Timestamps'), {
             'fields': ('created_at', 'updated_at'),
@@ -855,9 +1132,90 @@ class SectionAdmin(admin.ModelAdmin):
     )
     readonly_fields = ('created_at', 'updated_at')
 
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        return _apply_zh_field_labels(form, {
+            'title': '栏目标题',
+            'title_zh': '栏目标题（中文）',
+            'content': '栏目描述',
+            'content_zh': '栏目描述（中文）',
+            'is_active': '启用',
+            'is_draft': '草稿',
+            'order': '排序',
+        })
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj)
+        if not SystemConfig.is_chinese_enabled():
+            return _strip_zh_fields(fieldsets)
+        return fieldsets
+
+
+@admin.register(MediaFile)
+class MediaFileAdmin(DraftSaveMixin, BaseAdmin):
+    list_display = ('title', 'file_url', 'markdown_link', 'is_active', 'is_draft', 'created_at')
+    list_filter = ('is_active', 'is_draft')
+    search_fields = ('title', 'file')
+    ordering = ('-created_at',)
+    readonly_fields = ('created_at', 'updated_at', 'file_url', 'markdown_link')
+    fieldsets = (
+        (_('Basic Information'), {
+            'fields': ('title', 'file', 'is_active', 'is_draft')
+        }),
+        (_('Markdown Usage'), {
+            'fields': ('file_url', 'markdown_link'),
+            'description': _('Copy the generated URL/Markdown and use it in markdown-enabled fields.')
+        }),
+        (_('Timestamps'), {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def file_url(self, obj):
+        if not obj.file or not obj.access_key:
+            return '-'
+        url = reverse('media_file_access', args=[obj.access_key])
+        return format_html(
+            '<a href="{}" target="_blank" rel="noopener noreferrer">{}</a>',
+            url,
+            url
+        )
+    file_url.short_description = _('File URL')
+
+    def markdown_link(self, obj):
+        if not obj.file or not obj.access_key:
+            return '-'
+        alt_text = obj.title or 'resource'
+        lower_name = (obj.file.name or '').lower()
+        access_url = reverse('media_file_access', args=[obj.access_key])
+        if lower_name.endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg')):
+            markdown = '![{}]({})'.format(alt_text, access_url)
+        else:
+            markdown = '[{}]({})'.format(alt_text, access_url)
+        return format_html('<code>{}</code>', markdown)
+    markdown_link.short_description = _('Markdown Snippet')
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if 'title' in form.base_fields:
+            form.base_fields['title'].help_text = _('Leave empty to auto-fill from selected filename')
+        return _apply_zh_field_labels(form, {
+            'title': '标题',
+            'file': '文件',
+            'is_active': '启用',
+            'is_draft': '草稿',
+        })
+
+    class Media:
+        css = {'all': ('css/admin/mediafile_admin.css',)}
+        js = ('js/admin/mediafile_admin.js',)
+
 # Register models with the custom admin site
 admin_site.register(Profile, ProfileAdmin)
 admin_site.register(Publication, PublicationAdmin)
 admin_site.register(Research, ResearchAdmin)
 admin_site.register(SystemConfig, SystemConfigAdmin)
 admin_site.register(News, NewsAdmin)
+admin_site.register(Section, SectionAdmin)
+admin_site.register(MediaFile, MediaFileAdmin)

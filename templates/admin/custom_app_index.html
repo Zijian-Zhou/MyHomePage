@@ -1,0 +1,20 @@
+{% extends "admin/app_index.html" %}
+{% load i18n %}
+
+{% block content %}
+{% if app_label == "myHomePage" %}
+<div class="module quick-entry">
+  <h2>{% trans "Quick Actions" %}</h2>
+  <div class="quick-entry-links">
+    <a class="button" href="{% url 'admin:myHomePage_section_add' %}">
+      {% trans "Add Custom Section" %}
+    </a>
+    <a class="button" href="{% url 'admin:myHomePage_section_changelist' %}">
+      {% trans "Custom Sections" %}
+    </a>
+  </div>
+</div>
+{% endif %}
+{{ block.super }}
+{% endblock %}
+

@@ -20,13 +20,30 @@
                     <a href="{% url 'index' %}" class="logo">{% trans "MyHomePage" %}</a>
                 </div>
                 <div class="navbar-menu">
+                    {% if show_about %}
                     <a href="#about" class="nav-item">{% trans "About" %}</a>
+                    {% endif %}
+                    {% if show_publications %}
                     <a href="#publications" class="nav-item">{% trans "Publications" %}</a>
+                    {% endif %}
+                    {% if show_research %}
                     <a href="#research" class="nav-item">{% trans "Research" %}</a>
+                    {% endif %}
+                    {% if show_news %}
+                    <a href="#news" class="nav-item">{% trans "News" %}</a>
+                    {% endif %}
+                    {% if show_custom_sections %}
+                        {% for section in sections %}
+                        <a href="#section-{{ section.id }}" class="nav-item">{{ section.get_display_title }}</a>
+                        {% endfor %}
+                    {% endif %}
+                    {% if show_contact %}
                     <a href="#contact" class="nav-item">{% trans "Contact" %}</a>
+                    {% endif %}
                     <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
                         <i class="fas fa-moon"></i>
                     </button>
+                    {% if show_language_switcher %}
                     <div class="language-switcher">
                         <form action="{% url 'set_language' %}" method="post" class="language-form">
                             {% csrf_token %}
@@ -42,6 +59,7 @@
                             </select>
                         </form>
                     </div>
+                    {% endif %}
                     {% if user.is_authenticated and user.is_staff %}
                     <a href="{% url 'admin:index' %}" class="nav-item admin-link">
                         <i class="fas fa-cog"></i> {% trans "Admin" %}
@@ -65,7 +83,13 @@
     <footer class="footer">
         <div class="container">
             <p>
-                &copy; {% now "Y" %} {{ profile.get_formatted_display_name }}. {% trans "All rights reserved." %}
+                &copy; {% now "Y" %}
+                {% if profile %}
+                    {{ profile.get_formatted_display_name }}.
+                {% else %}
+                    {% trans "MyHomePage" %}.
+                {% endif %}
+                {% trans "All rights reserved." %}
                 {% if footer_items %}
                     {% for item in footer_items %}
                         &nbsp;|&nbsp;
@@ -80,7 +104,7 @@
         </div>
     </footer>
 
-    <script src="{% static 'js/index.js' %}"></script>
+    <script src="{% static 'js/index.js' %}?v=20260202-2"></script>
     <script>
         // Theme toggle functionality
         const themeToggle = document.getElementById('theme-toggle');

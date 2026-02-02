@@ -2,9 +2,20 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import get_language
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 import markdown
+import hashlib
+import time
+
+
+def _use_zh_content():
+    lang = (get_language() or '').lower()
+    try:
+        return SystemConfig.is_chinese_enabled() and lang.startswith('zh')
+    except Exception:
+        return lang.startswith('zh')
 
 class Profile(models.Model):
     """用户个人资料模型"""
@@ -13,14 +24,17 @@ class Profile(models.Model):
     title = models.CharField(max_length=100)
     institution = models.CharField(max_length=200)
     bio = models.TextField()
+    bio_zh = models.TextField(_('Bio (Chinese)'), blank=True, default='')
     profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True)
     is_active = models.BooleanField(_('Active'), default=True)
+    is_draft = models.BooleanField(_('Draft'), default=False)
     order = models.IntegerField(_('Order'), default=0)
     
     # 联系方式
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=20, blank=True)
     address = models.TextField(blank=True)
+    address_zh = models.TextField(_('Address (Chinese)'), blank=True, default='')
     
     # 学术档案链接
     orcid_id = models.CharField(max_length=50, blank=True, help_text="ORCID ID (e.g., 0000-0000-0000-0000)")
@@ -48,9 +62,20 @@ class Profile(models.Model):
     
     def get_formatted_bio(self):
         """Convert markdown bio to safe HTML (raw HTML is escaped)."""
-        if not self.bio:
+        content = self.get_display_bio()
+        if not content:
             return ''
-        return markdown.markdown(escape(self.bio), extensions=['extra'])
+        return markdown.markdown(escape(content), extensions=['extra'])
+
+    def get_display_bio(self):
+        if _use_zh_content() and self.bio_zh:
+            return self.bio_zh
+        return self.bio
+
+    def get_display_address(self):
+        if _use_zh_content() and self.address_zh:
+            return self.address_zh
+        return self.address
     
     def get_institutions(self):
         """获取机构列表，每个机构独占一行"""
@@ -130,6 +155,7 @@ class Publication(models.Model):
     doi = models.CharField(_('DOI'), max_length=100, null=True, blank=True, default=None)
     url = models.URLField(_('URL'), blank=True)
     is_active = models.BooleanField(_('Active'), default=True)
+    is_draft = models.BooleanField(_('Draft'), default=False)
     order = models.IntegerField(_('Order'), default=0)
     image = models.ImageField(_('Image'), upload_to='publication_images/', blank=True, null=True)
     created_at = models.DateTimeField(_('Created at'), auto_now_add=True)
@@ -184,11 +210,14 @@ class Publication(models.Model):
 class Research(models.Model):
     """研究项目模型"""
     title = models.CharField(max_length=200)
+    title_zh = models.CharField(_('Title (Chinese)'), max_length=200, blank=True, default='')
     description = models.TextField()
+    description_zh = models.TextField(_('Description (Chinese)'), blank=True, default='')
     start_date = models.DateField()
     end_date = models.DateField(blank=True, null=True)
     is_current = models.BooleanField(default=False)
     is_active = models.BooleanField(_('Active'), default=True)
+    is_draft = models.BooleanField(_('Draft'), default=False)
     order = models.IntegerField(_('Order'), default=0)
     image = models.ImageField(upload_to='research_images/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -202,9 +231,21 @@ class Research(models.Model):
     def __str__(self):
         return self.title
 
+    def get_display_title(self):
+        if _use_zh_content() and self.title_zh:
+            return self.title_zh
+        return self.title
+
+    def get_display_description(self):
+        if _use_zh_content() and self.description_zh:
+            return self.description_zh
+        return self.description
+
 class SystemConfig(models.Model):
     """系统配置模型"""
     CATEGORY_CHOICES = [
+        ('enable_chinese', _('Enable Chinese')),
+        ('cards_per_page', _('Cards Per Page')),
         ('orcid_client_id', _('ORCID Client ID')),
         ('orcid_client_secret', _('ORCID Client Secret')),
         ('orcid_access_token', _('ORCID Access Token')),
@@ -229,8 +270,28 @@ class SystemConfig(models.Model):
         verbose_name_plural = _('System Configurations')
         ordering = ['category', 'created_at']
 
+    def get_category_label(self):
+        lang = (get_language() or '').lower()
+        if lang.startswith('zh'):
+            zh_labels = {
+                'enable_chinese': '启用中文',
+                'cards_per_page': '每页卡片数',
+                'orcid_client_id': 'ORCID Client ID',
+                'orcid_client_secret': 'ORCID Client Secret',
+                'orcid_access_token': 'ORCID Access Token',
+                'scholar_proxy': 'Google Scholar 代理',
+                'sync_interval': '同步间隔',
+                'github_token': 'GitHub 令牌',
+                'researchgate_token': 'ResearchGate 令牌',
+                'linkedin_token': 'LinkedIn 令牌',
+                'highlighted_authors': '高亮作者',
+                'footer_items': '页脚显示项',
+            }
+            return zh_labels.get(self.category, self.category)
+        return self.get_category_display()
+
     def __str__(self):
-        return f"{self.get_category_display()}: {self.value}"
+        return f"{self.get_category_label()}: {self.value}"
 
     @classmethod
     def get_value(cls, category, default=None):
@@ -355,14 +416,30 @@ class SystemConfig(models.Model):
             })
         return items
 
+    @classmethod
+    def is_chinese_enabled(cls):
+        value = str(cls.get_value('enable_chinese', '1')).strip().lower()
+        return value not in ('0', 'false', 'off', 'no')
+
+    @classmethod
+    def get_cards_per_page(cls):
+        try:
+            value = int(float(cls.get_value('cards_per_page', 6)))
+            return max(1, value)
+        except (ValueError, TypeError):
+            return 6
+
 class News(models.Model):
     """News model for sharing information"""
     title = models.CharField(_('Title'), max_length=200)
+    title_zh = models.CharField(_('Title (Chinese)'), max_length=200, blank=True, default='')
     content = models.TextField(_('Content'))
+    content_zh = models.TextField(_('Content (Chinese)'), blank=True, default='')
     image = models.ImageField(_('Image'), upload_to='news_images/', blank=True, null=True)
     created_at = models.DateTimeField(_('Created at'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated at'), auto_now=True)
     is_active = models.BooleanField(_('Active'), default=True)
+    is_draft = models.BooleanField(_('Draft'), default=False)
     order = models.IntegerField(_('Order'), default=0)
 
     class Meta:
@@ -373,17 +450,31 @@ class News(models.Model):
     def __str__(self):
         return self.title
 
+    def get_display_title(self):
+        if _use_zh_content() and self.title_zh:
+            return self.title_zh
+        return self.title
+
+    def get_display_content(self):
+        if _use_zh_content() and self.content_zh:
+            return self.content_zh
+        return self.content
+
     def get_formatted_content(self):
         """Convert markdown content to safe HTML (raw HTML is escaped)."""
-        if not self.content:
+        content = self.get_display_content()
+        if not content:
             return ''
-        return markdown.markdown(escape(self.content), extensions=['extra'])
+        return markdown.markdown(escape(content), extensions=['extra'])
 
 class Section(models.Model):
     title = models.CharField(_('Title'), max_length=200)
-    content = models.TextField(_('Content'))
+    title_zh = models.CharField(_('Title (Chinese)'), max_length=200, blank=True, default='')
+    content = models.TextField(_('Content'), blank=True)
+    content_zh = models.TextField(_('Content (Chinese)'), blank=True, default='')
     order = models.IntegerField(_('Order'), default=0)
     is_active = models.BooleanField(_('Active'), default=True)
+    is_draft = models.BooleanField(_('Draft'), default=False)
     created_at = models.DateTimeField(_('Created at'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated at'), auto_now=True)
 
@@ -394,3 +485,102 @@ class Section(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_display_title(self):
+        if _use_zh_content() and self.title_zh:
+            return self.title_zh
+        return self.title
+
+    def get_display_content(self):
+        if _use_zh_content() and self.content_zh:
+            return self.content_zh
+        return self.content
+
+    def get_formatted_content(self):
+        """Convert markdown content to safe HTML (raw HTML is escaped)."""
+        content = self.get_display_content()
+        if not content:
+            return ''
+        return markdown.markdown(escape(content), extensions=['extra'])
+
+
+class SectionItem(models.Model):
+    section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='items', verbose_name=_('Section'))
+    title = models.CharField(_('Title'), max_length=200, blank=True)
+    title_zh = models.CharField(_('Title (Chinese)'), max_length=200, blank=True, default='')
+    content = models.TextField(_('Content'))
+    content_zh = models.TextField(_('Content (Chinese)'), blank=True, default='')
+    is_active = models.BooleanField(_('Active'), default=True)
+    is_draft = models.BooleanField(_('Draft'), default=False)
+    order = models.IntegerField(_('Order'), default=0)
+    created_at = models.DateTimeField(_('Created at'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Updated at'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Section Item')
+        verbose_name_plural = _('Section Items')
+        ordering = ['order', '-created_at']
+
+    def __str__(self):
+        return self.title or self.section.title
+
+    def get_display_title(self):
+        if _use_zh_content() and self.title_zh:
+            return self.title_zh
+        return self.title
+
+    def get_display_content(self):
+        if _use_zh_content() and self.content_zh:
+            return self.content_zh
+        return self.content
+
+    def get_formatted_content(self):
+        """Convert markdown content to safe HTML (raw HTML is escaped)."""
+        content = self.get_display_content()
+        if not content:
+            return ''
+        return markdown.markdown(escape(content), extensions=['extra'])
+
+
+class MediaFile(models.Model):
+    title = models.CharField(_('Title'), max_length=200)
+    file = models.FileField(_('File'), upload_to='markdown_assets/')
+    access_key = models.CharField(max_length=64, unique=True, db_index=True, blank=True, default='')
+    is_active = models.BooleanField(_('Active'), default=True)
+    is_draft = models.BooleanField(_('Draft'), default=False)
+    created_at = models.DateTimeField(_('Created at'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Updated at'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Media File')
+        verbose_name_plural = _('Media Files')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title
+
+    def _build_access_key(self):
+        ts = str(int(time.time() * 1000))
+        h = hashlib.sha256()
+        h.update(ts.encode('utf-8'))
+        h.update(b'|')
+        h.update((self.file.name or '').encode('utf-8'))
+        h.update(b'|')
+        try:
+            if self.file:
+                self.file.open('rb')
+                chunk = self.file.read(1024 * 1024)
+                self.file.close()
+                h.update(chunk or b'')
+        except Exception:
+            # Fall back to filename/timestamp based hash when file stream is unavailable.
+            pass
+        return h.hexdigest()
+
+    def save(self, *args, **kwargs):
+        if not self.access_key:
+            candidate = self._build_access_key()
+            while MediaFile.objects.filter(access_key=candidate).exists():
+                candidate = self._build_access_key()
+            self.access_key = candidate
+        super().save(*args, **kwargs)
