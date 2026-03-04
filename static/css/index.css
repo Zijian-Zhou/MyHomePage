@@ -364,6 +364,102 @@ body {
     color: var(--accent-color);
 }
 
+.publication-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.publication-action {
+    margin-top: 0;
+}
+
+button.publication-action {
+    display: inline-block;
+    appearance: none;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    font: inherit;
+    line-height: inherit;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.cite-button {
+    position: relative;
+    overflow: hidden;
+    min-width: 4.8rem;
+    text-align: center;
+}
+
+.cite-button-feedback {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(120%);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+}
+
+.cite-button.copied {
+    color: #1c8c54;
+}
+
+.cite-button.copy-failed {
+    color: #c64b4b;
+}
+
+[data-theme="dark"] .cite-button.copied {
+    color: #7ee2ad;
+}
+
+[data-theme="dark"] .cite-button.copy-failed {
+    color: #ff9d9d;
+}
+
+.cite-button.copied .cite-button-label {
+    opacity: 0;
+    transform: translateY(-120%);
+}
+
+.cite-button.copied .cite-button-feedback,
+.cite-button.copy-failed .cite-button-feedback {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.cite-button-label {
+    display: inline-block;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    min-width: 100%;
+}
+
+.cite-button.is-copying::after {
+    content: '';
+    position: absolute;
+    inset: -25%;
+    background: linear-gradient(120deg, transparent 30%, rgba(74, 144, 226, 0.18) 50%, transparent 70%);
+    animation: cite-shimmer 0.55s ease;
+}
+
+@keyframes cite-shimmer {
+    from {
+        transform: translateX(-120%);
+    }
+    to {
+        transform: translateX(120%);
+    }
+}
+
 /* Research Section */
 .research-content {
     display: grid;

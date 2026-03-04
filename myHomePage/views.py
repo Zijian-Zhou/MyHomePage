@@ -25,6 +25,10 @@ def _safe_page(paginator, page_number):
 
 def _build_home_context(request=None):
     cards_per_page = SystemConfig.get_cards_per_page()
+    is_chinese_page = False
+    if request is not None:
+        path = getattr(request, 'path', '') or ''
+        is_chinese_page = path.startswith('/zh-hans/') or path.startswith('/zh-cn/')
     profile = Profile.objects.filter(is_active=True, is_draft=False).first()
     publications_qs = Publication.objects.filter(is_active=True, is_draft=False).order_by('-order', '-year')
     research_qs = Research.objects.filter(is_active=True, is_draft=False).order_by('-order')
@@ -67,6 +71,7 @@ def _build_home_context(request=None):
 
     return {
         'profile': profile,
+        'is_chinese_page': is_chinese_page,
         'publications': publications_page.object_list,
         'research_list': research_page.object_list,
         'news_list': news_page.object_list,

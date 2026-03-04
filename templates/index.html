@@ -97,8 +97,24 @@
                         {% if pub.doi %}
                         <p class="doi">DOI: <a href="https://doi.org/{{ pub.doi }}" target="_blank">{{ pub.doi }}</a></p>
                         {% endif %}
-                        {% if pub.url %}
-                        <p class="url"><a href="{{ pub.url }}" target="_blank" class="paper-link">{% trans "View Paper" %}</a></p>
+                        {% if pub.url or pub.raw_bibtex %}
+                        <div class="publication-actions">
+                            {% if pub.url %}
+                            <a href="{{ pub.url }}" target="_blank" class="paper-link publication-action" rel="noopener noreferrer">{% trans "View Paper" %}</a>
+                            {% endif %}
+                            {% if pub.raw_bibtex %}
+                            <button
+                                type="button"
+                                class="paper-link publication-action cite-button"
+                                data-bibtex="{{ pub.raw_bibtex|urlencode }}"
+                                data-copy-error-label="{% if is_chinese_page %}&#22797;&#21046;&#22833;&#36133;{% else %}{% trans 'Copy failed' %}{% endif %}"
+                                aria-live="polite"
+                            >
+                                <span class="cite-button-label">{% if is_chinese_page %}&#24341;&#29992;{% else %}{% trans "Cite" %}{% endif %}</span>
+                                <span class="cite-button-feedback" data-copied-label="{% if is_chinese_page %}&#24050;&#22797;&#21046;{% else %}{% trans "Copied" %}{% endif %}">{% if is_chinese_page %}&#24050;&#22797;&#21046;{% else %}{% trans "Copied" %}{% endif %}</span>
+                            </button>
+                            {% endif %}
+                        </div>
                         {% endif %}
                     </div>
                     {% if pub.image %}

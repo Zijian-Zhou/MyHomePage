@@ -302,11 +302,14 @@ class ORCIDService:
                         authors=authors_str,
                         journal=journal,
                         year=year,
+                        month=_safe_int(month),
+                        day=_safe_int(day),
                         date=datetime.strptime(f"{year}-{month}-{day}", "%Y-%m-%d").date() if year else None,
                         doi=doi,
                         url=url,
                         bibtex_type=self._map_work_type(work_type)
                     )
+                    _refresh_publication_bibtex(publication)
                     imported_count += 1
                     logger.info(f"Successfully imported publication: {title}")
                 except Exception as e:
@@ -567,6 +570,7 @@ class GoogleScholarService:
                         }
                         logger.debug(f"Creating publication with data: {publication_data}")
                         publication = Publication.objects.create(**publication_data)
+                        _refresh_publication_bibtex(publication)
                         imported_count += 1
                         logger.info(f"Successfully imported publication: {pub['title']} with DOI: {doi}")
                     except Exception as e:
@@ -665,6 +669,7 @@ def sync_publications(profile):
         raise Exception('; '.join(errors))
 
     _deduplicate_publications()
+    _populate_missing_bibtex()
     return total_imported
 
 def _is_more_complete(new_pub, existing_pub):
@@ -754,6 +759,7 @@ def _update_publication(existing_pub, new_pub):
             continue
 
     # 保存更新后的记录
+    _refresh_publication_bibtex(existing_pub, save=False)
     existing_pub.save()
     logger.info(f"Updated publication {existing_pub.bibtex_key} with more complete information")
 
@@ -815,6 +821,120 @@ def _split_keywords(value):
     return [v.strip() for v in re.split(r'[;,]', str(value)) if v.strip()]
 
 
+def _safe_int(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _sanitize_bibtex_value(value):
+    if value in (None, ''):
+        return ''
+    return str(value).replace('\r\n', ' ').replace('\n', ' ').strip()
+
+
+def _fallback_bibtex_key(publication):
+    base = _normalize_title(publication.title).replace(' ', '_') or 'publication'
+    year = publication.year or (publication.date.year if publication.date else '')
+    return '{}{}'.format(base[:60], year or '')
+
+
+def _publication_bibtex_entry(publication):
+    year = publication.year or (publication.date.year if publication.date else None)
+    month = publication.month or (publication.date.month if publication.date else None)
+    day = publication.day or (publication.date.day if publication.date else None)
+
+    entry = {
+        'ENTRYTYPE': publication.bibtex_type or 'article',
+        'ID': publication.bibtex_key or _fallback_bibtex_key(publication),
+        'title': _sanitize_bibtex_value(publication.title),
+        'author': _sanitize_bibtex_value(publication.authors),
+        'journal': _sanitize_bibtex_value(publication.journal),
+    }
+
+    optional_fields = {
+        'year': year,
+        'month': month,
+        'day': day,
+        'doi': _normalize_doi(publication.doi) if publication.doi else '',
+        'url': publication.url,
+        'keywords': ', '.join(_split_keywords(publication.keywords)),
+    }
+    for key, value in optional_fields.items():
+        sanitized = _sanitize_bibtex_value(value)
+        if sanitized:
+            entry[key] = sanitized
+
+    return entry
+
+
+def _parse_first_bibtex_entry(raw_bibtex):
+    if not raw_bibtex:
+        return None
+    try:
+        parser = bibtexparser.bparser.BibTexParser(common_strings=True)
+        database = bibtexparser.loads(raw_bibtex, parser=parser)
+    except Exception:
+        return None
+    if not database.entries:
+        return None
+    return dict(database.entries[0])
+
+
+def _score_bibtex_value(value):
+    sanitized = _sanitize_bibtex_value(value)
+    if not sanitized:
+        return 0
+    return len(sanitized)
+
+
+def _merge_bibtex_entries(primary_entry, secondary_entry):
+    merged = {}
+    for source in (secondary_entry or {}, primary_entry or {}):
+        for key, value in source.items():
+            sanitized = _sanitize_bibtex_value(value)
+            if not sanitized:
+                continue
+            existing = merged.get(key, '')
+            if _score_bibtex_value(sanitized) >= _score_bibtex_value(existing):
+                merged[key] = sanitized
+
+    merged['ENTRYTYPE'] = _sanitize_bibtex_value(
+        (primary_entry or {}).get('ENTRYTYPE') or
+        (secondary_entry or {}).get('ENTRYTYPE') or
+        'article'
+    )
+    merged['ID'] = _sanitize_bibtex_value(
+        (primary_entry or {}).get('ID') or
+        (secondary_entry or {}).get('ID') or
+        'publication'
+    )
+    return merged
+
+
+def _entry_to_bibtex(entry):
+    if not entry:
+        return ''
+    database = bibtexparser.bibdatabase.BibDatabase()
+    database.entries = [entry]
+    return bibtexparser.dumps(database).strip()
+
+
+def _refresh_publication_bibtex(publication, save=True):
+    generated_entry = _publication_bibtex_entry(publication)
+    existing_entry = _parse_first_bibtex_entry(publication.raw_bibtex)
+    merged_entry = _merge_bibtex_entries(generated_entry, existing_entry)
+    raw_bibtex = _entry_to_bibtex(merged_entry)
+    if not raw_bibtex:
+        return publication.raw_bibtex
+    publication.raw_bibtex = raw_bibtex
+    publication.bibtex_type = merged_entry.get('ENTRYTYPE', publication.bibtex_type or 'article')
+    if save:
+        publication.save(update_fields=['raw_bibtex', 'bibtex_type', 'updated_at'])
+    return raw_bibtex
+
+
 def _is_better_url(candidate, existing):
     if not candidate:
         return False
@@ -860,7 +980,16 @@ def _deduplicate_publications():
             _update_publication(winner, item)
             item.delete()
             removed += 1
+    _populate_missing_bibtex()
     return {"groups": merged_groups, "removed": removed}
+
+
+def _populate_missing_bibtex():
+    for publication in Publication.objects.all().only(
+        'id', 'title', 'authors', 'journal', 'year', 'month', 'day', 'doi',
+        'url', 'keywords', 'bibtex_key', 'bibtex_type', 'raw_bibtex', 'date'
+    ):
+        _refresh_publication_bibtex(publication)
 
 
 def deduplicate_publications():

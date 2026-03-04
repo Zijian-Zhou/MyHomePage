@@ -35,24 +35,104 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Mobile menu toggle
-    const navbar = document.querySelector('.navbar');
-    const navbarMenu = document.querySelector('.navbar-menu');
-    
-    // Add mobile menu button if not exists
-    if (!document.querySelector('.mobile-menu-btn')) {
-        const mobileMenuBtn = document.createElement('button');
-        mobileMenuBtn.className = 'mobile-menu-btn';
-        mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
-        navbar.insertBefore(mobileMenuBtn, navbarMenu);
+    function fallbackCopyText(text) {
+        const helper = document.createElement('textarea');
+        helper.value = text;
+        helper.setAttribute('readonly', 'readonly');
+        helper.style.position = 'fixed';
+        helper.style.top = '0';
+        helper.style.left = '0';
+        helper.style.opacity = '0';
+        helper.style.pointerEvents = 'none';
+        document.body.appendChild(helper);
+        helper.focus();
+        helper.select();
+        helper.setSelectionRange(0, helper.value.length);
+        try {
+            return document.execCommand('copy');
+        } catch (error) {
+            return false;
+        } finally {
+            document.body.removeChild(helper);
+        }
+    }
 
-        mobileMenuBtn.addEventListener('click', () => {
-            navbarMenu.classList.toggle('active');
-        });
+    function resetCiteButton(button) {
+        if (!button) return;
+        const feedback = button.querySelector('.cite-button-feedback');
+        button.classList.remove('is-copying', 'copied', 'copy-failed');
+        if (feedback && feedback.dataset.copiedLabel) {
+            feedback.textContent = feedback.dataset.copiedLabel;
+        }
+        if (button._citeResetTimer) {
+            window.clearTimeout(button._citeResetTimer);
+            button._citeResetTimer = null;
+        }
+    }
+
+    function setCiteButtonState(button, state) {
+        if (!button) return;
+        const feedback = button.querySelector('.cite-button-feedback');
+        resetCiteButton(button);
+        if (state === 'copied') {
+            if (feedback && feedback.dataset.copiedLabel) {
+                feedback.textContent = feedback.dataset.copiedLabel;
+            }
+            button.classList.add('copied');
+            button._citeResetTimer = window.setTimeout(function () {
+                resetCiteButton(button);
+            }, 1800);
+            return;
+        }
+        if (state === 'failed') {
+            if (feedback) {
+                feedback.textContent = button.getAttribute('data-copy-error-label') || 'Copy failed';
+            }
+            button.classList.add('copy-failed');
+            button._citeResetTimer = window.setTimeout(function () {
+                resetCiteButton(button);
+            }, 1800);
+            return;
+        }
+        if (state === 'copying') {
+            button.classList.add('is-copying');
+        }
     }
 
     // Section pagination: keep per-section page state and refresh section only.
     document.addEventListener('click', function (e) {
+        const citeButton = e.target.closest('.cite-button');
+        if (citeButton) {
+            e.preventDefault();
+            const encodedBibtex = citeButton.getAttribute('data-bibtex') || '';
+            const bibtex = encodedBibtex ? decodeURIComponent(encodedBibtex.replace(/\+/g, '%20')) : '';
+            if (!bibtex.trim()) return;
+
+            setCiteButtonState(citeButton, 'copying');
+
+            const handleSuccess = function () {
+                setCiteButtonState(citeButton, 'copied');
+            };
+            const handleFailure = function () {
+                setCiteButtonState(citeButton, 'failed');
+            };
+
+            if (navigator.clipboard && window.isSecureContext && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(bibtex).then(handleSuccess).catch(function () {
+                    if (fallbackCopyText(bibtex)) {
+                        handleSuccess();
+                    } else {
+                        handleFailure();
+                    }
+                });
+            } else if (fallbackCopyText(bibtex)) {
+                handleSuccess();
+            } else {
+                handleFailure();
+            }
+            return;
+        }
+
         const link = e.target.closest('.section-pagination a.page-btn');
         if (!link) return;
 
