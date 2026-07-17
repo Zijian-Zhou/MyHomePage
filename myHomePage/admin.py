@@ -178,6 +178,7 @@ class CustomAdminSite(AdminSite):
         custom_urls = [
             path('', self.admin_view(self.index), name='index'),
             path('toggle-dark-mode/', self.admin_view(self.toggle_dark_mode), name='toggle-dark-mode'),
+            path('auto-translate-field/', self.admin_view(self.auto_translate_field), name='auto-translate-field'),
         ]
         return custom_urls + urls
 
@@ -190,6 +191,53 @@ class CustomAdminSite(AdminSite):
         else:
             request.session['dark_mode'] = True
         return JsonResponse({'dark_mode': request.session['dark_mode']})
+
+    def auto_translate_field(self, request):
+        if request.method != 'POST':
+            return JsonResponse({'error': _('Unsupported request method')}, status=405)
+
+        try:
+            payload = json.loads(request.body.decode('utf-8') or '{}')
+        except (ValueError, TypeError):
+            return JsonResponse({'error': _('Invalid JSON payload.')}, status=400)
+
+        text = str(payload.get('text') or '').strip()
+        source_lang = str(payload.get('source_lang') or 'auto').strip() or 'auto'
+        target_lang = str(payload.get('target_lang') or '').strip()
+        if not text:
+            return JsonResponse({'error': _('Text is empty.')}, status=400)
+        if target_lang not in ('en', 'zh'):
+            return JsonResponse({'error': _('Unsupported target language.')}, status=400)
+
+        try:
+            import translators as ts
+        except Exception:
+            return JsonResponse(
+                {'error': _('The translators package is not installed in this environment.')},
+                status=500
+            )
+
+        from_language = 'auto' if source_lang == 'auto' else source_lang
+        to_language = 'zh' if target_lang == 'zh' else 'en'
+
+        errors = []
+        for translator in ('alibaba', 'sogou', 'google', 'bing'):
+            try:
+                translated = ts.translate_text(
+                    query_text=text,
+                    translator=translator,
+                    from_language=from_language,
+                    to_language=to_language,
+                )
+                return JsonResponse({'translated_text': translated, 'translator': translator})
+            except Exception as exc:
+                errors.append(f'{translator}: {exc.__class__.__name__}')
+                logger.warning('Auto translation failed with %s: %s', translator, exc)
+
+        return JsonResponse(
+            {'error': _('Auto translation failed.') + ' ' + '; '.join(errors)},
+            status=502
+        )
 
     def each_context(self, request):
         context = super().each_context(request)
