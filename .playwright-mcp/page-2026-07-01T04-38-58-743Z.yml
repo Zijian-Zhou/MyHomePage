@@ -1,0 +1,473 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - button [ref=e4] [cursor=pointer]
+    - link "Homepage" [ref=e6] [cursor=pointer]:
+      - /url: /schhp?hl=en
+    - button "Search" [ref=e8] [cursor=pointer]
+    - link "Sign in" [ref=e11] [cursor=pointer]:
+      - /url: https://accounts.google.com/Login?hl=en&continue=https://scholar.google.com/schhp%3Fhl%3Den
+  - main [ref=e13]:
+    - generic [ref=e14]:
+      - navigation [ref=e15]:
+        - link "Get my own profile" [ref=e16] [cursor=pointer]:
+          - /url: /citations?hl=en
+        - region "Cited by" [ref=e17]:
+          - heading "Cited by View all" [level=3] [ref=e18]:
+            - text: Cited by
+            - button "View all" [ref=e19] [cursor=pointer]:
+              - generic [ref=e21]: View all
+          - table [ref=e22]:
+            - rowgroup [ref=e23]:
+              - row "All Since 2021" [ref=e24]:
+                - columnheader [ref=e25]
+                - columnheader "All" [ref=e26]
+                - columnheader "Since 2021" [ref=e27]
+            - rowgroup [ref=e28]:
+              - row "Citations 6193 5207" [ref=e29]:
+                - cell "Citations" [ref=e30]:
+                  - link "Citations" [ref=e31] [cursor=pointer]:
+                    - /url: javascript:void(0)
+                - cell "6193" [ref=e32]
+                - cell "5207" [ref=e33]
+              - row "h-index 42 37" [ref=e34]:
+                - cell "h-index" [ref=e35]:
+                  - link "h-index" [ref=e36] [cursor=pointer]:
+                    - /url: javascript:void(0)
+                - cell "42" [ref=e37]
+                - cell "37" [ref=e38]
+              - row "i10-index 121 101" [ref=e39]:
+                - cell "i10-index" [ref=e40]:
+                  - link "i10-index" [ref=e41] [cursor=pointer]:
+                    - /url: javascript:void(0)
+                - cell "121" [ref=e42]
+                - cell "101" [ref=e43]
+          - generic [ref=e44]:
+            - generic:
+              - generic [ref=e50]: "0"
+              - generic [ref=e51]: "1700"
+              - generic [ref=e52]: "850"
+              - generic [ref=e53]: "425"
+              - generic [ref=e54]: "1275"
+            - generic [ref=e56]:
+              - generic [ref=e57]: "2011"
+              - generic [ref=e58]: "2012"
+              - generic [ref=e59]: "2013"
+              - generic [ref=e60]: "2014"
+              - generic [ref=e61]: "2015"
+              - generic [ref=e62]: "2016"
+              - generic [ref=e63]: "2017"
+              - generic [ref=e64]: "2018"
+              - generic [ref=e65]: "2019"
+              - generic [ref=e66]: "2020"
+              - generic [ref=e67]: "2021"
+              - generic [ref=e68]: "2022"
+              - generic [ref=e69]: "2023"
+              - generic [ref=e70]: "2024"
+              - generic [ref=e71]: "2025"
+              - generic [ref=e72]: "2026"
+              - link [ref=e73] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=e74] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=e75] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=e76] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=e77] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=e78] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=e79] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=e80] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=e81] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=e82] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=e83] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=e84] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=e85] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=e86] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=e87] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=e88] [cursor=pointer]:
+                - /url: javascript:void(0)
+        - region "Public access" [ref=e89]:
+          - generic [ref=e90]:
+            - generic [ref=e91]: Public access
+            - link "View all" [ref=e92] [cursor=pointer]:
+              - /url: /citations?view_op=list_mandates&hl=en&user=zwmacb4AAAAJ
+          - generic [ref=e93]:
+            - generic [ref=e94]: 56 articles
+            - generic [ref=e96]: 97 articles
+            - generic [ref=e99]: available
+            - generic [ref=e100]: not available
+            - generic [ref=e101]: Based on funding mandates
+        - region "Co-authors" [ref=e102]:
+          - heading "Co-authors" [level=3] [ref=e103]
+          - list [ref=e104]:
+            - listitem [ref=e105]:
+              - generic [ref=e106] [cursor=pointer]:
+                - img "Hairong Lin（蔺海荣）" [ref=e108]
+                - generic [ref=e109]:
+                  - link "Hairong Lin（蔺海荣）" [ref=e110]:
+                    - /url: /citations?user=YOy5mEgAAAAJ&hl=en
+                  - generic [ref=e111]: Central South University, School of Electronic Information, Associate professor
+            - listitem [ref=e115]:
+              - generic [ref=e116] [cursor=pointer]:
+                - img "Xuechen Chen" [ref=e118]
+                - generic [ref=e119]:
+                  - link "Xuechen Chen" [ref=e120]:
+                    - /url: /citations?user=IkkpuF0AAAAJ&hl=en
+                  - generic [ref=e121]: German Cancer Research Center
+            - listitem [ref=e125]:
+              - generic [ref=e126] [cursor=pointer]:
+                - img "Geyong Min" [ref=e128]
+                - generic [ref=e129]:
+                  - link "Geyong Min" [ref=e130]:
+                    - /url: /citations?user=Y97ymXwAAAAJ&hl=en
+                  - generic [ref=e131]: University of Exeter
+            - listitem [ref=e135]:
+              - generic [ref=e136] [cursor=pointer]:
+                - img "Honggang Zhang" [ref=e138]
+                - generic [ref=e139]:
+                  - link "Honggang Zhang" [ref=e140]:
+                    - /url: /citations?user=elPaEWUAAAAJ&hl=en
+                  - generic [ref=e141]: Associate Professor of Computer Engineering, University of Massachusetts Boston
+            - listitem [ref=e145]:
+              - generic [ref=e146] [cursor=pointer]:
+                - img "Kaiping Xue" [ref=e148]
+                - generic [ref=e149]:
+                  - link "Kaiping Xue" [ref=e150]:
+                    - /url: /citations?user=F310qPIAAAAJ&hl=en
+                  - generic [ref=e151]: University of Science and Technology of China
+            - listitem [ref=e155]:
+              - generic [ref=e156] [cursor=pointer]:
+                - img "Lan Zhang" [ref=e158]
+                - generic [ref=e159]:
+                  - link "Lan Zhang" [ref=e160]:
+                    - /url: /citations?user=Umj-GRAAAAAJ&hl=en
+                  - generic [ref=e161]: Assistant Professor, Clemson University
+            - listitem [ref=e165]:
+              - generic [ref=e166] [cursor=pointer]:
+                - img "Lin Cai" [ref=e168]
+                - generic [ref=e169]:
+                  - link "Lin Cai" [ref=e170]:
+                    - /url: /citations?user=KhHlHyEAAAAJ&hl=en
+                  - generic [ref=e171]: Professor, University of Victoria, RSC/EIC/CAE/IEEE Fellow, NSERC Steacie Fellowship
+            - listitem [ref=e175]:
+              - generic [ref=e176] [cursor=pointer]:
+                - img "Siyu Lin" [ref=e178]
+                - generic [ref=e179]:
+                  - link "Siyu Lin" [ref=e180]:
+                    - /url: /citations?user=RMTxzQ4AAAAJ&hl=en
+                  - generic [ref=e181]: Beijing Jiaotong University
+            - listitem [ref=e185]:
+              - generic [ref=e186] [cursor=pointer]:
+                - img "Yiqin Deng" [ref=e188]
+                - generic [ref=e189]:
+                  - link "Yiqin Deng" [ref=e190]:
+                    - /url: /citations?user=EdRi_MEAAAAJ&hl=en
+                  - generic [ref=e191]: Lingnan University
+            - listitem [ref=e195]:
+              - generic [ref=e196] [cursor=pointer]:
+                - img "Jianqing Liu" [ref=e198]
+                - generic [ref=e199]:
+                  - link "Jianqing Liu" [ref=e200]:
+                    - /url: /citations?user=3iOL6ZkAAAAJ&hl=en
+                  - generic [ref=e201]: Computer Science, NC State University
+            - listitem [ref=e205]:
+              - generic [ref=e206] [cursor=pointer]:
+                - img "Xiangjian He" [ref=e208]
+                - generic [ref=e209]:
+                  - link "Xiangjian He" [ref=e210]:
+                    - /url: /citations?user=BiBXGfIAAAAJ&hl=en
+                  - generic [ref=e211]: University of Nottingham Ningbo China (2022.5--), University of Technology Sydney (1999.2-2022.5)
+            - listitem [ref=e215]:
+              - generic [ref=e216] [cursor=pointer]:
+                - img "Yuanxiong Guo" [ref=e218]
+                - generic [ref=e219]:
+                  - link "Yuanxiong Guo" [ref=e220]:
+                    - /url: /citations?user=FK_8hMkAAAAJ&hl=en
+                  - generic [ref=e221]: University of Texas at San Antonio
+            - listitem [ref=e225]:
+              - generic [ref=e226] [cursor=pointer]:
+                - img "Ping Jiang" [ref=e228]
+                - generic [ref=e229]:
+                  - link "Ping Jiang" [ref=e230]:
+                    - /url: /citations?user=Bc51x0cAAAAJ&hl=en
+                  - generic [ref=e231]: Nanjing University of Posts and Telecommunications
+      - main [ref=e235]:
+        - generic [ref=e236]:
+          - button "Follow" [ref=e237] [cursor=pointer]:
+            - generic [ref=e239]: Follow
+          - img "Xiaoheng Deng(邓晓衡)" [ref=e242]
+          - generic [ref=e243]:
+            - generic [ref=e245]: Xiaoheng Deng(邓晓衡)
+            - link "Central South University" [ref=e247] [cursor=pointer]:
+              - /url: /citations?view_op=view_org&hl=en&org=15935225337923288879
+            - generic [ref=e248]:
+              - text: Verified email at csu.edu.cn -
+              - link "Homepage" [ref=e249] [cursor=pointer]:
+                - /url: http://faculty.csu.edu.cn/dengxiaoheng
+            - generic [ref=e250]:
+              - link "edge computing" [ref=e251] [cursor=pointer]:
+                - /url: /citations?view_op=search_authors&hl=en&mauthors=label:edge_computing
+              - link "big data and IOT" [ref=e252] [cursor=pointer]:
+                - /url: /citations?view_op=search_authors&hl=en&mauthors=label:big_data_and_iot
+              - link "distributed computing" [ref=e253] [cursor=pointer]:
+                - /url: /citations?view_op=search_authors&hl=en&mauthors=label:distributed_computing
+              - link "wireless networking" [ref=e254] [cursor=pointer]:
+                - /url: /citations?view_op=search_authors&hl=en&mauthors=label:wireless_networking
+              - link "social computing" [ref=e255] [cursor=pointer]:
+                - /url: /citations?view_op=search_authors&hl=en&mauthors=label:social_computing
+      - navigation
+      - region "Articles" [ref=e256]:
+        - generic [ref=e257]:
+          - table [ref=e259]:
+            - rowgroup [ref=e260]:
+              - row "Title Cited by Year" [ref=e261]:
+                - columnheader "Title" [ref=e262]:
+                  - link "Title" [ref=e264] [cursor=pointer]:
+                    - /url: /citations?hl=en&user=zwmacb4AAAAJ&view_op=list_works&sortby=title
+                - columnheader "Cited by" [ref=e265]:
+                  - link "Cited by" [ref=e268] [cursor=pointer]:
+                    - /url: /citations?hl=en&user=zwmacb4AAAAJ&view_op=list_works
+                - columnheader "Year" [ref=e269]
+            - rowgroup [ref=e270]:
+              - row "Parallel Voxel Graph-Adaptive transformer-based feature space clustering for geospatial point cloud classification and segmentation H Mushtaq, X Deng, I Ullah, M Ali, HHR Sherazi Engineering Applications of Artificial Intelligence 181, 115309 2026" [ref=e271]:
+                - cell "Parallel Voxel Graph-Adaptive transformer-based feature space clustering for geospatial point cloud classification and segmentation H Mushtaq, X Deng, I Ullah, M Ali, HHR Sherazi Engineering Applications of Artificial Intelligence 181, 115309" [ref=e272]:
+                  - link "Parallel Voxel Graph-Adaptive transformer-based feature space clustering for geospatial point cloud classification and segmentation" [ref=e273] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:2tRrZ1ZAMYUC
+                  - generic [ref=e274]: H Mushtaq, X Deng, I Ullah, M Ali, HHR Sherazi
+                  - generic [ref=e275]: Engineering Applications of Artificial Intelligence 181, 115309
+                - cell [ref=e276]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=e277]:
+                  - generic [ref=e278]: "2026"
+              - 'row "Rewarding for helping others: An Incentive mechanism to improve the task completion by loss aversion and anchoring effect in mobile crowdsensing J Liu, S Zhang, D Li, X Deng, R Peng, H Liu Ad Hoc Networks, 104305 2026" [ref=e279]':
+                - 'cell "Rewarding for helping others: An Incentive mechanism to improve the task completion by loss aversion and anchoring effect in mobile crowdsensing J Liu, S Zhang, D Li, X Deng, R Peng, H Liu Ad Hoc Networks, 104305" [ref=e280]':
+                  - 'link "Rewarding for helping others: An Incentive mechanism to improve the task completion by loss aversion and anchoring effect in mobile crowdsensing" [ref=e281] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:sJsF-0ZLhtgC
+                  - generic [ref=e282]: J Liu, S Zhang, D Li, X Deng, R Peng, H Liu
+                  - generic [ref=e283]: Ad Hoc Networks, 104305
+                - cell [ref=e284]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=e285]:
+                  - generic [ref=e286]: "2026"
+              - row "AoI-Energy-Spectrum Optimization in Post-Disaster Intelligent Powered Communication Network via Hierarchical Heterogeneous Graph Neural Networks H Liu, J Gui, X Deng, D Zhang, G Min IEEE Transactions on Network Science and Engineering 2026" [ref=e287]:
+                - cell "AoI-Energy-Spectrum Optimization in Post-Disaster Intelligent Powered Communication Network via Hierarchical Heterogeneous Graph Neural Networks H Liu, J Gui, X Deng, D Zhang, G Min IEEE Transactions on Network Science and Engineering" [ref=e288]:
+                  - link "AoI-Energy-Spectrum Optimization in Post-Disaster Intelligent Powered Communication Network via Hierarchical Heterogeneous Graph Neural Networks" [ref=e289] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:4X0JR2_MtJMC
+                  - generic [ref=e290]: H Liu, J Gui, X Deng, D Zhang, G Min
+                  - generic [ref=e291]: IEEE Transactions on Network Science and Engineering
+                - cell [ref=e292]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=e293]:
+                  - generic [ref=e294]: "2026"
+              - 'row "IncomSeg: Incomplete Multi-Modal 3D Semantic Segmentation for Robust Autonomous Driving X Ma, X Cai, Y Song, X Deng, S Wan Expert Systems with Applications, 132891 2026" [ref=e295]':
+                - 'cell "IncomSeg: Incomplete Multi-Modal 3D Semantic Segmentation for Robust Autonomous Driving X Ma, X Cai, Y Song, X Deng, S Wan Expert Systems with Applications, 132891" [ref=e296]':
+                  - 'link "IncomSeg: Incomplete Multi-Modal 3D Semantic Segmentation for Robust Autonomous Driving" [ref=e297] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:LgRImbQfgY4C
+                  - generic [ref=e298]: X Ma, X Cai, Y Song, X Deng, S Wan
+                  - generic [ref=e299]: Expert Systems with Applications, 132891
+                - cell [ref=e300]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=e301]:
+                  - generic [ref=e302]: "2026"
+              - row "Task-Generalizable Deep Joint Source-Channel Coding via Hierarchical Masked Autoencoders S Dai, X Chen, X Deng, S Lin IEEE Transactions on Cognitive Communications and Networking 2026" [ref=e303]:
+                - cell "Task-Generalizable Deep Joint Source-Channel Coding via Hierarchical Masked Autoencoders S Dai, X Chen, X Deng, S Lin IEEE Transactions on Cognitive Communications and Networking" [ref=e304]:
+                  - link "Task-Generalizable Deep Joint Source-Channel Coding via Hierarchical Masked Autoencoders" [ref=e305] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:Ak0FvsSvgGUC
+                  - generic [ref=e306]: S Dai, X Chen, X Deng, S Lin
+                  - generic [ref=e307]: IEEE Transactions on Cognitive Communications and Networking
+                - cell [ref=e308]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=e309]:
+                  - generic [ref=e310]: "2026"
+              - 'row "DG-FuseNet: A Dual-Scale Dynamical Gated Fusion Framework for Cross-Domain Fault Diagnosis in Rotating Machinery D Zhang, X Deng, Y Liao, J Gui, J Zhang Sensors 26 (10), 2968 2026" [ref=e311]':
+                - 'cell "DG-FuseNet: A Dual-Scale Dynamical Gated Fusion Framework for Cross-Domain Fault Diagnosis in Rotating Machinery D Zhang, X Deng, Y Liao, J Gui, J Zhang Sensors 26 (10), 2968" [ref=e312]':
+                  - 'link "DG-FuseNet: A Dual-Scale Dynamical Gated Fusion Framework for Cross-Domain Fault Diagnosis in Rotating Machinery" [ref=e313] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:Bg7qf7VwUHIC
+                  - generic [ref=e314]: D Zhang, X Deng, Y Liao, J Gui, J Zhang
+                  - generic [ref=e315]: Sensors 26 (10), 2968
+                - cell [ref=e316]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=e317]:
+                  - generic [ref=e318]: "2026"
+              - 'row "Memristive CNN with multi-butterfly attractors: Mathematical modeling, dynamics analysis and application in secure communication H Lin, Z Li, Y Zhang, X Deng, X Chen, G Min Chaos, Solitons & Fractals 206, 117905 10 2026" [ref=e319]':
+                - 'cell "Memristive CNN with multi-butterfly attractors: Mathematical modeling, dynamics analysis and application in secure communication H Lin, Z Li, Y Zhang, X Deng, X Chen, G Min Chaos, Solitons & Fractals 206, 117905" [ref=e320]':
+                  - 'link "Memristive CNN with multi-butterfly attractors: Mathematical modeling, dynamics analysis and application in secure communication" [ref=e321] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:a3BOlSfXSfwC
+                  - generic [ref=e322]: H Lin, Z Li, Y Zhang, X Deng, X Chen, G Min
+                  - generic [ref=e323]: Chaos, Solitons & Fractals 206, 117905
+                - cell "10" [ref=e324]:
+                  - link "10" [ref=e325] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=1257324124078457636
+                - cell "2026" [ref=e326]:
+                  - generic [ref=e327]: "2026"
+              - row "A robust industrial image encryption algorithm for IIoT fusing a Tabu learning neural network and chaos mechanism H Lin, C Duan, X Deng, S Zhang Expert Systems with Applications, 132604 1 2026" [ref=e328]:
+                - cell "A robust industrial image encryption algorithm for IIoT fusing a Tabu learning neural network and chaos mechanism H Lin, C Duan, X Deng, S Zhang Expert Systems with Applications, 132604" [ref=e329]:
+                  - link "A robust industrial image encryption algorithm for IIoT fusing a Tabu learning neural network and chaos mechanism" [ref=e330] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:BJbdYPG6LGMC
+                  - generic [ref=e331]: H Lin, C Duan, X Deng, S Zhang
+                  - generic [ref=e332]: Expert Systems with Applications, 132604
+                - cell "1" [ref=e333]:
+                  - link "1" [ref=e334] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=6347208454184983304
+                - cell "2026" [ref=e335]:
+                  - generic [ref=e336]: "2026"
+              - row "Latency-aware DNN Inference Acceleration with Dynamic Model Partitioning in Vehicular Edge Computing C Li, M Yang, Z Zhang, X Deng, S Wan ACM Transactions on Architecture and Code Optimization 23 (1), 1-26 1 2026" [ref=e337]:
+                - cell "Latency-aware DNN Inference Acceleration with Dynamic Model Partitioning in Vehicular Edge Computing C Li, M Yang, Z Zhang, X Deng, S Wan ACM Transactions on Architecture and Code Optimization 23 (1), 1-26" [ref=e338]:
+                  - link "Latency-aware DNN Inference Acceleration with Dynamic Model Partitioning in Vehicular Edge Computing" [ref=e339] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:r_AWSJRzSzQC
+                  - generic [ref=e340]: C Li, M Yang, Z Zhang, X Deng, S Wan
+                  - generic [ref=e341]: ACM Transactions on Architecture and Code Optimization 23 (1), 1-26
+                - cell "1" [ref=e342]:
+                  - link "1" [ref=e343] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=1028258063496931716
+                - cell "2026" [ref=e344]:
+                  - generic [ref=e345]: "2026"
+              - row "Multi-Truck Multi-Drone Collaborative Delivery via EG-GAT Embedding Multi-Agent DRL in Rural Areas H Qi, J Liu, X Deng, H Lin, J Gui, J Zhang, S Wan IEEE Internet of Things Journal 2026" [ref=e346]:
+                - cell "Multi-Truck Multi-Drone Collaborative Delivery via EG-GAT Embedding Multi-Agent DRL in Rural Areas H Qi, J Liu, X Deng, H Lin, J Gui, J Zhang, S Wan IEEE Internet of Things Journal" [ref=e347]:
+                  - link "Multi-Truck Multi-Drone Collaborative Delivery via EG-GAT Embedding Multi-Agent DRL in Rural Areas" [ref=e348] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:vDZJ-YLwNdEC
+                  - generic [ref=e349]: H Qi, J Liu, X Deng, H Lin, J Gui, J Zhang, S Wan
+                  - generic [ref=e350]: IEEE Internet of Things Journal
+                - cell [ref=e351]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=e352]:
+                  - generic [ref=e353]: "2026"
+              - row "A Chaotic Tabu Learning Neuron-Based Hybrid Cryptography Solution for CIoMT H Lin, Y Fang, X Deng, J Luo, H Sun, G Min IEEE Transactions on Consumer Electronics 1 2026" [ref=e354]:
+                - cell "A Chaotic Tabu Learning Neuron-Based Hybrid Cryptography Solution for CIoMT H Lin, Y Fang, X Deng, J Luo, H Sun, G Min IEEE Transactions on Consumer Electronics" [ref=e355]:
+                  - link "A Chaotic Tabu Learning Neuron-Based Hybrid Cryptography Solution for CIoMT" [ref=e356] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:artPoR2Yc-kC
+                  - generic [ref=e357]: H Lin, Y Fang, X Deng, J Luo, H Sun, G Min
+                  - generic [ref=e358]: IEEE Transactions on Consumer Electronics
+                - cell "1" [ref=e359]:
+                  - link "1" [ref=e360] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=17140299752012687155
+                - cell "2026" [ref=e361]:
+                  - generic [ref=e362]: "2026"
+              - 'row "CasMoE: A Cascaded Framework for Efficient MoE Inference on Resource-constrained Devices C Wang, H He, L Zhao, X Deng, L Duan, S Wan Proceedings of the AAAI Conference on Artificial Intelligence 40 (31), 26133 … 2026" [ref=e363]':
+                - 'cell "CasMoE: A Cascaded Framework for Efficient MoE Inference on Resource-constrained Devices C Wang, H He, L Zhao, X Deng, L Duan, S Wan Proceedings of the AAAI Conference on Artificial Intelligence 40 (31), 26133 …" [ref=e364]':
+                  - 'link "CasMoE: A Cascaded Framework for Efficient MoE Inference on Resource-constrained Devices" [ref=e365] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:tH6gc1N1XXoC
+                  - generic [ref=e366]: C Wang, H He, L Zhao, X Deng, L Duan, S Wan
+                  - generic [ref=e367]: Proceedings of the AAAI Conference on Artificial Intelligence 40 (31), 26133 …
+                - cell [ref=e368]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=e369]:
+                  - generic [ref=e370]: "2026"
+              - row "Energy-Efficient and Stable Task Offloading and Resource Allocation in Space-Air-Ground Integrated Networks W Zhu, X Deng, J Zhang, J He, G Min IEEE Transactions on Vehicular Technology 1 2026" [ref=e371]:
+                - cell "Energy-Efficient and Stable Task Offloading and Resource Allocation in Space-Air-Ground Integrated Networks W Zhu, X Deng, J Zhang, J He, G Min IEEE Transactions on Vehicular Technology" [ref=e372]:
+                  - link "Energy-Efficient and Stable Task Offloading and Resource Allocation in Space-Air-Ground Integrated Networks" [ref=e373] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:5icHVeHT4IsC
+                  - generic [ref=e374]: W Zhu, X Deng, J Zhang, J He, G Min
+                  - generic [ref=e375]: IEEE Transactions on Vehicular Technology
+                - cell "1" [ref=e376]:
+                  - link "1" [ref=e377] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=8515405352784093814
+                - cell "2026" [ref=e378]:
+                  - generic [ref=e379]: "2026"
+              - 'row "A second-order memristor method to construct memristive neural networks with multi-butterfly and multi-scroll dynamics H Lin, X Deng, Y Zhang, G Min IEEE Transactions on Circuits and Systems I: Regular Papers 4 2026" [ref=e380]':
+                - 'cell "A second-order memristor method to construct memristive neural networks with multi-butterfly and multi-scroll dynamics H Lin, X Deng, Y Zhang, G Min IEEE Transactions on Circuits and Systems I: Regular Papers" [ref=e381]':
+                  - link "A second-order memristor method to construct memristive neural networks with multi-butterfly and multi-scroll dynamics" [ref=e382] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:nVrZBo8bIpAC
+                  - generic [ref=e383]: H Lin, X Deng, Y Zhang, G Min
+                  - generic [ref=e384]: "IEEE Transactions on Circuits and Systems I: Regular Papers"
+                - cell "4" [ref=e385]:
+                  - link "4" [ref=e386] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=1426932630823422283
+                - cell "2026" [ref=e387]:
+                  - generic [ref=e388]: "2026"
+              - 'row "Resilient and Freshness-Aware Scheduling for Industrial Multi-Hop IAB Networks: A Packet Duplication Approach S Zhu, S Lin, Z Wang, Q Ren, X Deng, B Ai arXiv preprint arXiv:2602.13311 2026" [ref=e389]':
+                - 'cell "Resilient and Freshness-Aware Scheduling for Industrial Multi-Hop IAB Networks: A Packet Duplication Approach S Zhu, S Lin, Z Wang, Q Ren, X Deng, B Ai arXiv preprint arXiv:2602.13311" [ref=e390]':
+                  - 'link "Resilient and Freshness-Aware Scheduling for Industrial Multi-Hop IAB Networks: A Packet Duplication Approach" [ref=e391] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:lvd772isFD0C
+                  - generic [ref=e392]: S Zhu, S Lin, Z Wang, Q Ren, X Deng, B Ai
+                  - generic [ref=e393]: arXiv preprint arXiv:2602.13311
+                - cell [ref=e394]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=e395]:
+                  - generic [ref=e396]: "2026"
+              - 'row "ZJC: Constructing fully local repair in erasure codes for distributed cloud storage Z Zhou, X Deng, X Pei, Y Zhao, Y Qian, S Wan, K Xue Journal of Systems Architecture, 103735 2026" [ref=e397]':
+                - 'cell "ZJC: Constructing fully local repair in erasure codes for distributed cloud storage Z Zhou, X Deng, X Pei, Y Zhao, Y Qian, S Wan, K Xue Journal of Systems Architecture, 103735" [ref=e398]':
+                  - 'link "ZJC: Constructing fully local repair in erasure codes for distributed cloud storage" [ref=e399] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:u-coK7KVo8oC
+                  - generic [ref=e400]: Z Zhou, X Deng, X Pei, Y Zhao, Y Qian, S Wan, K Xue
+                  - generic [ref=e401]: Journal of Systems Architecture, 103735
+                - cell [ref=e402]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=e403]:
+                  - generic [ref=e404]: "2026"
+              - 'row "V2X-JEPA: Self-Supervised Multi-Agent Joint Embedding Predictive Architecture for Robust Vehicle-to-Everything Perception N Mayumu, X Deng, A Bagula, P Mukala IEEE Internet of Things Journal 9 2026" [ref=e405]':
+                - 'cell "V2X-JEPA: Self-Supervised Multi-Agent Joint Embedding Predictive Architecture for Robust Vehicle-to-Everything Perception N Mayumu, X Deng, A Bagula, P Mukala IEEE Internet of Things Journal" [ref=e406]':
+                  - 'link "V2X-JEPA: Self-Supervised Multi-Agent Joint Embedding Predictive Architecture for Robust Vehicle-to-Everything Perception" [ref=e407] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:5MTHONV0fEkC
+                  - generic [ref=e408]: N Mayumu, X Deng, A Bagula, P Mukala
+                  - generic [ref=e409]: IEEE Internet of Things Journal
+                - cell "9" [ref=e410]:
+                  - link "9" [ref=e411] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=14987334874743117517
+                - cell "2026" [ref=e412]:
+                  - generic [ref=e413]: "2026"
+              - 'row "HAFNet: Hybrid-Stage Collaborative Perception via Agent-Foreground List W Wu, P Jiang, X Deng, S Wan IEEE Transactions on Intelligent Transportation Systems 2026" [ref=e414]':
+                - 'cell "HAFNet: Hybrid-Stage Collaborative Perception via Agent-Foreground List W Wu, P Jiang, X Deng, S Wan IEEE Transactions on Intelligent Transportation Systems" [ref=e415]':
+                  - 'link "HAFNet: Hybrid-Stage Collaborative Perception via Agent-Foreground List" [ref=e416] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:Ehil0879vHcC
+                  - generic [ref=e417]: W Wu, P Jiang, X Deng, S Wan
+                  - generic [ref=e418]: IEEE Transactions on Intelligent Transportation Systems
+                - cell [ref=e419]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=e420]:
+                  - generic [ref=e421]: "2026"
+              - 'row "BEVFormer++: Enhancing BEV Fusion with Normalized Embedding and Range Attention for 3D Object Detection S Qayyum, X Deng, H Mushtaq, P Jiang, S Wan, I Ullah Expert Systems with Applications, 131131 2 2026" [ref=e422]':
+                - 'cell "BEVFormer++: Enhancing BEV Fusion with Normalized Embedding and Range Attention for 3D Object Detection S Qayyum, X Deng, H Mushtaq, P Jiang, S Wan, I Ullah Expert Systems with Applications, 131131" [ref=e423]':
+                  - 'link "BEVFormer++: Enhancing BEV Fusion with Normalized Embedding and Range Attention for 3D Object Detection" [ref=e424] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:yqoGN6RLRZoC
+                  - generic [ref=e425]: S Qayyum, X Deng, H Mushtaq, P Jiang, S Wan, I Ullah
+                  - generic [ref=e426]: Expert Systems with Applications, 131131
+                - cell "2" [ref=e427]:
+                  - link "2" [ref=e428] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=4972477068055188074
+                - cell "2026" [ref=e429]:
+                  - generic [ref=e430]: "2026"
+              - 'row "FedMOP: Achieving Enhanced Privacy and Performance in Federated Learning via Momentum Orthogonal Projection Y Zhao, X Deng, H Xu, Z Qiu, X Hu, S You, Y Chen, C Xu, X Su Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern … 2026" [ref=e431]':
+                - 'cell "FedMOP: Achieving Enhanced Privacy and Performance in Federated Learning via Momentum Orthogonal Projection Y Zhao, X Deng, H Xu, Z Qiu, X Hu, S You, Y Chen, C Xu, X Su Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern …" [ref=e432]':
+                  - 'link "FedMOP: Achieving Enhanced Privacy and Performance in Federated Learning via Momentum Orthogonal Projection" [ref=e433] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:AHdEip9mkN0C
+                  - generic [ref=e434]: Y Zhao, X Deng, H Xu, Z Qiu, X Hu, S You, Y Chen, C Xu, X Su
+                  - generic [ref=e435]: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern …
+                - cell [ref=e436]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=e437]:
+                  - generic [ref=e438]: "2026"
+          - generic [ref=e439]:
+            - generic [ref=e440]: Articles 1–20
+            - button "Show more" [ref=e442] [cursor=pointer]:
+              - generic [ref=e445]: Show more
+  - contentinfo [ref=e446]:
+    - generic [ref=e447]:
+      - link "Privacy" [ref=e448] [cursor=pointer]:
+        - /url: //www.google.com/intl/en/policies/privacy/
+      - link "Terms" [ref=e449] [cursor=pointer]:
+        - /url: //www.google.com/intl/en/policies/terms/
+      - button "Help" [ref=e450] [cursor=pointer]

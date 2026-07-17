@@ -106,13 +106,13 @@
                             <button
                                 type="button"
                                 class="paper-link publication-action cite-button"
-                                data-bibtex="{{ pub.raw_bibtex|urlencode }}"
                                 data-copy-error-label="{% if is_chinese_page %}&#22797;&#21046;&#22833;&#36133;{% else %}{% trans 'Copy failed' %}{% endif %}"
                                 aria-live="polite"
                             >
                                 <span class="cite-button-label">{% if is_chinese_page %}&#24341;&#29992;{% else %}{% trans "Cite" %}{% endif %}</span>
                                 <span class="cite-button-feedback" data-copied-label="{% if is_chinese_page %}&#24050;&#22797;&#21046;{% else %}{% trans "Copied" %}{% endif %}">{% if is_chinese_page %}&#24050;&#22797;&#21046;{% else %}{% trans "Copied" %}{% endif %}</span>
                             </button>
+                            <textarea class="publication-bibtex-source" hidden>{{ pub.raw_bibtex }}</textarea>
                             {% endif %}
                         </div>
                         {% endif %}

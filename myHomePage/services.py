@@ -14,12 +14,12 @@ import random
 
 logger = logging.getLogger(__name__)
 
-# 统一读取所有系统配置项示例（可在业务代码中直接调用）
-github_token = SystemConfig.get_github_token()
-researchgate_token = SystemConfig.get_researchgate_token()
-linkedin_token = SystemConfig.get_linkedin_token()
-highlighted_authors = SystemConfig.get_highlighted_authors()
-# 其它已存在的 get_orcid_token、get_scholar_proxy、get_sync_interval_seconds 等同理
+
+def _request_without_env_proxy(method, url, **kwargs):
+    session = requests.Session()
+    session.trust_env = False
+    return session.request(method, url, **kwargs)
+
 
 class ORCIDOAuth:
     """ORCID OAuth 认证处理"""
@@ -61,7 +61,7 @@ class ORCIDOAuth:
                 'Content-Type': 'application/x-www-form-urlencoded',
             }
             # 禁用代理，直接连接 ORCID
-            response = requests.post(self.token_url, data=data, headers=headers, proxies={'http': None, 'https': None})
+            response = _request_without_env_proxy('POST', self.token_url, data=data, headers=headers, timeout=30)
             response.raise_for_status()
             token_data = response.json()
             logger.info('Successfully obtained access token')
@@ -108,7 +108,9 @@ class ORCIDService:
         for mode, proxies in attempts:
             try:
                 logger.info(f"Requesting ORCID via {mode}: {url}")
-                response = requests.get(url, headers=self.headers, proxies=proxies, timeout=30)
+                response = (_request_without_env_proxy('GET', url, headers=self.headers, timeout=30)
+                            if mode == 'direct' else
+                            requests.get(url, headers=self.headers, proxies=proxies, timeout=30))
                 response.raise_for_status()
                 return response
             except requests.exceptions.RequestException as e:
@@ -178,10 +180,7 @@ class ORCIDService:
                     logger.warning("No put-code found in work summary")
                     continue
                 
-                # 检查是否已存在
-                if Publication.objects.filter(bibtex_key=f"orcid_{put_code}").exists():
-                    logger.info(f"Publication with put_code {put_code} already exists, skipping")
-                    continue
+                # Always fetch details so existing entries can be enriched.
                 
                 # 获取完整的作品详情
                 work_details = self.get_work_details(put_code)
@@ -260,10 +259,7 @@ class ORCIDService:
                 if not url and doi:
                     url = f"https://doi.org/{doi}"
                 
-                # 检查 DOI 是否已存在
-                if doi and Publication.objects.filter(doi=doi).exists():
-                    logger.info(f"Publication with DOI {doi} already exists, skipping")
-                    continue
+                # Existing records are merged after details are extracted.
                 
                 # 获取作者信息
                 contributors = work_details.get('contributors', {}).get('contributor', [])
@@ -294,26 +290,41 @@ class ORCIDService:
                 # 获取类型
                 work_type = work_details.get('type', '')
                 
-                # 创建出版物
+                # Create or update publication.
                 try:
-                    publication = Publication.objects.create(
-                        bibtex_key=f"orcid_{put_code}",
-                        title=title,
-                        authors=authors_str,
-                        journal=journal,
-                        year=year,
-                        month=_safe_int(month),
-                        day=_safe_int(day),
-                        date=datetime.strptime(f"{year}-{month}-{day}", "%Y-%m-%d").date() if year else None,
-                        doi=doi,
-                        url=url,
-                        bibtex_type=self._map_work_type(work_type)
-                    )
-                    _refresh_publication_bibtex(publication)
-                    imported_count += 1
-                    logger.info(f"Successfully imported publication: {title}")
+                    publication_data = {
+                        'bibtex_key': f"orcid_{put_code}",
+                        'title': title,
+                        'authors': authors_str,
+                        'journal': journal,
+                        'year': year,
+                        'month': _safe_int(month),
+                        'day': _safe_int(day),
+                        'date': datetime.strptime(f"{year}-{month}-{day}", "%Y-%m-%d").date() if year else None,
+                        'doi': doi,
+                        'url': url,
+                        'bibtex_type': self._map_work_type(work_type)
+                    }
+                    existing = Publication.objects.filter(bibtex_key=publication_data['bibtex_key']).first()
+                    if not existing and doi:
+                        existing = Publication.objects.filter(doi=doi).first()
+                    if not existing:
+                        existing = _find_duplicate_publication(Publication(**publication_data))
+
+                    if existing:
+                        incoming = Publication(**publication_data)
+                        if _update_publication(existing, incoming):
+                            _refresh_publication_bibtex(existing)
+                            logger.info(f"Updated existing publication: {title}")
+                        else:
+                            logger.info(f"Publication already up to date: {title}")
+                    else:
+                        publication = Publication.objects.create(**publication_data)
+                        _refresh_publication_bibtex(publication)
+                        imported_count += 1
+                        logger.info(f"Successfully imported publication: {title}")
                 except Exception as e:
-                    logger.error(f"Error creating publication for work {put_code}: {str(e)}")
+                    logger.error(f"Error saving publication for work {put_code}: {str(e)}")
                     continue
                 
             except Exception as e:
@@ -381,13 +392,19 @@ class GoogleScholarService:
         for mode, proxies in attempts:
             try:
                 logger.info(f"Fetching Google Scholar via {mode} for user: {self.scholar_id}")
-                response = requests.get(
+                response = (_request_without_env_proxy(
+                    'GET',
+                    self.base_url,
+                    params=params,
+                    headers=headers,
+                    timeout=30
+                ) if mode == 'direct' else requests.get(
                     self.base_url,
                     params=params,
                     proxies=proxies,
                     headers=headers,
                     timeout=30
-                )
+                ))
                 response.raise_for_status()
                 return response
             except requests.exceptions.RequestException as e:
@@ -520,7 +537,7 @@ class GoogleScholarService:
             raise
     
     def sync_publications(self, profile=None):
-        """同步Google Scholar出版物"""
+        """Sync Google Scholar publications."""
         logger.info(f"Starting Google Scholar sync for Scholar ID: {self.scholar_id}")
         try:
             publications = self.get_publications()
@@ -531,31 +548,18 @@ class GoogleScholarService:
             imported_count = 0
             for pub in publications:
                 try:
-                    # 生成唯一的bibtex_key
                     bibtex_key = f"scholar_{self.scholar_id}_{pub['title']}"
-                    
-                    # 检查是否已存在
-                    if Publication.objects.filter(bibtex_key=bibtex_key).exists():
-                        logger.info(f"Publication with title '{pub['title']}' already exists, skipping")
-                        continue
-                    
-                    # 检查 DOI 是否已存在
                     doi = self._extract_doi(pub['url'])
                     logger.debug(f"Extracted DOI for publication '{pub['title']}': {doi}")
                     if not doi:
                         doi = None
                         logger.debug(f"No DOI found for publication '{pub['title']}', setting to None")
-                    if doi and Publication.objects.filter(doi=doi).exists():
-                        logger.info(f"Publication with DOI {doi} already exists, skipping")
-                        continue
                     
-                    # 解析年份
                     year = pub['year']
                     if not year.isdigit():
                         year = re.search(r'\d{4}', year)
                         year = year.group(0) if year else None
                     
-                    # 创建出版物
                     try:
                         publication_data = {
                             'bibtex_key': bibtex_key,
@@ -565,16 +569,29 @@ class GoogleScholarService:
                             'year': year,
                             'date': datetime.strptime(f"{year}-1-1", "%Y-%m-%d").date() if year else None,
                             'url': pub['url'],
-                            'doi': doi,  # This will be None if no DOI was found
-                            'bibtex_type': 'article'  # Google Scholar默认类型
+                            'doi': doi,
+                            'bibtex_type': 'article'
                         }
-                        logger.debug(f"Creating publication with data: {publication_data}")
-                        publication = Publication.objects.create(**publication_data)
-                        _refresh_publication_bibtex(publication)
-                        imported_count += 1
-                        logger.info(f"Successfully imported publication: {pub['title']} with DOI: {doi}")
+                        existing = Publication.objects.filter(bibtex_key=bibtex_key).first()
+                        if not existing and doi:
+                            existing = Publication.objects.filter(doi=doi).first()
+                        if not existing:
+                            existing = _find_duplicate_publication(Publication(**publication_data))
+
+                        if existing:
+                            incoming = Publication(**publication_data)
+                            if _update_publication(existing, incoming):
+                                _refresh_publication_bibtex(existing)
+                                logger.info(f"Updated existing publication: {pub['title']} with DOI: {doi}")
+                            else:
+                                logger.info(f"Publication already up to date: {pub['title']} with DOI: {doi}")
+                        else:
+                            publication = Publication.objects.create(**publication_data)
+                            _refresh_publication_bibtex(publication)
+                            imported_count += 1
+                            logger.info(f"Successfully imported publication: {pub['title']} with DOI: {doi}")
                     except Exception as e:
-                        logger.error(f"Error creating publication '{pub['title']}': {str(e)}")
+                        logger.error(f"Error saving publication '{pub['title']}': {str(e)}")
                         logger.error(f"Publication data: {pub}")
                         logger.error(f"DOI value: {doi}")
                         continue
@@ -985,7 +1002,7 @@ def _deduplicate_publications():
 
 
 def _populate_missing_bibtex():
-    for publication in Publication.objects.all().only(
+    for publication in Publication.objects.filter(raw_bibtex='').only(
         'id', 'title', 'authors', 'journal', 'year', 'month', 'day', 'doi',
         'url', 'keywords', 'bibtex_key', 'bibtex_type', 'raw_bibtex', 'date'
     ):

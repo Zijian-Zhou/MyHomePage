@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from .services import ORCIDOAuth
 from django.conf import settings
 from django.contrib.auth.models import User, Group
-from django.http import JsonResponse, Http404, HttpResponseForbidden
+from django.http import JsonResponse, Http404
 from django.core.paginator import Paginator
 import logging
 import os

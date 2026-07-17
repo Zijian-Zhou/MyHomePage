@@ -1,0 +1,1356 @@
+- generic [ref=f1e2]:
+  - banner [ref=f1e3]:
+    - button [ref=f1e4] [cursor=pointer]
+    - link "Homepage" [ref=f1e6] [cursor=pointer]:
+      - /url: /schhp?hl=en
+    - button "Search" [ref=f1e8] [cursor=pointer]
+    - link "Sign in" [ref=f1e11] [cursor=pointer]:
+      - /url: https://accounts.google.com/Login?hl=en&continue=https://scholar.google.com/schhp%3Fhl%3Den
+  - main [ref=f1e13]:
+    - generic [ref=f1e14]:
+      - navigation [ref=f1e15]:
+        - link "Get my own profile" [ref=f1e16] [cursor=pointer]:
+          - /url: /citations?hl=en
+        - region "Cited by" [ref=f1e17]:
+          - heading "Cited by View all" [level=3] [ref=f1e18]:
+            - text: Cited by
+            - button "View all" [ref=f1e19] [cursor=pointer]:
+              - generic [ref=f1e21]: View all
+          - table [ref=f1e22]:
+            - rowgroup [ref=f1e23]:
+              - row "All Since 2021" [ref=f1e24]:
+                - columnheader [ref=f1e25]
+                - columnheader "All" [ref=f1e26]
+                - columnheader "Since 2021" [ref=f1e27]
+            - rowgroup [ref=f1e28]:
+              - row "Citations 6193 5207" [ref=f1e29]:
+                - cell "Citations" [ref=f1e30]:
+                  - link "Citations" [ref=f1e31] [cursor=pointer]:
+                    - /url: javascript:void(0)
+                - cell "6193" [ref=f1e32]
+                - cell "5207" [ref=f1e33]
+              - row "h-index 42 37" [ref=f1e34]:
+                - cell "h-index" [ref=f1e35]:
+                  - link "h-index" [ref=f1e36] [cursor=pointer]:
+                    - /url: javascript:void(0)
+                - cell "42" [ref=f1e37]
+                - cell "37" [ref=f1e38]
+              - row "i10-index 121 101" [ref=f1e39]:
+                - cell "i10-index" [ref=f1e40]:
+                  - link "i10-index" [ref=f1e41] [cursor=pointer]:
+                    - /url: javascript:void(0)
+                - cell "121" [ref=f1e42]
+                - cell "101" [ref=f1e43]
+          - generic [ref=f1e44]:
+            - generic:
+              - generic [ref=f1e50]: "0"
+              - generic [ref=f1e51]: "1700"
+              - generic [ref=f1e52]: "850"
+              - generic [ref=f1e53]: "425"
+              - generic [ref=f1e54]: "1275"
+            - generic [ref=f1e56]:
+              - generic [ref=f1e57]: "2011"
+              - generic [ref=f1e58]: "2012"
+              - generic [ref=f1e59]: "2013"
+              - generic [ref=f1e60]: "2014"
+              - generic [ref=f1e61]: "2015"
+              - generic [ref=f1e62]: "2016"
+              - generic [ref=f1e63]: "2017"
+              - generic [ref=f1e64]: "2018"
+              - generic [ref=f1e65]: "2019"
+              - generic [ref=f1e66]: "2020"
+              - generic [ref=f1e67]: "2021"
+              - generic [ref=f1e68]: "2022"
+              - generic [ref=f1e69]: "2023"
+              - generic [ref=f1e70]: "2024"
+              - generic [ref=f1e71]: "2025"
+              - generic [ref=f1e72]: "2026"
+              - link [ref=f1e73] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=f1e74] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=f1e75] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=f1e76] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=f1e77] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=f1e78] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=f1e79] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=f1e80] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=f1e81] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=f1e82] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=f1e83] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=f1e84] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=f1e85] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=f1e86] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=f1e87] [cursor=pointer]:
+                - /url: javascript:void(0)
+              - link [ref=f1e88] [cursor=pointer]:
+                - /url: javascript:void(0)
+        - region "Public access" [ref=f1e89]:
+          - generic [ref=f1e90]:
+            - generic [ref=f1e91]: Public access
+            - link "View all" [ref=f1e92] [cursor=pointer]:
+              - /url: /citations?view_op=list_mandates&hl=en&user=zwmacb4AAAAJ
+          - generic [ref=f1e93]:
+            - generic [ref=f1e94]: 56 articles
+            - generic [ref=f1e96]: 97 articles
+            - generic [ref=f1e99]: available
+            - generic [ref=f1e100]: not available
+            - generic [ref=f1e101]: Based on funding mandates
+        - region "Co-authors" [ref=f1e102]:
+          - heading "Co-authors" [level=3] [ref=f1e103]
+          - list [ref=f1e104]:
+            - listitem [ref=f1e105]:
+              - generic [ref=f1e106] [cursor=pointer]:
+                - img "Hairong Lin（蔺海荣）" [ref=f1e108]
+                - generic [ref=f1e109]:
+                  - link "Hairong Lin（蔺海荣）" [ref=f1e110]:
+                    - /url: /citations?user=YOy5mEgAAAAJ&hl=en
+                  - generic [ref=f1e111]: Central South University, School of Electronic Information, Associate professor
+            - listitem [ref=f1e115]:
+              - generic [ref=f1e116] [cursor=pointer]:
+                - img "Xuechen Chen" [ref=f1e118]
+                - generic [ref=f1e119]:
+                  - link "Xuechen Chen" [ref=f1e120]:
+                    - /url: /citations?user=IkkpuF0AAAAJ&hl=en
+                  - generic [ref=f1e121]: German Cancer Research Center
+            - listitem [ref=f1e125]:
+              - generic [ref=f1e126] [cursor=pointer]:
+                - img "Geyong Min" [ref=f1e128]
+                - generic [ref=f1e129]:
+                  - link "Geyong Min" [ref=f1e130]:
+                    - /url: /citations?user=Y97ymXwAAAAJ&hl=en
+                  - generic [ref=f1e131]: University of Exeter
+            - listitem [ref=f1e135]:
+              - generic [ref=f1e136] [cursor=pointer]:
+                - img "Honggang Zhang" [ref=f1e138]
+                - generic [ref=f1e139]:
+                  - link "Honggang Zhang" [ref=f1e140]:
+                    - /url: /citations?user=elPaEWUAAAAJ&hl=en
+                  - generic [ref=f1e141]: Associate Professor of Computer Engineering, University of Massachusetts Boston
+            - listitem [ref=f1e145]:
+              - generic [ref=f1e146] [cursor=pointer]:
+                - img "Kaiping Xue" [ref=f1e148]
+                - generic [ref=f1e149]:
+                  - link "Kaiping Xue" [ref=f1e150]:
+                    - /url: /citations?user=F310qPIAAAAJ&hl=en
+                  - generic [ref=f1e151]: University of Science and Technology of China
+            - listitem [ref=f1e155]:
+              - generic [ref=f1e156] [cursor=pointer]:
+                - img "Lan Zhang" [ref=f1e158]
+                - generic [ref=f1e159]:
+                  - link "Lan Zhang" [ref=f1e160]:
+                    - /url: /citations?user=Umj-GRAAAAAJ&hl=en
+                  - generic [ref=f1e161]: Assistant Professor, Clemson University
+            - listitem [ref=f1e165]:
+              - generic [ref=f1e166] [cursor=pointer]:
+                - img "Lin Cai" [ref=f1e168]
+                - generic [ref=f1e169]:
+                  - link "Lin Cai" [ref=f1e170]:
+                    - /url: /citations?user=KhHlHyEAAAAJ&hl=en
+                  - generic [ref=f1e171]: Professor, University of Victoria, RSC/EIC/CAE/IEEE Fellow, NSERC Steacie Fellowship
+            - listitem [ref=f1e175]:
+              - generic [ref=f1e176] [cursor=pointer]:
+                - img "Siyu Lin" [ref=f1e178]
+                - generic [ref=f1e179]:
+                  - link "Siyu Lin" [ref=f1e180]:
+                    - /url: /citations?user=RMTxzQ4AAAAJ&hl=en
+                  - generic [ref=f1e181]: Beijing Jiaotong University
+            - listitem [ref=f1e185]:
+              - generic [ref=f1e186] [cursor=pointer]:
+                - img "Yiqin Deng" [ref=f1e188]
+                - generic [ref=f1e189]:
+                  - link "Yiqin Deng" [ref=f1e190]:
+                    - /url: /citations?user=EdRi_MEAAAAJ&hl=en
+                  - generic [ref=f1e191]: Lingnan University
+            - listitem [ref=f1e195]:
+              - generic [ref=f1e196] [cursor=pointer]:
+                - img "Jianqing Liu" [ref=f1e198]
+                - generic [ref=f1e199]:
+                  - link "Jianqing Liu" [ref=f1e200]:
+                    - /url: /citations?user=3iOL6ZkAAAAJ&hl=en
+                  - generic [ref=f1e201]: Computer Science, NC State University
+            - listitem [ref=f1e205]:
+              - generic [ref=f1e206] [cursor=pointer]:
+                - img "Xiangjian He" [ref=f1e208]
+                - generic [ref=f1e209]:
+                  - link "Xiangjian He" [ref=f1e210]:
+                    - /url: /citations?user=BiBXGfIAAAAJ&hl=en
+                  - generic [ref=f1e211]: University of Nottingham Ningbo China (2022.5--), University of Technology Sydney (1999.2-2022.5)
+            - listitem [ref=f1e215]:
+              - generic [ref=f1e216] [cursor=pointer]:
+                - img "Yuanxiong Guo" [ref=f1e218]
+                - generic [ref=f1e219]:
+                  - link "Yuanxiong Guo" [ref=f1e220]:
+                    - /url: /citations?user=FK_8hMkAAAAJ&hl=en
+                  - generic [ref=f1e221]: University of Texas at San Antonio
+            - listitem [ref=f1e225]:
+              - generic [ref=f1e226] [cursor=pointer]:
+                - img "Ping Jiang" [ref=f1e228]
+                - generic [ref=f1e229]:
+                  - link "Ping Jiang" [ref=f1e230]:
+                    - /url: /citations?user=Bc51x0cAAAAJ&hl=en
+                  - generic [ref=f1e231]: Nanjing University of Posts and Telecommunications
+      - main [ref=f1e235]:
+        - generic [ref=f1e236]:
+          - button "Follow" [ref=f1e237] [cursor=pointer]:
+            - generic [ref=f1e239]: Follow
+          - img "Xiaoheng Deng(邓晓衡)" [ref=f1e242]
+          - generic [ref=f1e243]:
+            - generic [ref=f1e245]: Xiaoheng Deng(邓晓衡)
+            - link "Central South University" [ref=f1e247] [cursor=pointer]:
+              - /url: /citations?view_op=view_org&hl=en&org=15935225337923288879
+            - generic [ref=f1e248]:
+              - text: Verified email at csu.edu.cn -
+              - link "Homepage" [ref=f1e249] [cursor=pointer]:
+                - /url: http://faculty.csu.edu.cn/dengxiaoheng
+            - generic [ref=f1e250]:
+              - link "edge computing" [ref=f1e251] [cursor=pointer]:
+                - /url: /citations?view_op=search_authors&hl=en&mauthors=label:edge_computing
+              - link "big data and IOT" [ref=f1e252] [cursor=pointer]:
+                - /url: /citations?view_op=search_authors&hl=en&mauthors=label:big_data_and_iot
+              - link "distributed computing" [ref=f1e253] [cursor=pointer]:
+                - /url: /citations?view_op=search_authors&hl=en&mauthors=label:distributed_computing
+              - link "wireless networking" [ref=f1e254] [cursor=pointer]:
+                - /url: /citations?view_op=search_authors&hl=en&mauthors=label:wireless_networking
+              - link "social computing" [ref=f1e255] [cursor=pointer]:
+                - /url: /citations?view_op=search_authors&hl=en&mauthors=label:social_computing
+      - navigation
+      - region "Articles" [ref=f1e256]:
+        - generic [ref=f1e257]:
+          - table [ref=f1e259]:
+            - rowgroup [ref=f1e260]:
+              - row "Title Cited by Year" [ref=f1e261]:
+                - columnheader "Title" [ref=f1e262]:
+                  - link "Title" [ref=f1e264] [cursor=pointer]:
+                    - /url: /citations?hl=en&user=zwmacb4AAAAJ&pagesize=100&view_op=list_works&sortby=title
+                - columnheader "Cited by" [ref=f1e265]:
+                  - link "Cited by" [ref=f1e268] [cursor=pointer]:
+                    - /url: /citations?hl=en&user=zwmacb4AAAAJ&pagesize=100&view_op=list_works
+                - columnheader "Year" [ref=f1e269]
+            - rowgroup [ref=f1e270]:
+              - row "Parallel Voxel Graph-Adaptive transformer-based feature space clustering for geospatial point cloud classification and segmentation H Mushtaq, X Deng, I Ullah, M Ali, HHR Sherazi Engineering Applications of Artificial Intelligence 181, 115309 2026" [ref=f1e271]:
+                - cell "Parallel Voxel Graph-Adaptive transformer-based feature space clustering for geospatial point cloud classification and segmentation H Mushtaq, X Deng, I Ullah, M Ali, HHR Sherazi Engineering Applications of Artificial Intelligence 181, 115309" [ref=f1e272]:
+                  - link "Parallel Voxel Graph-Adaptive transformer-based feature space clustering for geospatial point cloud classification and segmentation" [ref=f1e273] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:2tRrZ1ZAMYUC
+                  - generic [ref=f1e274]: H Mushtaq, X Deng, I Ullah, M Ali, HHR Sherazi
+                  - generic [ref=f1e275]: Engineering Applications of Artificial Intelligence 181, 115309
+                - cell [ref=f1e276]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=f1e277]:
+                  - generic [ref=f1e278]: "2026"
+              - 'row "Rewarding for helping others: An Incentive mechanism to improve the task completion by loss aversion and anchoring effect in mobile crowdsensing J Liu, S Zhang, D Li, X Deng, R Peng, H Liu Ad Hoc Networks, 104305 2026" [ref=f1e279]':
+                - 'cell "Rewarding for helping others: An Incentive mechanism to improve the task completion by loss aversion and anchoring effect in mobile crowdsensing J Liu, S Zhang, D Li, X Deng, R Peng, H Liu Ad Hoc Networks, 104305" [ref=f1e280]':
+                  - 'link "Rewarding for helping others: An Incentive mechanism to improve the task completion by loss aversion and anchoring effect in mobile crowdsensing" [ref=f1e281] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:sJsF-0ZLhtgC
+                  - generic [ref=f1e282]: J Liu, S Zhang, D Li, X Deng, R Peng, H Liu
+                  - generic [ref=f1e283]: Ad Hoc Networks, 104305
+                - cell [ref=f1e284]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=f1e285]:
+                  - generic [ref=f1e286]: "2026"
+              - row "AoI-Energy-Spectrum Optimization in Post-Disaster Intelligent Powered Communication Network via Hierarchical Heterogeneous Graph Neural Networks H Liu, J Gui, X Deng, D Zhang, G Min IEEE Transactions on Network Science and Engineering 2026" [ref=f1e287]:
+                - cell "AoI-Energy-Spectrum Optimization in Post-Disaster Intelligent Powered Communication Network via Hierarchical Heterogeneous Graph Neural Networks H Liu, J Gui, X Deng, D Zhang, G Min IEEE Transactions on Network Science and Engineering" [ref=f1e288]:
+                  - link "AoI-Energy-Spectrum Optimization in Post-Disaster Intelligent Powered Communication Network via Hierarchical Heterogeneous Graph Neural Networks" [ref=f1e289] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:4X0JR2_MtJMC
+                  - generic [ref=f1e290]: H Liu, J Gui, X Deng, D Zhang, G Min
+                  - generic [ref=f1e291]: IEEE Transactions on Network Science and Engineering
+                - cell [ref=f1e292]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=f1e293]:
+                  - generic [ref=f1e294]: "2026"
+              - 'row "IncomSeg: Incomplete Multi-Modal 3D Semantic Segmentation for Robust Autonomous Driving X Ma, X Cai, Y Song, X Deng, S Wan Expert Systems with Applications, 132891 2026" [ref=f1e295]':
+                - 'cell "IncomSeg: Incomplete Multi-Modal 3D Semantic Segmentation for Robust Autonomous Driving X Ma, X Cai, Y Song, X Deng, S Wan Expert Systems with Applications, 132891" [ref=f1e296]':
+                  - 'link "IncomSeg: Incomplete Multi-Modal 3D Semantic Segmentation for Robust Autonomous Driving" [ref=f1e297] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:LgRImbQfgY4C
+                  - generic [ref=f1e298]: X Ma, X Cai, Y Song, X Deng, S Wan
+                  - generic [ref=f1e299]: Expert Systems with Applications, 132891
+                - cell [ref=f1e300]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=f1e301]:
+                  - generic [ref=f1e302]: "2026"
+              - row "Task-Generalizable Deep Joint Source-Channel Coding via Hierarchical Masked Autoencoders S Dai, X Chen, X Deng, S Lin IEEE Transactions on Cognitive Communications and Networking 2026" [ref=f1e303]:
+                - cell "Task-Generalizable Deep Joint Source-Channel Coding via Hierarchical Masked Autoencoders S Dai, X Chen, X Deng, S Lin IEEE Transactions on Cognitive Communications and Networking" [ref=f1e304]:
+                  - link "Task-Generalizable Deep Joint Source-Channel Coding via Hierarchical Masked Autoencoders" [ref=f1e305] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:Ak0FvsSvgGUC
+                  - generic [ref=f1e306]: S Dai, X Chen, X Deng, S Lin
+                  - generic [ref=f1e307]: IEEE Transactions on Cognitive Communications and Networking
+                - cell [ref=f1e308]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=f1e309]:
+                  - generic [ref=f1e310]: "2026"
+              - 'row "DG-FuseNet: A Dual-Scale Dynamical Gated Fusion Framework for Cross-Domain Fault Diagnosis in Rotating Machinery D Zhang, X Deng, Y Liao, J Gui, J Zhang Sensors 26 (10), 2968 2026" [ref=f1e311]':
+                - 'cell "DG-FuseNet: A Dual-Scale Dynamical Gated Fusion Framework for Cross-Domain Fault Diagnosis in Rotating Machinery D Zhang, X Deng, Y Liao, J Gui, J Zhang Sensors 26 (10), 2968" [ref=f1e312]':
+                  - 'link "DG-FuseNet: A Dual-Scale Dynamical Gated Fusion Framework for Cross-Domain Fault Diagnosis in Rotating Machinery" [ref=f1e313] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:Bg7qf7VwUHIC
+                  - generic [ref=f1e314]: D Zhang, X Deng, Y Liao, J Gui, J Zhang
+                  - generic [ref=f1e315]: Sensors 26 (10), 2968
+                - cell [ref=f1e316]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=f1e317]:
+                  - generic [ref=f1e318]: "2026"
+              - 'row "Memristive CNN with multi-butterfly attractors: Mathematical modeling, dynamics analysis and application in secure communication H Lin, Z Li, Y Zhang, X Deng, X Chen, G Min Chaos, Solitons & Fractals 206, 117905 10 2026" [ref=f1e319]':
+                - 'cell "Memristive CNN with multi-butterfly attractors: Mathematical modeling, dynamics analysis and application in secure communication H Lin, Z Li, Y Zhang, X Deng, X Chen, G Min Chaos, Solitons & Fractals 206, 117905" [ref=f1e320]':
+                  - 'link "Memristive CNN with multi-butterfly attractors: Mathematical modeling, dynamics analysis and application in secure communication" [ref=f1e321] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:a3BOlSfXSfwC
+                  - generic [ref=f1e322]: H Lin, Z Li, Y Zhang, X Deng, X Chen, G Min
+                  - generic [ref=f1e323]: Chaos, Solitons & Fractals 206, 117905
+                - cell "10" [ref=f1e324]:
+                  - link "10" [ref=f1e325] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=1257324124078457636
+                - cell "2026" [ref=f1e326]:
+                  - generic [ref=f1e327]: "2026"
+              - row "A robust industrial image encryption algorithm for IIoT fusing a Tabu learning neural network and chaos mechanism H Lin, C Duan, X Deng, S Zhang Expert Systems with Applications, 132604 1 2026" [ref=f1e328]:
+                - cell "A robust industrial image encryption algorithm for IIoT fusing a Tabu learning neural network and chaos mechanism H Lin, C Duan, X Deng, S Zhang Expert Systems with Applications, 132604" [ref=f1e329]:
+                  - link "A robust industrial image encryption algorithm for IIoT fusing a Tabu learning neural network and chaos mechanism" [ref=f1e330] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:BJbdYPG6LGMC
+                  - generic [ref=f1e331]: H Lin, C Duan, X Deng, S Zhang
+                  - generic [ref=f1e332]: Expert Systems with Applications, 132604
+                - cell "1" [ref=f1e333]:
+                  - link "1" [ref=f1e334] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=6347208454184983304
+                - cell "2026" [ref=f1e335]:
+                  - generic [ref=f1e336]: "2026"
+              - row "Latency-aware DNN Inference Acceleration with Dynamic Model Partitioning in Vehicular Edge Computing C Li, M Yang, Z Zhang, X Deng, S Wan ACM Transactions on Architecture and Code Optimization 23 (1), 1-26 1 2026" [ref=f1e337]:
+                - cell "Latency-aware DNN Inference Acceleration with Dynamic Model Partitioning in Vehicular Edge Computing C Li, M Yang, Z Zhang, X Deng, S Wan ACM Transactions on Architecture and Code Optimization 23 (1), 1-26" [ref=f1e338]:
+                  - link "Latency-aware DNN Inference Acceleration with Dynamic Model Partitioning in Vehicular Edge Computing" [ref=f1e339] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:r_AWSJRzSzQC
+                  - generic [ref=f1e340]: C Li, M Yang, Z Zhang, X Deng, S Wan
+                  - generic [ref=f1e341]: ACM Transactions on Architecture and Code Optimization 23 (1), 1-26
+                - cell "1" [ref=f1e342]:
+                  - link "1" [ref=f1e343] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=1028258063496931716
+                - cell "2026" [ref=f1e344]:
+                  - generic [ref=f1e345]: "2026"
+              - row "Multi-Truck Multi-Drone Collaborative Delivery via EG-GAT Embedding Multi-Agent DRL in Rural Areas H Qi, J Liu, X Deng, H Lin, J Gui, J Zhang, S Wan IEEE Internet of Things Journal 2026" [ref=f1e346]:
+                - cell "Multi-Truck Multi-Drone Collaborative Delivery via EG-GAT Embedding Multi-Agent DRL in Rural Areas H Qi, J Liu, X Deng, H Lin, J Gui, J Zhang, S Wan IEEE Internet of Things Journal" [ref=f1e347]:
+                  - link "Multi-Truck Multi-Drone Collaborative Delivery via EG-GAT Embedding Multi-Agent DRL in Rural Areas" [ref=f1e348] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:vDZJ-YLwNdEC
+                  - generic [ref=f1e349]: H Qi, J Liu, X Deng, H Lin, J Gui, J Zhang, S Wan
+                  - generic [ref=f1e350]: IEEE Internet of Things Journal
+                - cell [ref=f1e351]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=f1e352]:
+                  - generic [ref=f1e353]: "2026"
+              - row "A Chaotic Tabu Learning Neuron-Based Hybrid Cryptography Solution for CIoMT H Lin, Y Fang, X Deng, J Luo, H Sun, G Min IEEE Transactions on Consumer Electronics 1 2026" [ref=f1e354]:
+                - cell "A Chaotic Tabu Learning Neuron-Based Hybrid Cryptography Solution for CIoMT H Lin, Y Fang, X Deng, J Luo, H Sun, G Min IEEE Transactions on Consumer Electronics" [ref=f1e355]:
+                  - link "A Chaotic Tabu Learning Neuron-Based Hybrid Cryptography Solution for CIoMT" [ref=f1e356] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:artPoR2Yc-kC
+                  - generic [ref=f1e357]: H Lin, Y Fang, X Deng, J Luo, H Sun, G Min
+                  - generic [ref=f1e358]: IEEE Transactions on Consumer Electronics
+                - cell "1" [ref=f1e359]:
+                  - link "1" [ref=f1e360] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=17140299752012687155
+                - cell "2026" [ref=f1e361]:
+                  - generic [ref=f1e362]: "2026"
+              - 'row "CasMoE: A Cascaded Framework for Efficient MoE Inference on Resource-constrained Devices C Wang, H He, L Zhao, X Deng, L Duan, S Wan Proceedings of the AAAI Conference on Artificial Intelligence 40 (31), 26133 … 2026" [ref=f1e363]':
+                - 'cell "CasMoE: A Cascaded Framework for Efficient MoE Inference on Resource-constrained Devices C Wang, H He, L Zhao, X Deng, L Duan, S Wan Proceedings of the AAAI Conference on Artificial Intelligence 40 (31), 26133 …" [ref=f1e364]':
+                  - 'link "CasMoE: A Cascaded Framework for Efficient MoE Inference on Resource-constrained Devices" [ref=f1e365] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:tH6gc1N1XXoC
+                  - generic [ref=f1e366]: C Wang, H He, L Zhao, X Deng, L Duan, S Wan
+                  - generic [ref=f1e367]: Proceedings of the AAAI Conference on Artificial Intelligence 40 (31), 26133 …
+                - cell [ref=f1e368]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=f1e369]:
+                  - generic [ref=f1e370]: "2026"
+              - row "Energy-Efficient and Stable Task Offloading and Resource Allocation in Space-Air-Ground Integrated Networks W Zhu, X Deng, J Zhang, J He, G Min IEEE Transactions on Vehicular Technology 1 2026" [ref=f1e371]:
+                - cell "Energy-Efficient and Stable Task Offloading and Resource Allocation in Space-Air-Ground Integrated Networks W Zhu, X Deng, J Zhang, J He, G Min IEEE Transactions on Vehicular Technology" [ref=f1e372]:
+                  - link "Energy-Efficient and Stable Task Offloading and Resource Allocation in Space-Air-Ground Integrated Networks" [ref=f1e373] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:5icHVeHT4IsC
+                  - generic [ref=f1e374]: W Zhu, X Deng, J Zhang, J He, G Min
+                  - generic [ref=f1e375]: IEEE Transactions on Vehicular Technology
+                - cell "1" [ref=f1e376]:
+                  - link "1" [ref=f1e377] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=8515405352784093814
+                - cell "2026" [ref=f1e378]:
+                  - generic [ref=f1e379]: "2026"
+              - 'row "A second-order memristor method to construct memristive neural networks with multi-butterfly and multi-scroll dynamics H Lin, X Deng, Y Zhang, G Min IEEE Transactions on Circuits and Systems I: Regular Papers 4 2026" [ref=f1e380]':
+                - 'cell "A second-order memristor method to construct memristive neural networks with multi-butterfly and multi-scroll dynamics H Lin, X Deng, Y Zhang, G Min IEEE Transactions on Circuits and Systems I: Regular Papers" [ref=f1e381]':
+                  - link "A second-order memristor method to construct memristive neural networks with multi-butterfly and multi-scroll dynamics" [ref=f1e382] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:nVrZBo8bIpAC
+                  - generic [ref=f1e383]: H Lin, X Deng, Y Zhang, G Min
+                  - generic [ref=f1e384]: "IEEE Transactions on Circuits and Systems I: Regular Papers"
+                - cell "4" [ref=f1e385]:
+                  - link "4" [ref=f1e386] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=1426932630823422283
+                - cell "2026" [ref=f1e387]:
+                  - generic [ref=f1e388]: "2026"
+              - 'row "Resilient and Freshness-Aware Scheduling for Industrial Multi-Hop IAB Networks: A Packet Duplication Approach S Zhu, S Lin, Z Wang, Q Ren, X Deng, B Ai arXiv preprint arXiv:2602.13311 2026" [ref=f1e389]':
+                - 'cell "Resilient and Freshness-Aware Scheduling for Industrial Multi-Hop IAB Networks: A Packet Duplication Approach S Zhu, S Lin, Z Wang, Q Ren, X Deng, B Ai arXiv preprint arXiv:2602.13311" [ref=f1e390]':
+                  - 'link "Resilient and Freshness-Aware Scheduling for Industrial Multi-Hop IAB Networks: A Packet Duplication Approach" [ref=f1e391] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:lvd772isFD0C
+                  - generic [ref=f1e392]: S Zhu, S Lin, Z Wang, Q Ren, X Deng, B Ai
+                  - generic [ref=f1e393]: arXiv preprint arXiv:2602.13311
+                - cell [ref=f1e394]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=f1e395]:
+                  - generic [ref=f1e396]: "2026"
+              - 'row "ZJC: Constructing fully local repair in erasure codes for distributed cloud storage Z Zhou, X Deng, X Pei, Y Zhao, Y Qian, S Wan, K Xue Journal of Systems Architecture, 103735 2026" [ref=f1e397]':
+                - 'cell "ZJC: Constructing fully local repair in erasure codes for distributed cloud storage Z Zhou, X Deng, X Pei, Y Zhao, Y Qian, S Wan, K Xue Journal of Systems Architecture, 103735" [ref=f1e398]':
+                  - 'link "ZJC: Constructing fully local repair in erasure codes for distributed cloud storage" [ref=f1e399] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:u-coK7KVo8oC
+                  - generic [ref=f1e400]: Z Zhou, X Deng, X Pei, Y Zhao, Y Qian, S Wan, K Xue
+                  - generic [ref=f1e401]: Journal of Systems Architecture, 103735
+                - cell [ref=f1e402]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=f1e403]:
+                  - generic [ref=f1e404]: "2026"
+              - 'row "V2X-JEPA: Self-Supervised Multi-Agent Joint Embedding Predictive Architecture for Robust Vehicle-to-Everything Perception N Mayumu, X Deng, A Bagula, P Mukala IEEE Internet of Things Journal 9 2026" [ref=f1e405]':
+                - 'cell "V2X-JEPA: Self-Supervised Multi-Agent Joint Embedding Predictive Architecture for Robust Vehicle-to-Everything Perception N Mayumu, X Deng, A Bagula, P Mukala IEEE Internet of Things Journal" [ref=f1e406]':
+                  - 'link "V2X-JEPA: Self-Supervised Multi-Agent Joint Embedding Predictive Architecture for Robust Vehicle-to-Everything Perception" [ref=f1e407] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:5MTHONV0fEkC
+                  - generic [ref=f1e408]: N Mayumu, X Deng, A Bagula, P Mukala
+                  - generic [ref=f1e409]: IEEE Internet of Things Journal
+                - cell "9" [ref=f1e410]:
+                  - link "9" [ref=f1e411] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=14987334874743117517
+                - cell "2026" [ref=f1e412]:
+                  - generic [ref=f1e413]: "2026"
+              - 'row "HAFNet: Hybrid-Stage Collaborative Perception via Agent-Foreground List W Wu, P Jiang, X Deng, S Wan IEEE Transactions on Intelligent Transportation Systems 2026" [ref=f1e414]':
+                - 'cell "HAFNet: Hybrid-Stage Collaborative Perception via Agent-Foreground List W Wu, P Jiang, X Deng, S Wan IEEE Transactions on Intelligent Transportation Systems" [ref=f1e415]':
+                  - 'link "HAFNet: Hybrid-Stage Collaborative Perception via Agent-Foreground List" [ref=f1e416] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:Ehil0879vHcC
+                  - generic [ref=f1e417]: W Wu, P Jiang, X Deng, S Wan
+                  - generic [ref=f1e418]: IEEE Transactions on Intelligent Transportation Systems
+                - cell [ref=f1e419]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=f1e420]:
+                  - generic [ref=f1e421]: "2026"
+              - 'row "BEVFormer++: Enhancing BEV Fusion with Normalized Embedding and Range Attention for 3D Object Detection S Qayyum, X Deng, H Mushtaq, P Jiang, S Wan, I Ullah Expert Systems with Applications, 131131 2 2026" [ref=f1e422]':
+                - 'cell "BEVFormer++: Enhancing BEV Fusion with Normalized Embedding and Range Attention for 3D Object Detection S Qayyum, X Deng, H Mushtaq, P Jiang, S Wan, I Ullah Expert Systems with Applications, 131131" [ref=f1e423]':
+                  - 'link "BEVFormer++: Enhancing BEV Fusion with Normalized Embedding and Range Attention for 3D Object Detection" [ref=f1e424] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:yqoGN6RLRZoC
+                  - generic [ref=f1e425]: S Qayyum, X Deng, H Mushtaq, P Jiang, S Wan, I Ullah
+                  - generic [ref=f1e426]: Expert Systems with Applications, 131131
+                - cell "2" [ref=f1e427]:
+                  - link "2" [ref=f1e428] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=4972477068055188074
+                - cell "2026" [ref=f1e429]:
+                  - generic [ref=f1e430]: "2026"
+              - 'row "FedMOP: Achieving Enhanced Privacy and Performance in Federated Learning via Momentum Orthogonal Projection Y Zhao, X Deng, H Xu, Z Qiu, X Hu, S You, Y Chen, C Xu, X Su Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern … 2026" [ref=f1e431]':
+                - 'cell "FedMOP: Achieving Enhanced Privacy and Performance in Federated Learning via Momentum Orthogonal Projection Y Zhao, X Deng, H Xu, Z Qiu, X Hu, S You, Y Chen, C Xu, X Su Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern …" [ref=f1e432]':
+                  - 'link "FedMOP: Achieving Enhanced Privacy and Performance in Federated Learning via Momentum Orthogonal Projection" [ref=f1e433] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:AHdEip9mkN0C
+                  - generic [ref=f1e434]: Y Zhao, X Deng, H Xu, Z Qiu, X Hu, S You, Y Chen, C Xu, X Su
+                  - generic [ref=f1e435]: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern …
+                - cell [ref=f1e436]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=f1e437]:
+                  - generic [ref=f1e438]: "2026"
+              - 'row "Localizing, Structuring, and Rendering: Bridging 3D and 2D Vision-Language-Action Models for Robotic Manipulation Y Zhao, X Deng, Y Cao, Y Chen, X He, S You, S Yang, L Fan, F Wang, ... Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern … 2026" [ref=f1e439]':
+                - 'cell "Localizing, Structuring, and Rendering: Bridging 3D and 2D Vision-Language-Action Models for Robotic Manipulation Y Zhao, X Deng, Y Cao, Y Chen, X He, S You, S Yang, L Fan, F Wang, ... Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern …" [ref=f1e440]':
+                  - 'link "Localizing, Structuring, and Rendering: Bridging 3D and 2D Vision-Language-Action Models for Robotic Manipulation" [ref=f1e441] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:F1b5ZUV5XREC
+                  - generic [ref=f1e442]: Y Zhao, X Deng, Y Cao, Y Chen, X He, S You, S Yang, L Fan, F Wang, ...
+                  - generic [ref=f1e443]: Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern …
+                - cell [ref=f1e444]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=f1e445]:
+                  - generic [ref=f1e446]: "2026"
+              - row "A Computationally Efficient Incentive‐Compatible Auction Mechanism for Parking Allocation and Payment With Trip‐Chain JQ Wang, LX Chi, DW Zhang, JS Gui, XH Deng IET Intelligent Transport Systems 20 (1), e70179 2026" [ref=f1e447]:
+                - cell "A Computationally Efficient Incentive‐Compatible Auction Mechanism for Parking Allocation and Payment With Trip‐Chain JQ Wang, LX Chi, DW Zhang, JS Gui, XH Deng IET Intelligent Transport Systems 20 (1), e70179" [ref=f1e448]:
+                  - link "A Computationally Efficient Incentive‐Compatible Auction Mechanism for Parking Allocation and Payment With Trip‐Chain" [ref=f1e449] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:gKiMpY-AVTkC
+                  - generic [ref=f1e450]: JQ Wang, LX Chi, DW Zhang, JS Gui, XH Deng
+                  - generic [ref=f1e451]: IET Intelligent Transport Systems 20 (1), e70179
+                - cell [ref=f1e452]:
+                  - link:
+                    - /url: ""
+                - cell "2026" [ref=f1e453]:
+                  - generic [ref=f1e454]: "2026"
+              - 'row "Generation and control of polymorphous chaos in cellular neural networks subjected to multiple electromagnetic stimuli: H. Lin et al. H Lin, Y Zhang, X Deng, L Jiang, G Min Nonlinear Dynamics 114 (2), 93 8 2026" [ref=f1e455]':
+                - 'cell "Generation and control of polymorphous chaos in cellular neural networks subjected to multiple electromagnetic stimuli: H. Lin et al. H Lin, Y Zhang, X Deng, L Jiang, G Min Nonlinear Dynamics 114 (2), 93" [ref=f1e456]':
+                  - 'link "Generation and control of polymorphous chaos in cellular neural networks subjected to multiple electromagnetic stimuli: H. Lin et al." [ref=f1e457] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:LhH-TYMQEocC
+                  - generic [ref=f1e458]: H Lin, Y Zhang, X Deng, L Jiang, G Min
+                  - generic [ref=f1e459]: Nonlinear Dynamics 114 (2), 93
+                - cell "8" [ref=f1e460]:
+                  - link "8" [ref=f1e461] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=11213517932029935906
+                - cell "2026" [ref=f1e462]:
+                  - generic [ref=f1e463]: "2026"
+              - 'row "Haina Storage: Large-Scale and Secure Decentralized Storage for Files in Private Cloud Z Zhou, C Wang, X Deng, H Lin, J Lu, S Wan 2025 IEEE 31th International Conference on Parallel and Distributed Systems … 2025" [ref=f1e464]':
+                - 'cell "Haina Storage: Large-Scale and Secure Decentralized Storage for Files in Private Cloud Z Zhou, C Wang, X Deng, H Lin, J Lu, S Wan 2025 IEEE 31th International Conference on Parallel and Distributed Systems …" [ref=f1e465]':
+                  - 'link "Haina Storage: Large-Scale and Secure Decentralized Storage for Files in Private Cloud" [ref=f1e466] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:_OXeSy2IsFwC
+                  - generic [ref=f1e467]: Z Zhou, C Wang, X Deng, H Lin, J Lu, S Wan
+                  - generic [ref=f1e468]: 2025 IEEE 31th International Conference on Parallel and Distributed Systems …
+                - cell [ref=f1e469]:
+                  - link:
+                    - /url: ""
+                - cell "2025" [ref=f1e470]:
+                  - generic [ref=f1e471]: "2025"
+              - row "Network Slicing Strategy for Moving Networks With Imperfect Train-to-Ground Downlink Q Ren, S Lin, Y Cai, J Song, X Chen, X Deng, B Ai IEEE Transactions on Communications 74, 2064-2080 1 2025" [ref=f1e472]:
+                - cell "Network Slicing Strategy for Moving Networks With Imperfect Train-to-Ground Downlink Q Ren, S Lin, Y Cai, J Song, X Chen, X Deng, B Ai IEEE Transactions on Communications 74, 2064-2080" [ref=f1e473]:
+                  - link "Network Slicing Strategy for Moving Networks With Imperfect Train-to-Ground Downlink" [ref=f1e474] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:OP4eGU-M3BUC
+                  - generic [ref=f1e475]: Q Ren, S Lin, Y Cai, J Song, X Chen, X Deng, B Ai
+                  - generic [ref=f1e476]: IEEE Transactions on Communications 74, 2064-2080
+                - cell "1" [ref=f1e477]:
+                  - link "1" [ref=f1e478] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=11880073847067323334
+                - cell "2025" [ref=f1e479]:
+                  - generic [ref=f1e480]: "2025"
+              - row "Incentive Mechanism for Crowdsensing with User Autonomous Decision-Making Based on Prospect Theory and Ordered Submodularity H Jiang, X Deng, D Li, X Pei, J Gui, G Min IEEE Transactions on Mobile Computing 1 2025" [ref=f1e481]:
+                - cell "Incentive Mechanism for Crowdsensing with User Autonomous Decision-Making Based on Prospect Theory and Ordered Submodularity H Jiang, X Deng, D Li, X Pei, J Gui, G Min IEEE Transactions on Mobile Computing" [ref=f1e482]:
+                  - link "Incentive Mechanism for Crowdsensing with User Autonomous Decision-Making Based on Prospect Theory and Ordered Submodularity" [ref=f1e483] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:nZcligLrVowC
+                  - generic [ref=f1e484]: H Jiang, X Deng, D Li, X Pei, J Gui, G Min
+                  - generic [ref=f1e485]: IEEE Transactions on Mobile Computing
+                - cell "1" [ref=f1e486]:
+                  - link "1" [ref=f1e487] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=15214538731597530498
+                - cell "2025" [ref=f1e488]:
+                  - generic [ref=f1e489]: "2025"
+              - row "Cross-Architecture Knowledge Distillation for Deep Joint Source-Channel Coding S Dai, X Chen, X Deng, S Lin IEEE Transactions on Mobile Computing 2 2025" [ref=f1e490]:
+                - cell "Cross-Architecture Knowledge Distillation for Deep Joint Source-Channel Coding S Dai, X Chen, X Deng, S Lin IEEE Transactions on Mobile Computing" [ref=f1e491]:
+                  - link "Cross-Architecture Knowledge Distillation for Deep Joint Source-Channel Coding" [ref=f1e492] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:ZzlSgRqYykMC
+                  - generic [ref=f1e493]: S Dai, X Chen, X Deng, S Lin
+                  - generic [ref=f1e494]: IEEE Transactions on Mobile Computing
+                - cell "2" [ref=f1e495]:
+                  - link "2" [ref=f1e496] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=17397707873161260705
+                - cell "2025" [ref=f1e497]:
+                  - generic [ref=f1e498]: "2025"
+              - row "Scalable Deep Joint Source-Channel Coding for Multi-User Wireless Image Transmission With Diverse Bandwidth Conditions F Wang, X Chen, X Deng, S Lin IEEE Transactions on Wireless Communications 25, 7333-7349 1 2025" [ref=f1e499]:
+                - cell "Scalable Deep Joint Source-Channel Coding for Multi-User Wireless Image Transmission With Diverse Bandwidth Conditions F Wang, X Chen, X Deng, S Lin IEEE Transactions on Wireless Communications 25, 7333-7349" [ref=f1e500]:
+                  - link "Scalable Deep Joint Source-Channel Coding for Multi-User Wireless Image Transmission With Diverse Bandwidth Conditions" [ref=f1e501] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:F9fV5C73w3QC
+                  - generic [ref=f1e502]: F Wang, X Chen, X Deng, S Lin
+                  - generic [ref=f1e503]: IEEE Transactions on Wireless Communications 25, 7333-7349
+                - cell "1" [ref=f1e504]:
+                  - link "1" [ref=f1e505] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=3559299426221145958
+                - cell "2025" [ref=f1e506]:
+                  - generic [ref=f1e507]: "2025"
+              - row "Multi-Heterogeneous-Agent DRL for Efficient Congestion Control With Reward Redistribution in Space–Air–Ground Integrated Networks J Gui, Z Li, J Zhang, X Deng, G Min IEEE Transactions on Network Science and Engineering 4 2025" [ref=f1e508]:
+                - cell "Multi-Heterogeneous-Agent DRL for Efficient Congestion Control With Reward Redistribution in Space–Air–Ground Integrated Networks J Gui, Z Li, J Zhang, X Deng, G Min IEEE Transactions on Network Science and Engineering" [ref=f1e509]:
+                  - link "Multi-Heterogeneous-Agent DRL for Efficient Congestion Control With Reward Redistribution in Space–Air–Ground Integrated Networks" [ref=f1e510] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:HeT0ZceujKMC
+                  - generic [ref=f1e511]: J Gui, Z Li, J Zhang, X Deng, G Min
+                  - generic [ref=f1e512]: IEEE Transactions on Network Science and Engineering
+                - cell "4" [ref=f1e513]:
+                  - link "4" [ref=f1e514] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=7577083075901309842
+                - cell "2025" [ref=f1e515]:
+                  - generic [ref=f1e516]: "2025"
+              - 'row "CaDGS: Modeling Inter-Gaussian Mutual Information for Dynamic Novel View Synthesis Y Zhao, X Deng, Z Qiu, F Yang, C Xu, X He, S You, X Su Proceedings of the 33rd ACM International Conference on Multimedia, 7795-7804 1 2025" [ref=f1e517]':
+                - 'cell "CaDGS: Modeling Inter-Gaussian Mutual Information for Dynamic Novel View Synthesis Y Zhao, X Deng, Z Qiu, F Yang, C Xu, X He, S You, X Su Proceedings of the 33rd ACM International Conference on Multimedia, 7795-7804" [ref=f1e518]':
+                  - 'link "CaDGS: Modeling Inter-Gaussian Mutual Information for Dynamic Novel View Synthesis" [ref=f1e519] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:yMeIxYmEMEAC
+                  - generic [ref=f1e520]: Y Zhao, X Deng, Z Qiu, F Yang, C Xu, X He, S You, X Su
+                  - generic [ref=f1e521]: Proceedings of the 33rd ACM International Conference on Multimedia, 7795-7804
+                - cell "1" [ref=f1e522]:
+                  - link "1" [ref=f1e523] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=15944514673565119256
+                - cell "2025" [ref=f1e524]:
+                  - generic [ref=f1e525]: "2025"
+              - row "Securing image privacy in internet-of-vehicles with a multiwing hyperchaotic memristive neural network H Lin, X Deng, S Zhang, X Chen, G Min, K Xue IEEE Internet of Things Journal 25 2025" [ref=f1e526]:
+                - cell "Securing image privacy in internet-of-vehicles with a multiwing hyperchaotic memristive neural network H Lin, X Deng, S Zhang, X Chen, G Min, K Xue IEEE Internet of Things Journal" [ref=f1e527]:
+                  - link "Securing image privacy in internet-of-vehicles with a multiwing hyperchaotic memristive neural network" [ref=f1e528] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:fFSKOagxvKUC
+                  - generic [ref=f1e529]: H Lin, X Deng, S Zhang, X Chen, G Min, K Xue
+                  - generic [ref=f1e530]: IEEE Internet of Things Journal
+                - cell "25" [ref=f1e531]:
+                  - link "25" [ref=f1e532] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=2831442294073942614
+                - cell "2025" [ref=f1e533]:
+                  - generic [ref=f1e534]: "2025"
+              - row "DDPG-based Load-Aware QoS Guaranteed SDN Controller Placement for Internet of Vehicles B Li, X Deng, X Chen, Y Deng, S Wan, H Zhang IEEE Internet of Things Journal 3 2025" [ref=f1e535]:
+                - cell "DDPG-based Load-Aware QoS Guaranteed SDN Controller Placement for Internet of Vehicles B Li, X Deng, X Chen, Y Deng, S Wan, H Zhang IEEE Internet of Things Journal" [ref=f1e536]:
+                  - link "DDPG-based Load-Aware QoS Guaranteed SDN Controller Placement for Internet of Vehicles" [ref=f1e537] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:OcBU2YAGkTUC
+                  - generic [ref=f1e538]: B Li, X Deng, X Chen, Y Deng, S Wan, H Zhang
+                  - generic [ref=f1e539]: IEEE Internet of Things Journal
+                - cell "3" [ref=f1e540]:
+                  - link "3" [ref=f1e541] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=12252121053453625603
+                - cell "2025" [ref=f1e542]:
+                  - generic [ref=f1e543]: "2025"
+              - 'row "Causal Grey Wolf Optimization: A Novel Approach to Robust Network Anomaly Detection Amidst Data Redundancy Z Zeng, X Deng, B Zhao IEEE Internet of Things Journal 2 2025" [ref=f1e544]':
+                - 'cell "Causal Grey Wolf Optimization: A Novel Approach to Robust Network Anomaly Detection Amidst Data Redundancy Z Zeng, X Deng, B Zhao IEEE Internet of Things Journal" [ref=f1e545]':
+                  - 'link "Causal Grey Wolf Optimization: A Novel Approach to Robust Network Anomaly Detection Amidst Data Redundancy" [ref=f1e546] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:yFnVuubrUp4C
+                  - generic [ref=f1e547]: Z Zeng, X Deng, B Zhao
+                  - generic [ref=f1e548]: IEEE Internet of Things Journal
+                - cell "2" [ref=f1e549]:
+                  - link "2" [ref=f1e550] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=13646670661928598550
+                - cell "2025" [ref=f1e551]:
+                  - generic [ref=f1e552]: "2025"
+              - row "E2E Hybrid Computation Offloading for Complex MEC System J Zhang, X Deng, J Yin, X Deng, X Chen, J Gui, S Zhang IEEE Transactions on Mobile Computing 1 2025" [ref=f1e553]:
+                - cell "E2E Hybrid Computation Offloading for Complex MEC System J Zhang, X Deng, J Yin, X Deng, X Chen, J Gui, S Zhang IEEE Transactions on Mobile Computing" [ref=f1e554]:
+                  - link "E2E Hybrid Computation Offloading for Complex MEC System" [ref=f1e555] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:bKqednn6t2AC
+                  - generic [ref=f1e556]: J Zhang, X Deng, J Yin, X Deng, X Chen, J Gui, S Zhang
+                  - generic [ref=f1e557]: IEEE Transactions on Mobile Computing
+                - cell "1" [ref=f1e558]:
+                  - link "1" [ref=f1e559] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=7422823026975680042
+                - cell "2025" [ref=f1e560]:
+                  - generic [ref=f1e561]: "2025"
+              - row "A blockchain-based federated learning framework against poisoning attacks in the internet of vehicles I Ullah, X Deng, X Pei, H Mushtaq, M Uzair, S Qayyum Computer Networks, 111705 8 2025" [ref=f1e562]:
+                - cell "A blockchain-based federated learning framework against poisoning attacks in the internet of vehicles I Ullah, X Deng, X Pei, H Mushtaq, M Uzair, S Qayyum Computer Networks, 111705" [ref=f1e563]:
+                  - link "A blockchain-based federated learning framework against poisoning attacks in the internet of vehicles" [ref=f1e564] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:HtS1dXgVpQUC
+                  - generic [ref=f1e565]: I Ullah, X Deng, X Pei, H Mushtaq, M Uzair, S Qayyum
+                  - generic [ref=f1e566]: Computer Networks, 111705
+                - cell "8" [ref=f1e567]:
+                  - link "8" [ref=f1e568] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=1280083161761093031
+                - cell "2025" [ref=f1e569]:
+                  - generic [ref=f1e570]: "2025"
+              - 'row "Pcd-db: Enhancing popular content dissemination by incentivizing v2x cooperation among electric vehicles using dag-based blockchain C Chen, Y Li, J Hu, Z Liu, L Cong, X Deng, S Wan IEEE Transactions on Intelligent Transportation Systems 7 2025" [ref=f1e571]':
+                - 'cell "Pcd-db: Enhancing popular content dissemination by incentivizing v2x cooperation among electric vehicles using dag-based blockchain C Chen, Y Li, J Hu, Z Liu, L Cong, X Deng, S Wan IEEE Transactions on Intelligent Transportation Systems" [ref=f1e572]':
+                  - 'link "Pcd-db: Enhancing popular content dissemination by incentivizing v2x cooperation among electric vehicles using dag-based blockchain" [ref=f1e573] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:DJbcl8HfkQkC
+                  - generic [ref=f1e574]: C Chen, Y Li, J Hu, Z Liu, L Cong, X Deng, S Wan
+                  - generic [ref=f1e575]: IEEE Transactions on Intelligent Transportation Systems
+                - cell "7" [ref=f1e576]:
+                  - link "7" [ref=f1e577] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=13855889508608031857
+                - cell "2025" [ref=f1e578]:
+                  - generic [ref=f1e579]: "2025"
+              - row "Privacy-preserving online medical image exchange via hyperchaotic memristive neural networks and DNA encoding X Deng, S Ding, H Lin, L Jiang, H Sun, J Jin Neurocomputing, 131132 27 2025" [ref=f1e580]:
+                - cell "Privacy-preserving online medical image exchange via hyperchaotic memristive neural networks and DNA encoding X Deng, S Ding, H Lin, L Jiang, H Sun, J Jin Neurocomputing, 131132" [ref=f1e581]:
+                  - link "Privacy-preserving online medical image exchange via hyperchaotic memristive neural networks and DNA encoding" [ref=f1e582] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:mNrWkgRL2YcC
+                  - generic [ref=f1e583]: X Deng, S Ding, H Lin, L Jiang, H Sun, J Jin
+                  - generic [ref=f1e584]: Neurocomputing, 131132
+                - cell "27" [ref=f1e585]:
+                  - link "27" [ref=f1e586] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=17641510719552910649
+                - cell "2025" [ref=f1e587]:
+                  - generic [ref=f1e588]: "2025"
+              - row "Knowledge Distillation Enhanced DeepJSCC for Edge-Optimized Image Transmission Systems S Dai, X Chen, X Deng 2025 IEEE/CIC International Conference on Communications in China (ICCC … 1 2025" [ref=f1e589]:
+                - cell "Knowledge Distillation Enhanced DeepJSCC for Edge-Optimized Image Transmission Systems S Dai, X Chen, X Deng 2025 IEEE/CIC International Conference on Communications in China (ICCC …" [ref=f1e590]:
+                  - link "Knowledge Distillation Enhanced DeepJSCC for Edge-Optimized Image Transmission Systems" [ref=f1e591] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:P7Ujq4OLJYoC
+                  - generic [ref=f1e592]: S Dai, X Chen, X Deng
+                  - generic [ref=f1e593]: 2025 IEEE/CIC International Conference on Communications in China (ICCC …
+                - cell "1" [ref=f1e594]:
+                  - link "1" [ref=f1e595] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=11902218052674903117
+                - cell "2025" [ref=f1e596]:
+                  - generic [ref=f1e597]: "2025"
+              - 'row "Securing internet of vehicles: a blockchain-based federated learning approach for enhanced intrusion detection I Ullah, X Deng, X Pei, H Mushtaq, Z Khan Cluster Computing 28 (4), 256 36 2025" [ref=f1e598]':
+                - 'cell "Securing internet of vehicles: a blockchain-based federated learning approach for enhanced intrusion detection I Ullah, X Deng, X Pei, H Mushtaq, Z Khan Cluster Computing 28 (4), 256" [ref=f1e599]':
+                  - 'link "Securing internet of vehicles: a blockchain-based federated learning approach for enhanced intrusion detection" [ref=f1e600] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:mlAyqtXpCwEC
+                  - generic [ref=f1e601]: I Ullah, X Deng, X Pei, H Mushtaq, Z Khan
+                  - generic [ref=f1e602]: Cluster Computing 28 (4), 256
+                - cell "36" [ref=f1e603]:
+                  - link "36" [ref=f1e604] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=12623801802427605853
+                - cell "2025" [ref=f1e605]:
+                  - generic [ref=f1e606]: "2025"
+              - row "Dual-memristor brain-like chaotic neural network and its application in IoMT data privacy protection H LIN, C DUAN, X DENG, M Geyong 电子与信息学报 47 (7), 2194-2210 5 2025" [ref=f1e607]:
+                - cell "Dual-memristor brain-like chaotic neural network and its application in IoMT data privacy protection H LIN, C DUAN, X DENG, M Geyong 电子与信息学报 47 (7), 2194-2210" [ref=f1e608]:
+                  - link "Dual-memristor brain-like chaotic neural network and its application in IoMT data privacy protection" [ref=f1e609] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:GFxP56DSvIMC
+                  - generic [ref=f1e610]: H LIN, C DUAN, X DENG, M Geyong
+                  - generic [ref=f1e611]: 电子与信息学报 47 (7), 2194-2210
+                - cell "5" [ref=f1e612]:
+                  - link "5" [ref=f1e613] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=15044979148507408069
+                - cell "2025" [ref=f1e614]:
+                  - generic [ref=f1e615]: "2025"
+              - row "D3QN-TD3-based user association and resource allocation in ISAC-aided vehicular edge computing C Li, K Long, M Yang, L Zhao, X Deng, D Li, S Wan ACM Transactions on Sensor Networks 21 (4), 1-31 3 2025" [ref=f1e616]:
+                - cell "D3QN-TD3-based user association and resource allocation in ISAC-aided vehicular edge computing C Li, K Long, M Yang, L Zhao, X Deng, D Li, S Wan ACM Transactions on Sensor Networks 21 (4), 1-31" [ref=f1e617]:
+                  - link "D3QN-TD3-based user association and resource allocation in ISAC-aided vehicular edge computing" [ref=f1e618] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:HIFyuExEbWQC
+                  - generic [ref=f1e619]: C Li, K Long, M Yang, L Zhao, X Deng, D Li, S Wan
+                  - generic [ref=f1e620]: ACM Transactions on Sensor Networks 21 (4), 1-31
+                - cell "3" [ref=f1e621]:
+                  - link "3" [ref=f1e622] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=2414919228345762285
+                - cell "2025" [ref=f1e623]:
+                  - generic [ref=f1e624]: "2025"
+              - row "An adversarial contrastive learning based cross-modality zero-watermarking scheme for DIBR 3D video copyright protection X Liu, Q Dang, H Wang, X Deng, X Fan, C Yang, Z Chen, H Fang Neurocomputing 637, 130068 4 2025" [ref=f1e625]:
+                - cell "An adversarial contrastive learning based cross-modality zero-watermarking scheme for DIBR 3D video copyright protection X Liu, Q Dang, H Wang, X Deng, X Fan, C Yang, Z Chen, H Fang Neurocomputing 637, 130068" [ref=f1e626]:
+                  - link "An adversarial contrastive learning based cross-modality zero-watermarking scheme for DIBR 3D video copyright protection" [ref=f1e627] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:IUKN3-7HHlwC
+                  - generic [ref=f1e628]: X Liu, Q Dang, H Wang, X Deng, X Fan, C Yang, Z Chen, H Fang
+                  - generic [ref=f1e629]: Neurocomputing 637, 130068
+                - cell "4" [ref=f1e630]:
+                  - link "4" [ref=f1e631] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=9342678386694273435
+                - cell "2025" [ref=f1e632]:
+                  - generic [ref=f1e633]: "2025"
+              - row "AoI-Energy-Spectrum Optimization in Post-Disaster Powered Communication Intelligent Network via Hierarchical Heterogeneous Graph Neural Network H Liu, J Gui, X Deng arXiv preprint arXiv:2507.03401 2025" [ref=f1e634]:
+                - cell "AoI-Energy-Spectrum Optimization in Post-Disaster Powered Communication Intelligent Network via Hierarchical Heterogeneous Graph Neural Network H Liu, J Gui, X Deng arXiv preprint arXiv:2507.03401" [ref=f1e635]:
+                  - link "AoI-Energy-Spectrum Optimization in Post-Disaster Powered Communication Intelligent Network via Hierarchical Heterogeneous Graph Neural Network" [ref=f1e636] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:cWzG1nlazyYC
+                  - generic [ref=f1e637]: H Liu, J Gui, X Deng
+                  - generic [ref=f1e638]: arXiv preprint arXiv:2507.03401
+                - cell [ref=f1e639]:
+                  - link:
+                    - /url: ""
+                - cell "2025" [ref=f1e640]:
+                  - generic [ref=f1e641]: "2025"
+              - row "Slicing-enabled resource management for moving networks with imperfect train-to-ground downlink Q Ren, S Lin, J Song, X Deng, B Ai ICC 2025-IEEE International Conference on Communications, 7073-7078 2 2025" [ref=f1e642]:
+                - cell "Slicing-enabled resource management for moving networks with imperfect train-to-ground downlink Q Ren, S Lin, J Song, X Deng, B Ai ICC 2025-IEEE International Conference on Communications, 7073-7078" [ref=f1e643]:
+                  - link "Slicing-enabled resource management for moving networks with imperfect train-to-ground downlink" [ref=f1e644] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:ODE9OILHJdcC
+                  - generic [ref=f1e645]: Q Ren, S Lin, J Song, X Deng, B Ai
+                  - generic [ref=f1e646]: ICC 2025-IEEE International Conference on Communications, 7073-7078
+                - cell "2" [ref=f1e647]:
+                  - link "2" [ref=f1e648] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=5511860654404220363
+                - cell "2025" [ref=f1e649]:
+                  - generic [ref=f1e650]: "2025"
+              - row "A hidden multiwing memristive neural network and its application in remote sensing data security S Ding, H Lin, X Deng, W Yao, J Jin Expert Systems with Applications 277, 127168 45 2025" [ref=f1e651]:
+                - cell "A hidden multiwing memristive neural network and its application in remote sensing data security S Ding, H Lin, X Deng, W Yao, J Jin Expert Systems with Applications 277, 127168" [ref=f1e652]:
+                  - link "A hidden multiwing memristive neural network and its application in remote sensing data security" [ref=f1e653] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:OTTXONDVkokC
+                  - generic [ref=f1e654]: S Ding, H Lin, X Deng, W Yao, J Jin
+                  - generic [ref=f1e655]: Expert Systems with Applications 277, 127168
+                - cell "45" [ref=f1e656]:
+                  - link "45" [ref=f1e657] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=3596210578645249365
+                - cell "2025" [ref=f1e658]:
+                  - generic [ref=f1e659]: "2025"
+              - row "Causal interpretability methods for iot anomaly traffic detection Z Zeng, B Zhao, X Liu, X Deng IEEE Internet of Things Journal 12 (15), 30765-30777 8 2025" [ref=f1e660]:
+                - cell "Causal interpretability methods for iot anomaly traffic detection Z Zeng, B Zhao, X Liu, X Deng IEEE Internet of Things Journal 12 (15), 30765-30777" [ref=f1e661]:
+                  - link "Causal interpretability methods for iot anomaly traffic detection" [ref=f1e662] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:dBIO0h50nwkC
+                  - generic [ref=f1e663]: Z Zeng, B Zhao, X Liu, X Deng
+                  - generic [ref=f1e664]: IEEE Internet of Things Journal 12 (15), 30765-30777
+                - cell "8" [ref=f1e665]:
+                  - link "8" [ref=f1e666] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=6765849254148820241
+                - cell "2025" [ref=f1e667]:
+                  - generic [ref=f1e668]: "2025"
+              - 'row "Personalized Cloud Gaming: Multi-Objective Optimization for Resource Utilization and Video Encoding J Zhang, X Deng, J Gui, X Chen, S Wan, G Min IEEE Transactions on Cloud Computing 3 2025" [ref=f1e669]':
+                - 'cell "Personalized Cloud Gaming: Multi-Objective Optimization for Resource Utilization and Video Encoding J Zhang, X Deng, J Gui, X Chen, S Wan, G Min IEEE Transactions on Cloud Computing" [ref=f1e670]':
+                  - 'link "Personalized Cloud Gaming: Multi-Objective Optimization for Resource Utilization and Video Encoding" [ref=f1e671] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:QYdC8u9Cj1oC
+                  - generic [ref=f1e672]: J Zhang, X Deng, J Gui, X Chen, S Wan, G Min
+                  - generic [ref=f1e673]: IEEE Transactions on Cloud Computing
+                - cell "3" [ref=f1e674]:
+                  - link "3" [ref=f1e675] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=11454417606205062219
+                - cell "2025" [ref=f1e676]:
+                  - generic [ref=f1e677]: "2025"
+              - 'row "Decoupled Uplink-Downlink Multi-Connectivity Scheduling in Full-Duplex Cell-Free Massive MIMO Networks: A HGN-DRL Approach Z Shu, X Deng, J Zhang, J Gui, H Qi, S Lin, G Min IEEE Transactions on Networking 4 2025" [ref=f1e678]':
+                - 'cell "Decoupled Uplink-Downlink Multi-Connectivity Scheduling in Full-Duplex Cell-Free Massive MIMO Networks: A HGN-DRL Approach Z Shu, X Deng, J Zhang, J Gui, H Qi, S Lin, G Min IEEE Transactions on Networking" [ref=f1e679]':
+                  - 'link "Decoupled Uplink-Downlink Multi-Connectivity Scheduling in Full-Duplex Cell-Free Massive MIMO Networks: A HGN-DRL Approach" [ref=f1e680] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:9c2xU6iGI7YC
+                  - generic [ref=f1e681]: Z Shu, X Deng, J Zhang, J Gui, H Qi, S Lin, G Min
+                  - generic [ref=f1e682]: IEEE Transactions on Networking
+                - cell "4" [ref=f1e683]:
+                  - link "4" [ref=f1e684] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=15795671429691292631
+                - cell "2025" [ref=f1e685]:
+                  - generic [ref=f1e686]: "2025"
+              - 'row "SC3D: Semantic-guided and Class-adaptive cross-domain fusion for 3D object detection in autonomous vehicles H Mushtaq, X Deng, R Alizadehsani, MS Iqbal, T Khan, AA Abbasi Expert Systems with Applications 268, 126359 9 2025" [ref=f1e687]':
+                - 'cell "SC3D: Semantic-guided and Class-adaptive cross-domain fusion for 3D object detection in autonomous vehicles H Mushtaq, X Deng, R Alizadehsani, MS Iqbal, T Khan, AA Abbasi Expert Systems with Applications 268, 126359" [ref=f1e688]':
+                  - 'link "SC3D: Semantic-guided and Class-adaptive cross-domain fusion for 3D object detection in autonomous vehicles" [ref=f1e689] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:_FM0Bhl9EiAC
+                  - generic [ref=f1e690]: H Mushtaq, X Deng, R Alizadehsani, MS Iqbal, T Khan, AA Abbasi
+                  - generic [ref=f1e691]: Expert Systems with Applications 268, 126359
+                - cell "9" [ref=f1e692]:
+                  - link "9" [ref=f1e693] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=1013050460075396054
+                - cell "2025" [ref=f1e694]:
+                  - generic [ref=f1e695]: "2025"
+              - 'row "Deep joint source-channel coding for wireless image transmission: One-model-to-many F Wang, X Chen, X Deng, S Lin IEEE Wireless Communications Letters 3 2025" [ref=f1e696]':
+                - 'cell "Deep joint source-channel coding for wireless image transmission: One-model-to-many F Wang, X Chen, X Deng, S Lin IEEE Wireless Communications Letters" [ref=f1e697]':
+                  - 'link "Deep joint source-channel coding for wireless image transmission: One-model-to-many" [ref=f1e698] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:IRz6iEL74y4C
+                  - generic [ref=f1e699]: F Wang, X Chen, X Deng, S Lin
+                  - generic [ref=f1e700]: IEEE Wireless Communications Letters
+                - cell "3" [ref=f1e701]:
+                  - link "3" [ref=f1e702] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=10616087934521309173
+                - cell "2025" [ref=f1e703]:
+                  - generic [ref=f1e704]: "2025"
+              - row "Fuzzy logic-based probabilistic forecasting of short-term trajectory for autonomous vehicles L Wang, X Deng, J Gui, S Wan IEEE Transactions on Consumer Electronics 1 2025" [ref=f1e705]:
+                - cell "Fuzzy logic-based probabilistic forecasting of short-term trajectory for autonomous vehicles L Wang, X Deng, J Gui, S Wan IEEE Transactions on Consumer Electronics" [ref=f1e706]:
+                  - link "Fuzzy logic-based probabilistic forecasting of short-term trajectory for autonomous vehicles" [ref=f1e707] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:XvxMoLDsR5gC
+                  - generic [ref=f1e708]: L Wang, X Deng, J Gui, S Wan
+                  - generic [ref=f1e709]: IEEE Transactions on Consumer Electronics
+                - cell "1" [ref=f1e710]:
+                  - link "1" [ref=f1e711] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=8465136370628350158
+                - cell "2025" [ref=f1e712]:
+                  - generic [ref=f1e713]: "2025"
+              - row "Cost-effective task offloading and resource scheduling for mobile edge computing in 6G space-air-ground integrated network W Zhu, X Deng, J Gui, H Zhang, G Min IEEE Internet of Things Journal 25 2025" [ref=f1e714]:
+                - cell "Cost-effective task offloading and resource scheduling for mobile edge computing in 6G space-air-ground integrated network W Zhu, X Deng, J Gui, H Zhang, G Min IEEE Internet of Things Journal" [ref=f1e715]:
+                  - link "Cost-effective task offloading and resource scheduling for mobile edge computing in 6G space-air-ground integrated network" [ref=f1e716] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:umqufdRvDiIC
+                  - generic [ref=f1e717]: W Zhu, X Deng, J Gui, H Zhang, G Min
+                  - generic [ref=f1e718]: IEEE Internet of Things Journal
+                - cell "25" [ref=f1e719]:
+                  - link "25" [ref=f1e720] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=11484781762645592854
+                - cell "2025" [ref=f1e721]:
+                  - generic [ref=f1e722]: "2025"
+              - 'row "Point Class‐Adaptive Transformer (PCaT): A Novel Approach for Efficient Point Cloud Classification and Segmentation H Mushtaq, X Deng, P Jinag, S Wan, R Javed, I Ullah Expert Systems 42 (2), e13831 2025" [ref=f1e723]':
+                - 'cell "Point Class‐Adaptive Transformer (PCaT): A Novel Approach for Efficient Point Cloud Classification and Segmentation H Mushtaq, X Deng, P Jinag, S Wan, R Javed, I Ullah Expert Systems 42 (2), e13831" [ref=f1e724]':
+                  - 'link "Point Class‐Adaptive Transformer (PCaT): A Novel Approach for Efficient Point Cloud Classification and Segmentation" [ref=f1e725] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:9pM33mqn1YgC
+                  - generic [ref=f1e726]: H Mushtaq, X Deng, P Jinag, S Wan, R Javed, I Ullah
+                  - generic [ref=f1e727]: Expert Systems 42 (2), e13831
+                - cell [ref=f1e728]:
+                  - link:
+                    - /url: ""
+                - cell "2025" [ref=f1e729]:
+                  - generic [ref=f1e730]: "2025"
+              - 'row "Task offloading in internet of vehicles: A drl-based approach with representation learning for dag scheduling X Deng, H Yang, J Zhang, J Gui, S Lin, X Wang, G Min IEEE Transactions on Mobile Computing 24 (6), 5045-5060 24 2025" [ref=f1e731]':
+                - 'cell "Task offloading in internet of vehicles: A drl-based approach with representation learning for dag scheduling X Deng, H Yang, J Zhang, J Gui, S Lin, X Wang, G Min IEEE Transactions on Mobile Computing 24 (6), 5045-5060" [ref=f1e732]':
+                  - 'link "Task offloading in internet of vehicles: A drl-based approach with representation learning for dag scheduling" [ref=f1e733] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:HtEfBTGE9r8C
+                  - generic [ref=f1e734]: X Deng, H Yang, J Zhang, J Gui, S Lin, X Wang, G Min
+                  - generic [ref=f1e735]: IEEE Transactions on Mobile Computing 24 (6), 5045-5060
+                - cell "24" [ref=f1e736]:
+                  - link "24" [ref=f1e737] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=6593037662894676871
+                - cell "2025" [ref=f1e738]:
+                  - generic [ref=f1e739]: "2025"
+              - 'row "MDNet: Multimodal cooperative perception via spatial alignment of modal decision-making J He, X Deng, J Gui, T Zhang, X He IEEE Internet of Things Journal 12 (11), 16142-16154 17 2025" [ref=f1e740]':
+                - 'cell "MDNet: Multimodal cooperative perception via spatial alignment of modal decision-making J He, X Deng, J Gui, T Zhang, X He IEEE Internet of Things Journal 12 (11), 16142-16154" [ref=f1e741]':
+                  - 'link "MDNet: Multimodal cooperative perception via spatial alignment of modal decision-making" [ref=f1e742] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:NXb4pA-qfm4C
+                  - generic [ref=f1e743]: J He, X Deng, J Gui, T Zhang, X He
+                  - generic [ref=f1e744]: IEEE Internet of Things Journal 12 (11), 16142-16154
+                - cell "17" [ref=f1e745]:
+                  - link "17" [ref=f1e746] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=16952048238838470430
+                - cell "2025" [ref=f1e747]:
+                  - generic [ref=f1e748]: "2025"
+              - row "Multitask-oriented efficient computational offloading orchestrator for iot applications in mobile-edge computing L Wang, X Deng, H Zhang, S Wan, G Min IEEE Internet of Things Journal 12 (10), 14096-14108 10 2025" [ref=f1e749]:
+                - cell "Multitask-oriented efficient computational offloading orchestrator for iot applications in mobile-edge computing L Wang, X Deng, H Zhang, S Wan, G Min IEEE Internet of Things Journal 12 (10), 14096-14108" [ref=f1e750]:
+                  - link "Multitask-oriented efficient computational offloading orchestrator for iot applications in mobile-edge computing" [ref=f1e751] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:a9-T7VOCCH8C
+                  - generic [ref=f1e752]: L Wang, X Deng, H Zhang, S Wan, G Min
+                  - generic [ref=f1e753]: IEEE Internet of Things Journal 12 (10), 14096-14108
+                - cell "10" [ref=f1e754]:
+                  - link "10" [ref=f1e755] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=17345592697110588440
+                - cell "2025" [ref=f1e756]:
+                  - generic [ref=f1e757]: "2025"
+              - 'row "Energy-efficient strategic AAV-enabled MEC networks via STAR-RIS: Joint optimization of trajectory and user association X Deng, P Yang, H Lin, L Wang, S Lin, J Gui, X Chen, Y Qian, J Zhang IEEE Internet of Things Journal 12 (10), 14921-14937 16 2025" [ref=f1e758]':
+                - 'cell "Energy-efficient strategic AAV-enabled MEC networks via STAR-RIS: Joint optimization of trajectory and user association X Deng, P Yang, H Lin, L Wang, S Lin, J Gui, X Chen, Y Qian, J Zhang IEEE Internet of Things Journal 12 (10), 14921-14937" [ref=f1e759]':
+                  - 'link "Energy-efficient strategic AAV-enabled MEC networks via STAR-RIS: Joint optimization of trajectory and user association" [ref=f1e760] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:FAceZFleit8C
+                  - generic [ref=f1e761]: X Deng, P Yang, H Lin, L Wang, S Lin, J Gui, X Chen, Y Qian, J Zhang
+                  - generic [ref=f1e762]: IEEE Internet of Things Journal 12 (10), 14921-14937
+                - cell "16" [ref=f1e763]:
+                  - link "16" [ref=f1e764] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=4652085971820437225
+                - cell "2025" [ref=f1e765]:
+                  - generic [ref=f1e766]: "2025"
+              - 'row "IoV-SFL: A blockchain-based federated learning framework for secure and efficient data sharing in the internet of vehicles I Ullah, X Deng, X Pei, H Mushtaq, M Uzair Peer-to-Peer Networking and Applications 18 (1), 34 35 2025" [ref=f1e767]':
+                - 'cell "IoV-SFL: A blockchain-based federated learning framework for secure and efficient data sharing in the internet of vehicles I Ullah, X Deng, X Pei, H Mushtaq, M Uzair Peer-to-Peer Networking and Applications 18 (1), 34" [ref=f1e768]':
+                  - 'link "IoV-SFL: A blockchain-based federated learning framework for secure and efficient data sharing in the internet of vehicles" [ref=f1e769] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:oNZyr7d5Mn4C
+                  - generic [ref=f1e770]: I Ullah, X Deng, X Pei, H Mushtaq, M Uzair
+                  - generic [ref=f1e771]: Peer-to-Peer Networking and Applications 18 (1), 34
+                - cell "35" [ref=f1e772]:
+                  - link "35" [ref=f1e773] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=13686807454608831579
+                - cell "2025" [ref=f1e774]:
+                  - generic [ref=f1e775]: "2025"
+              - 'row "GFA-SMT: Geometric feature aggregation and self-attention in a multi-head transformer for 3D object detection in autonomous vehicles H Mushtaq, X Deng, P Jiang, S Wan, M Ali, I Ullah IEEE Transactions on Intelligent Transportation Systems 26 (3), 3557-3573 11 2024" [ref=f1e776]':
+                - 'cell "GFA-SMT: Geometric feature aggregation and self-attention in a multi-head transformer for 3D object detection in autonomous vehicles H Mushtaq, X Deng, P Jiang, S Wan, M Ali, I Ullah IEEE Transactions on Intelligent Transportation Systems 26 (3), 3557-3573" [ref=f1e777]':
+                  - 'link "GFA-SMT: Geometric feature aggregation and self-attention in a multi-head transformer for 3D object detection in autonomous vehicles" [ref=f1e778] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:GtLg2Ama23sC
+                  - generic [ref=f1e779]: H Mushtaq, X Deng, P Jiang, S Wan, M Ali, I Ullah
+                  - generic [ref=f1e780]: IEEE Transactions on Intelligent Transportation Systems 26 (3), 3557-3573
+                - cell "11" [ref=f1e781]:
+                  - link "11" [ref=f1e782] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=283851533028092242
+                - cell "2024" [ref=f1e783]:
+                  - generic [ref=f1e784]: "2024"
+              - 'row "RVF3D: ROI-Driven Vision Transformer Fusion for Multi-Modal 3D Object Detection in Autonomous Vehicles H Mushtaq, X Deng, M Ali, I Ullah, AA Abbasi 2024 IEEE International Conference on High Performance Computing and … 2024" [ref=f1e785]':
+                - 'cell "RVF3D: ROI-Driven Vision Transformer Fusion for Multi-Modal 3D Object Detection in Autonomous Vehicles H Mushtaq, X Deng, M Ali, I Ullah, AA Abbasi 2024 IEEE International Conference on High Performance Computing and …" [ref=f1e786]':
+                  - 'link "RVF3D: ROI-Driven Vision Transformer Fusion for Multi-Modal 3D Object Detection in Autonomous Vehicles" [ref=f1e787] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:3htObqc8RwsC
+                  - generic [ref=f1e788]: H Mushtaq, X Deng, M Ali, I Ullah, AA Abbasi
+                  - generic [ref=f1e789]: 2024 IEEE International Conference on High Performance Computing and …
+                - cell [ref=f1e790]:
+                  - link:
+                    - /url: ""
+                - cell "2024" [ref=f1e791]:
+                  - generic [ref=f1e792]: "2024"
+              - row "Spatially-guided Chunk-wise Reweighting Transformer for 3D Object Detection in Autonomous Vehicles S Qayyum, H Mushtaq, X Deng, AA Abbasi, I Ullah 2024 IEEE International Conference on High Performance Computing and … 2024" [ref=f1e793]:
+                - cell "Spatially-guided Chunk-wise Reweighting Transformer for 3D Object Detection in Autonomous Vehicles S Qayyum, H Mushtaq, X Deng, AA Abbasi, I Ullah 2024 IEEE International Conference on High Performance Computing and …" [ref=f1e794]:
+                  - link "Spatially-guided Chunk-wise Reweighting Transformer for 3D Object Detection in Autonomous Vehicles" [ref=f1e795] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:OR75R8vi5nAC
+                  - generic [ref=f1e796]: S Qayyum, H Mushtaq, X Deng, AA Abbasi, I Ullah
+                  - generic [ref=f1e797]: 2024 IEEE International Conference on High Performance Computing and …
+                - cell [ref=f1e798]:
+                  - link:
+                    - /url: ""
+                - cell "2024" [ref=f1e799]:
+                  - generic [ref=f1e800]: "2024"
+              - row "Toward intelligent attack detection with causal transformer in Internet of Things Z Zeng, B Zhao, X Deng, X Liu, J Zheng, J Chen IEEE Internet of Things Journal 12 (8), 10751-10767 16 2024" [ref=f1e801]:
+                - cell "Toward intelligent attack detection with causal transformer in Internet of Things Z Zeng, B Zhao, X Deng, X Liu, J Zheng, J Chen IEEE Internet of Things Journal 12 (8), 10751-10767" [ref=f1e802]:
+                  - link "Toward intelligent attack detection with causal transformer in Internet of Things" [ref=f1e803] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:0izLItjtcgwC
+                  - generic [ref=f1e804]: Z Zeng, B Zhao, X Deng, X Liu, J Zheng, J Chen
+                  - generic [ref=f1e805]: IEEE Internet of Things Journal 12 (8), 10751-10767
+                - cell "16" [ref=f1e806]:
+                  - link "16" [ref=f1e807] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=1233590566380898032
+                - cell "2024" [ref=f1e808]:
+                  - generic [ref=f1e809]: "2024"
+              - row "Improving the Stability of Networks Anomaly Detection in Internet of Things B Zhao, Z Zeng, X Deng 2024 20th International Conference on Mobility, Sensing and Networking (MSN … 2024" [ref=f1e810]:
+                - cell "Improving the Stability of Networks Anomaly Detection in Internet of Things B Zhao, Z Zeng, X Deng 2024 20th International Conference on Mobility, Sensing and Networking (MSN …" [ref=f1e811]:
+                  - link "Improving the Stability of Networks Anomaly Detection in Internet of Things" [ref=f1e812] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:4vMrXwiscB8C
+                  - generic [ref=f1e813]: B Zhao, Z Zeng, X Deng
+                  - generic [ref=f1e814]: 2024 20th International Conference on Mobility, Sensing and Networking (MSN …
+                - cell [ref=f1e815]:
+                  - link:
+                    - /url: ""
+                - cell "2024" [ref=f1e816]:
+                  - generic [ref=f1e817]: "2024"
+              - 'row "Multi-layer collaborative task offloading optimization: balancing competition and cooperation across local edge and cloud resources: B. Ling et al. B Ling, X Deng, Y Huang, J Zhang, JS Gui, Y Qian The Journal of Supercomputing 80 (18), 26483-26511 1 2024" [ref=f1e818]':
+                - 'cell "Multi-layer collaborative task offloading optimization: balancing competition and cooperation across local edge and cloud resources: B. Ling et al. B Ling, X Deng, Y Huang, J Zhang, JS Gui, Y Qian The Journal of Supercomputing 80 (18), 26483-26511" [ref=f1e819]':
+                  - 'link "Multi-layer collaborative task offloading optimization: balancing competition and cooperation across local edge and cloud resources: B. Ling et al." [ref=f1e820] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:edDO8Oi4QzsC
+                  - generic [ref=f1e821]: B Ling, X Deng, Y Huang, J Zhang, JS Gui, Y Qian
+                  - generic [ref=f1e822]: The Journal of Supercomputing 80 (18), 26483-26511
+                - cell "1" [ref=f1e823]:
+                  - link "1" [ref=f1e824] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=10758489015423546917
+                - cell "2024" [ref=f1e825]:
+                  - generic [ref=f1e826]: "2024"
+              - 'row "PLC-fusion: perspective-based hierarchical and deep lidar camera fusion for 3D object detection in autonomous vehicles H Mushtaq, X Deng, F Azhar, M Ali, HH Raza Sherazi Information 15 (11), 739 5 2024" [ref=f1e827]':
+                - 'cell "PLC-fusion: perspective-based hierarchical and deep lidar camera fusion for 3D object detection in autonomous vehicles H Mushtaq, X Deng, F Azhar, M Ali, HH Raza Sherazi Information 15 (11), 739" [ref=f1e828]':
+                  - 'link "PLC-fusion: perspective-based hierarchical and deep lidar camera fusion for 3D object detection in autonomous vehicles" [ref=f1e829] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:bz8QjSJIRt4C
+                  - generic [ref=f1e830]: H Mushtaq, X Deng, F Azhar, M Ali, HH Raza Sherazi
+                  - generic [ref=f1e831]: Information 15 (11), 739
+                - cell "5" [ref=f1e832]:
+                  - link "5" [ref=f1e833] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=534000240077523664
+                - cell "2024" [ref=f1e834]:
+                  - generic [ref=f1e835]: "2024"
+              - row "Resource allocation and slicing strategy for multiple services co-existence in wireless train communication network Q Ren, S Lin, Y Cai, X Deng, L Kong, S Mumtaz, B Ai IEEE Transactions on Wireless Communications 24 (1), 401-414 31 2024" [ref=f1e836]:
+                - cell "Resource allocation and slicing strategy for multiple services co-existence in wireless train communication network Q Ren, S Lin, Y Cai, X Deng, L Kong, S Mumtaz, B Ai IEEE Transactions on Wireless Communications 24 (1), 401-414" [ref=f1e837]:
+                  - link "Resource allocation and slicing strategy for multiple services co-existence in wireless train communication network" [ref=f1e838] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:kh2fBNsKQNwC
+                  - generic [ref=f1e839]: Q Ren, S Lin, Y Cai, X Deng, L Kong, S Mumtaz, B Ai
+                  - generic [ref=f1e840]: IEEE Transactions on Wireless Communications 24 (1), 401-414
+                - cell "31" [ref=f1e841]:
+                  - link "31" [ref=f1e842] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=1660615365502613031
+                - cell "2024" [ref=f1e843]:
+                  - generic [ref=f1e844]: "2024"
+              - 'row "Energy-efficient symbiotic UAV-enabled MEC networks via RIS: Joint trajectory and phase-shift control optimization P Yang, X Deng, L Wang, S Lin, J Gui, X Chen, S Wan, Y Qian IEEE Transactions on Intelligent Transportation Systems 25 (12), 21142-21156 17 2024" [ref=f1e845]':
+                - 'cell "Energy-efficient symbiotic UAV-enabled MEC networks via RIS: Joint trajectory and phase-shift control optimization P Yang, X Deng, L Wang, S Lin, J Gui, X Chen, S Wan, Y Qian IEEE Transactions on Intelligent Transportation Systems 25 (12), 21142-21156" [ref=f1e846]':
+                  - 'link "Energy-efficient symbiotic UAV-enabled MEC networks via RIS: Joint trajectory and phase-shift control optimization" [ref=f1e847] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:YohjEiUPhakC
+                  - generic [ref=f1e848]: P Yang, X Deng, L Wang, S Lin, J Gui, X Chen, S Wan, Y Qian
+                  - generic [ref=f1e849]: IEEE Transactions on Intelligent Transportation Systems 25 (12), 21142-21156
+                - cell "17" [ref=f1e850]:
+                  - link "17" [ref=f1e851] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=17714376719864284637
+                - cell "2024" [ref=f1e852]:
+                  - generic [ref=f1e853]: "2024"
+              - row "Weather-aware collaborative perception with uncertainty reduction P Jiang, X Deng, W Wu, L Lin, X Chen, C Chen, S Wan IEEE Transactions on Intelligent Transportation Systems 25 (12), 20059-20072 17 2024" [ref=f1e854]:
+                - cell "Weather-aware collaborative perception with uncertainty reduction P Jiang, X Deng, W Wu, L Lin, X Chen, C Chen, S Wan IEEE Transactions on Intelligent Transportation Systems 25 (12), 20059-20072" [ref=f1e855]:
+                  - link "Weather-aware collaborative perception with uncertainty reduction" [ref=f1e856] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:_axFR9aDTf0C
+                  - generic [ref=f1e857]: P Jiang, X Deng, W Wu, L Lin, X Chen, C Chen, S Wan
+                  - generic [ref=f1e858]: IEEE Transactions on Intelligent Transportation Systems 25 (12), 20059-20072
+                - cell "17" [ref=f1e859]:
+                  - link "17" [ref=f1e860] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=16172816529321152972
+                - cell "2024" [ref=f1e861]:
+                  - generic [ref=f1e862]: "2024"
+              - 'row "Rdssd: 3D Single Stage Object Detector For Roadside Lidar Sensors C Lv, P Jiang, M Wang, L Lin, X Chen, X Deng 2024 IEEE International Conference on Image Processing (ICIP), 3396-3402 1 2024" [ref=f1e863]':
+                - 'cell "Rdssd: 3D Single Stage Object Detector For Roadside Lidar Sensors C Lv, P Jiang, M Wang, L Lin, X Chen, X Deng 2024 IEEE International Conference on Image Processing (ICIP), 3396-3402" [ref=f1e864]':
+                  - 'link "Rdssd: 3D Single Stage Object Detector For Roadside Lidar Sensors" [ref=f1e865] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:5qfkUJPXOUwC
+                  - generic [ref=f1e866]: C Lv, P Jiang, M Wang, L Lin, X Chen, X Deng
+                  - generic [ref=f1e867]: 2024 IEEE International Conference on Image Processing (ICIP), 3396-3402
+                - cell "1" [ref=f1e868]:
+                  - link "1" [ref=f1e869] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=6651626404007682792
+                - cell "2024" [ref=f1e870]:
+                  - generic [ref=f1e871]: "2024"
+              - 'row "SecBFL-IoV: A Secure Blockchain-Enabled Federated Learning Framework for Resilience Against Poisoning Attacks in Internet of Vehicles I Ulllah, X Deng, X Pei, H Mushtaq Chinese Conference on Pattern Recognition and Computer Vision (PRCV), 410-428 7 2024" [ref=f1e872]':
+                - 'cell "SecBFL-IoV: A Secure Blockchain-Enabled Federated Learning Framework for Resilience Against Poisoning Attacks in Internet of Vehicles I Ulllah, X Deng, X Pei, H Mushtaq Chinese Conference on Pattern Recognition and Computer Vision (PRCV), 410-428" [ref=f1e873]':
+                  - 'link "SecBFL-IoV: A Secure Blockchain-Enabled Federated Learning Framework for Resilience Against Poisoning Attacks in Internet of Vehicles" [ref=f1e874] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:rmuvC79q63oC
+                  - generic [ref=f1e875]: I Ulllah, X Deng, X Pei, H Mushtaq
+                  - generic [ref=f1e876]: Chinese Conference on Pattern Recognition and Computer Vision (PRCV), 410-428
+                - cell "7" [ref=f1e877]:
+                  - link "7" [ref=f1e878] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=17065581242223094704
+                - cell "2024" [ref=f1e879]:
+                  - generic [ref=f1e880]: "2024"
+              - 'row "MetaDD: Boosting Dataset Distillation with Neural Network Architecture-Invariant Generalization Y Zhao, X Deng, X Su, H Xu, X Li, Y Liu, S You arXiv preprint arXiv:2410.05103 2 2024" [ref=f1e881]':
+                - 'cell "MetaDD: Boosting Dataset Distillation with Neural Network Architecture-Invariant Generalization Y Zhao, X Deng, X Su, H Xu, X Li, Y Liu, S You arXiv preprint arXiv:2410.05103" [ref=f1e882]':
+                  - 'link "MetaDD: Boosting Dataset Distillation with Neural Network Architecture-Invariant Generalization" [ref=f1e883] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:KbBQZpvPDL4C
+                  - generic [ref=f1e884]: Y Zhao, X Deng, X Su, H Xu, X Li, Y Liu, S You
+                  - generic [ref=f1e885]: arXiv preprint arXiv:2410.05103
+                - cell "2" [ref=f1e886]:
+                  - link "2" [ref=f1e887] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=12551949498254442310
+                - cell "2024" [ref=f1e888]:
+                  - generic [ref=f1e889]: "2024"
+              - row "Latency-efficient wireless federated learning with sparsification and quantization for heterogeneous devices X Chen, A Wang, X Deng, J Gui IEEE Internet of Things Journal 12 (1), 488-501 6 2024" [ref=f1e890]:
+                - cell "Latency-efficient wireless federated learning with sparsification and quantization for heterogeneous devices X Chen, A Wang, X Deng, J Gui IEEE Internet of Things Journal 12 (1), 488-501" [ref=f1e891]:
+                  - link "Latency-efficient wireless federated learning with sparsification and quantization for heterogeneous devices" [ref=f1e892] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:FPJr55Dyh1AC
+                  - generic [ref=f1e893]: X Chen, A Wang, X Deng, J Gui
+                  - generic [ref=f1e894]: IEEE Internet of Things Journal 12 (1), 488-501
+                - cell "6" [ref=f1e895]:
+                  - link "6" [ref=f1e896] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=12615136373301078267
+                - cell "2024" [ref=f1e897]:
+                  - generic [ref=f1e898]: "2024"
+              - row "Causal genetic network anomaly detection method for imbalanced data and information redundancy Z Zeng, X Liu, M Dai, J Zheng, X Deng, D Zeng, J Chen IEEE Transactions on Network and Service Management 21 (6), 6937-6952 9 2024" [ref=f1e899]:
+                - cell "Causal genetic network anomaly detection method for imbalanced data and information redundancy Z Zeng, X Liu, M Dai, J Zheng, X Deng, D Zeng, J Chen IEEE Transactions on Network and Service Management 21 (6), 6937-6952" [ref=f1e900]:
+                  - link "Causal genetic network anomaly detection method for imbalanced data and information redundancy" [ref=f1e901] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:anf4URPfarAC
+                  - generic [ref=f1e902]: Z Zeng, X Liu, M Dai, J Zheng, X Deng, D Zeng, J Chen
+                  - generic [ref=f1e903]: IEEE Transactions on Network and Service Management 21 (6), 6937-6952
+                - cell "9" [ref=f1e904]:
+                  - link "9" [ref=f1e905] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=10220021146003841585
+                - cell "2024" [ref=f1e906]:
+                  - generic [ref=f1e907]: "2024"
+              - row "Wireless adaptive image transmission over OFDM channels based on entropy model F Wang, X Chen, X Deng IEEE Wireless Communications Letters 13 (10), 2902-2906 7 2024" [ref=f1e908]:
+                - cell "Wireless adaptive image transmission over OFDM channels based on entropy model F Wang, X Chen, X Deng IEEE Wireless Communications Letters 13 (10), 2902-2906" [ref=f1e909]:
+                  - link "Wireless adaptive image transmission over OFDM channels based on entropy model" [ref=f1e910] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:2VqYfGB8ITEC
+                  - generic [ref=f1e911]: F Wang, X Chen, X Deng
+                  - generic [ref=f1e912]: IEEE Wireless Communications Letters 13 (10), 2902-2906
+                - cell "7" [ref=f1e913]:
+                  - link "7" [ref=f1e914] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=9604522239813921101
+                - cell "2024" [ref=f1e915]:
+                  - generic [ref=f1e916]: "2024"
+              - row "Research on task offloading and resource allocation in edge computing network of RIS assisted UAV based on Lyapunov. K Zhufang, GUO Yujing, D Xiaoheng Journal on Communication/Tongxin Xuebao 45 (9) 2024" [ref=f1e917]:
+                - cell "Research on task offloading and resource allocation in edge computing network of RIS assisted UAV based on Lyapunov. K Zhufang, GUO Yujing, D Xiaoheng Journal on Communication/Tongxin Xuebao 45 (9)" [ref=f1e918]:
+                  - link "Research on task offloading and resource allocation in edge computing network of RIS assisted UAV based on Lyapunov." [ref=f1e919] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:Aul-kAQHnToC
+                  - generic [ref=f1e920]: K Zhufang, GUO Yujing, D Xiaoheng
+                  - generic [ref=f1e921]: Journal on Communication/Tongxin Xuebao 45 (9)
+                - cell [ref=f1e922]:
+                  - link:
+                    - /url: ""
+                - cell "2024" [ref=f1e923]:
+                  - generic [ref=f1e924]: "2024"
+              - 'row "E-DBRL: efficient double broad reinforcement learning for adaptive traffic signal control: X. Deng et al. X Deng, S Yin, X Pei, L Lin, X Chen, J Gui Applied Intelligence 54 (17), 8563-8575 2 2024" [ref=f1e925]':
+                - 'cell "E-DBRL: efficient double broad reinforcement learning for adaptive traffic signal control: X. Deng et al. X Deng, S Yin, X Pei, L Lin, X Chen, J Gui Applied Intelligence 54 (17), 8563-8575" [ref=f1e926]':
+                  - 'link "E-DBRL: efficient double broad reinforcement learning for adaptive traffic signal control: X. Deng et al." [ref=f1e927] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:ruyezt5ZtCIC
+                  - generic [ref=f1e928]: X Deng, S Yin, X Pei, L Lin, X Chen, J Gui
+                  - generic [ref=f1e929]: Applied Intelligence 54 (17), 8563-8575
+                - cell "2" [ref=f1e930]:
+                  - link "2" [ref=f1e931] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=10452585188656903017
+                - cell "2024" [ref=f1e932]:
+                  - generic [ref=f1e933]: "2024"
+              - row "Edge computing and few-shot learning featured intelligent framework in digital twin empowered mobile networks Y Wu, H Cao, Y Lai, L Zhao, X Deng, S Wan IEEE Transactions on Network and Service Management 21 (6), 6505-6514 10 2024" [ref=f1e934]:
+                - cell "Edge computing and few-shot learning featured intelligent framework in digital twin empowered mobile networks Y Wu, H Cao, Y Lai, L Zhao, X Deng, S Wan IEEE Transactions on Network and Service Management 21 (6), 6505-6514" [ref=f1e935]:
+                  - link "Edge computing and few-shot learning featured intelligent framework in digital twin empowered mobile networks" [ref=f1e936] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:PVjk1bu6vJQC
+                  - generic [ref=f1e937]: Y Wu, H Cao, Y Lai, L Zhao, X Deng, S Wan
+                  - generic [ref=f1e938]: IEEE Transactions on Network and Service Management 21 (6), 6505-6514
+                - cell "10" [ref=f1e939]:
+                  - link "10" [ref=f1e940] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=11975671723033923585
+                - cell "2024" [ref=f1e941]:
+                  - generic [ref=f1e942]: "2024"
+              - row "Prior Model-based Deep Joint Source-Channel Coding for Wireless Image Transmission over Multipath Fading Channels F Wang, X Chen, X Deng 2024 IEEE/CIC International Conference on Communications in China (ICCC), 13-17 1 2024" [ref=f1e943]:
+                - cell "Prior Model-based Deep Joint Source-Channel Coding for Wireless Image Transmission over Multipath Fading Channels F Wang, X Chen, X Deng 2024 IEEE/CIC International Conference on Communications in China (ICCC), 13-17" [ref=f1e944]:
+                  - link "Prior Model-based Deep Joint Source-Channel Coding for Wireless Image Transmission over Multipath Fading Channels" [ref=f1e945] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:_5tno0g5mFcC
+                  - generic [ref=f1e946]: F Wang, X Chen, X Deng
+                  - generic [ref=f1e947]: 2024 IEEE/CIC International Conference on Communications in China (ICCC), 13-17
+                - cell "1" [ref=f1e948]:
+                  - link "1" [ref=f1e949] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=2964266699458232318
+                - cell "2024" [ref=f1e950]:
+                  - generic [ref=f1e951]: "2024"
+              - row "Joint Sparsification and Quantization for heterogeneous devices in energy constrained federated learning A Wang, X Chen, X Deng, J Gui 2024 IEEE/CIC International Conference on Communications in China (ICCC … 1 2024" [ref=f1e952]:
+                - cell "Joint Sparsification and Quantization for heterogeneous devices in energy constrained federated learning A Wang, X Chen, X Deng, J Gui 2024 IEEE/CIC International Conference on Communications in China (ICCC …" [ref=f1e953]:
+                  - link "Joint Sparsification and Quantization for heterogeneous devices in energy constrained federated learning" [ref=f1e954] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:ClCfbGk0d_YC
+                  - generic [ref=f1e955]: A Wang, X Chen, X Deng, J Gui
+                  - generic [ref=f1e956]: 2024 IEEE/CIC International Conference on Communications in China (ICCC …
+                - cell "1" [ref=f1e957]:
+                  - link "1" [ref=f1e958] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=2798561630786403315
+                - cell "2024" [ref=f1e959]:
+                  - generic [ref=f1e960]: "2024"
+              - row "Relay-assisted edge computing framework for dynamic resource allocation and multiple-access task processing in digital divide regions Z Shu, X Deng, L Wang, J Gui, S Wan, H Zhang, G Min IEEE Internet of Things Journal 11 (21), 35724-35741 12 2024" [ref=f1e961]:
+                - cell "Relay-assisted edge computing framework for dynamic resource allocation and multiple-access task processing in digital divide regions Z Shu, X Deng, L Wang, J Gui, S Wan, H Zhang, G Min IEEE Internet of Things Journal 11 (21), 35724-35741" [ref=f1e962]:
+                  - link "Relay-assisted edge computing framework for dynamic resource allocation and multiple-access task processing in digital divide regions" [ref=f1e963] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:Ug5p-4gJ2f0C
+                  - generic [ref=f1e964]: Z Shu, X Deng, L Wang, J Gui, S Wan, H Zhang, G Min
+                  - generic [ref=f1e965]: IEEE Internet of Things Journal 11 (21), 35724-35741
+                - cell "12" [ref=f1e966]:
+                  - link "12" [ref=f1e967] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=16938307590442363776
+                - cell "2024" [ref=f1e968]:
+                  - generic [ref=f1e969]: "2024"
+              - row "Content adaptive distributed joint source-channel coding for image transmission with hyperprior Y Li, X Chen, X Deng, J Gui IEEE Transactions on Cognitive Communications and Networking 11 (1), 105-117 11 2024" [ref=f1e970]:
+                - cell "Content adaptive distributed joint source-channel coding for image transmission with hyperprior Y Li, X Chen, X Deng, J Gui IEEE Transactions on Cognitive Communications and Networking 11 (1), 105-117" [ref=f1e971]:
+                  - link "Content adaptive distributed joint source-channel coding for image transmission with hyperprior" [ref=f1e972] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:hCrLmN-GePgC
+                  - generic [ref=f1e973]: Y Li, X Chen, X Deng, J Gui
+                  - generic [ref=f1e974]: IEEE Transactions on Cognitive Communications and Networking 11 (1), 105-117
+                - cell "11" [ref=f1e975]:
+                  - link "11" [ref=f1e976] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=6970834607241250236
+                - cell "2024" [ref=f1e977]:
+                  - generic [ref=f1e978]: "2024"
+              - row "Portfolio-Based User Recruitment Mechanism for Crowdsensing in Uncertain and Unpredictable Environments J Liu, H Xu, X Deng, H Liu, D Li IEEE Transactions on Vehicular Technology 73 (11), 17630-17643 2024" [ref=f1e979]:
+                - cell "Portfolio-Based User Recruitment Mechanism for Crowdsensing in Uncertain and Unpredictable Environments J Liu, H Xu, X Deng, H Liu, D Li IEEE Transactions on Vehicular Technology 73 (11), 17630-17643" [ref=f1e980]:
+                  - link "Portfolio-Based User Recruitment Mechanism for Crowdsensing in Uncertain and Unpredictable Environments" [ref=f1e981] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:WJVC3Jt7v1AC
+                  - generic [ref=f1e982]: J Liu, H Xu, X Deng, H Liu, D Li
+                  - generic [ref=f1e983]: IEEE Transactions on Vehicular Technology 73 (11), 17630-17643
+                - cell [ref=f1e984]:
+                  - link:
+                    - /url: ""
+                - cell "2024" [ref=f1e985]:
+                  - generic [ref=f1e986]: "2024"
+              - row "Diversified butterfly attractors of memristive HNN with two memristive systems and application in IoMT for privacy protection H Lin, X Deng, F Yu, Y Sun IEEE Transactions on Computer-Aided Design of Integrated Circuits and … 81 2024" [ref=f1e987]:
+                - cell "Diversified butterfly attractors of memristive HNN with two memristive systems and application in IoMT for privacy protection H Lin, X Deng, F Yu, Y Sun IEEE Transactions on Computer-Aided Design of Integrated Circuits and …" [ref=f1e988]:
+                  - link "Diversified butterfly attractors of memristive HNN with two memristive systems and application in IoMT for privacy protection" [ref=f1e989] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:8d8msizDQcsC
+                  - generic [ref=f1e990]: H Lin, X Deng, F Yu, Y Sun
+                  - generic [ref=f1e991]: IEEE Transactions on Computer-Aided Design of Integrated Circuits and …
+                - cell "81" [ref=f1e992]:
+                  - link "81" [ref=f1e993] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=13531736714800761745
+                - cell "2024" [ref=f1e994]:
+                  - generic [ref=f1e995]: "2024"
+              - row "Optimizing execution time and cost while scheduling scientific workflow in edge data center with fault tolerance awareness MM Kadum, X Deng Nonlinear Engineering 13 (1), 20240015 3 2024" [ref=f1e996]:
+                - cell "Optimizing execution time and cost while scheduling scientific workflow in edge data center with fault tolerance awareness MM Kadum, X Deng Nonlinear Engineering 13 (1), 20240015" [ref=f1e997]:
+                  - link "Optimizing execution time and cost while scheduling scientific workflow in edge data center with fault tolerance awareness" [ref=f1e998] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:XoXfffV-tXoC
+                  - generic [ref=f1e999]: MM Kadum, X Deng
+                  - generic [ref=f1e1000]: Nonlinear Engineering 13 (1), 20240015
+                - cell "3" [ref=f1e1001]:
+                  - link "3" [ref=f1e1002] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=11670810224453911048
+                - cell "2024" [ref=f1e1003]:
+                  - generic [ref=f1e1004]: "2024"
+              - 'row "O2SAT: Object-Oriented-Segmentation-Guided Spatial-Attention Network for 3D Object Detection in Autonomous Vehicles H Mushtaq, X Deng, I Ullah, M Ali, BH Malik Information 15 (7), 376 10 2024" [ref=f1e1005]':
+                - 'cell "O2SAT: Object-Oriented-Segmentation-Guided Spatial-Attention Network for 3D Object Detection in Autonomous Vehicles H Mushtaq, X Deng, I Ullah, M Ali, BH Malik Information 15 (7), 376" [ref=f1e1006]':
+                  - 'link "O2SAT: Object-Oriented-Segmentation-Guided Spatial-Attention Network for 3D Object Detection in Autonomous Vehicles" [ref=f1e1007] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:q3CdL3IzO_QC
+                    - text: O
+                    - subscript [ref=f1e1008]: "2"
+                    - text: "SAT: Object-Oriented-Segmentation-Guided Spatial-Attention Network for 3D Object Detection in Autonomous Vehicles"
+                  - generic [ref=f1e1009]: H Mushtaq, X Deng, I Ullah, M Ali, BH Malik
+                  - generic [ref=f1e1010]: Information 15 (7), 376
+                - cell "10" [ref=f1e1011]:
+                  - link "10" [ref=f1e1012] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=11746249280554493057
+                - cell "2024" [ref=f1e1013]:
+                  - generic [ref=f1e1014]: "2024"
+              - 'row "Complex graph analysis and representation learning: Problems, techniques, and applications X Pei, X Deng, NN Xiong, S Mumtaz, J Wu IEEE Transactions on Network Science and Engineering 11 (5), 4990-5007 20 2024" [ref=f1e1015]':
+                - 'cell "Complex graph analysis and representation learning: Problems, techniques, and applications X Pei, X Deng, NN Xiong, S Mumtaz, J Wu IEEE Transactions on Network Science and Engineering 11 (5), 4990-5007" [ref=f1e1016]':
+                  - 'link "Complex graph analysis and representation learning: Problems, techniques, and applications" [ref=f1e1017] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:4fGpz3EwCPoC
+                  - generic [ref=f1e1018]: X Pei, X Deng, NN Xiong, S Mumtaz, J Wu
+                  - generic [ref=f1e1019]: IEEE Transactions on Network Science and Engineering 11 (5), 4990-5007
+                - cell "20" [ref=f1e1020]:
+                  - link "20" [ref=f1e1021] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=4731651687055584099
+                - cell "2024" [ref=f1e1022]:
+                  - generic [ref=f1e1023]: "2024"
+              - row "A privacy-preserving graph neural network for network intrusion detection X Pei, X Deng, S Tian, P Jiang, Y Zhao, K Xue IEEE Transactions on Dependable and Secure Computing 22 (1), 740-756 14 2024" [ref=f1e1024]:
+                - cell "A privacy-preserving graph neural network for network intrusion detection X Pei, X Deng, S Tian, P Jiang, Y Zhao, K Xue IEEE Transactions on Dependable and Secure Computing 22 (1), 740-756" [ref=f1e1025]:
+                  - link "A privacy-preserving graph neural network for network intrusion detection" [ref=f1e1026] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:HbR8gkJAVGIC
+                  - generic [ref=f1e1027]: X Pei, X Deng, S Tian, P Jiang, Y Zhao, K Xue
+                  - generic [ref=f1e1028]: IEEE Transactions on Dependable and Secure Computing 22 (1), 740-756
+                - cell "14" [ref=f1e1029]:
+                  - link "14" [ref=f1e1030] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=9780375209711220601
+                - cell "2024" [ref=f1e1031]:
+                  - generic [ref=f1e1032]: "2024"
+              - 'row "Grid multibutterfly memristive neural network with three memristive systems: Modeling, dynamic analysis, and application in police IoT H Lin, X Deng, F Yu, Y Sun IEEE Internet of Things Journal 11 (18), 29878-29889 90 2024" [ref=f1e1033]':
+                - 'cell "Grid multibutterfly memristive neural network with three memristive systems: Modeling, dynamic analysis, and application in police IoT H Lin, X Deng, F Yu, Y Sun IEEE Internet of Things Journal 11 (18), 29878-29889" [ref=f1e1034]':
+                  - 'link "Grid multibutterfly memristive neural network with three memristive systems: Modeling, dynamic analysis, and application in police IoT" [ref=f1e1035] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:LO7wyVUgiFcC
+                  - generic [ref=f1e1036]: H Lin, X Deng, F Yu, Y Sun
+                  - generic [ref=f1e1037]: IEEE Internet of Things Journal 11 (18), 29878-29889
+                - cell "90" [ref=f1e1038]:
+                  - link "90" [ref=f1e1039] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=15371199664572380727
+                - cell "2024" [ref=f1e1040]:
+                  - generic [ref=f1e1041]: "2024"
+              - row "Edge perception camouflaged object detection under frequency domain reconstruction Z Liu, X Deng, P Jiang, C Lv, G Min, X Wang IEEE Transactions on Circuits and Systems for Video Technology 34 (10 … 59 2024" [ref=f1e1042]:
+                - cell "Edge perception camouflaged object detection under frequency domain reconstruction Z Liu, X Deng, P Jiang, C Lv, G Min, X Wang IEEE Transactions on Circuits and Systems for Video Technology 34 (10 …" [ref=f1e1043]:
+                  - link "Edge perception camouflaged object detection under frequency domain reconstruction" [ref=f1e1044] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:PoWvk5oyLR8C
+                  - generic [ref=f1e1045]: Z Liu, X Deng, P Jiang, C Lv, G Min, X Wang
+                  - generic [ref=f1e1046]: IEEE Transactions on Circuits and Systems for Video Technology 34 (10 …
+                - cell "59" [ref=f1e1047]:
+                  - link "59" [ref=f1e1048] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=4962378637366381865
+                - cell "2024" [ref=f1e1049]:
+                  - generic [ref=f1e1050]: "2024"
+              - row "Wi-Fi fingerprint based indoor localization using few shot regression X Chen, J Yi, A Wang, X Deng 2024 27th International Conference on Computer Supported Cooperative Work in … 2 2024" [ref=f1e1051]:
+                - cell "Wi-Fi fingerprint based indoor localization using few shot regression X Chen, J Yi, A Wang, X Deng 2024 27th International Conference on Computer Supported Cooperative Work in …" [ref=f1e1052]:
+                  - link "Wi-Fi fingerprint based indoor localization using few shot regression" [ref=f1e1053] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:0N-VGjzr574C
+                  - generic [ref=f1e1054]: X Chen, J Yi, A Wang, X Deng
+                  - generic [ref=f1e1055]: 2024 27th International Conference on Computer Supported Cooperative Work in …
+                - cell "2" [ref=f1e1056]:
+                  - link "2" [ref=f1e1057] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=637036802827674941
+                - cell "2024" [ref=f1e1058]:
+                  - generic [ref=f1e1059]: "2024"
+              - row "Motion latent diffusion for stochastic trajectory prediction W Wu, X Deng ICASSP 2024-2024 IEEE International Conference on Acoustics, Speech and … 8 2024" [ref=f1e1060]:
+                - cell "Motion latent diffusion for stochastic trajectory prediction W Wu, X Deng ICASSP 2024-2024 IEEE International Conference on Acoustics, Speech and …" [ref=f1e1061]:
+                  - link "Motion latent diffusion for stochastic trajectory prediction" [ref=f1e1062] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:foquWX3nUaYC
+                  - generic [ref=f1e1063]: W Wu, X Deng
+                  - generic [ref=f1e1064]: ICASSP 2024-2024 IEEE International Conference on Acoustics, Speech and …
+                - cell "8" [ref=f1e1065]:
+                  - link "8" [ref=f1e1066] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=4689647914500806387
+                - cell "2024" [ref=f1e1067]:
+                  - generic [ref=f1e1068]: "2024"
+              - row "Edge attention learning for efficient camouflaged object detection Z Liu, P Jiang, L Lin, X Deng ICASSP 2024-2024 IEEE International Conference on Acoustics, Speech and … 30 2024" [ref=f1e1069]:
+                - cell "Edge attention learning for efficient camouflaged object detection Z Liu, P Jiang, L Lin, X Deng ICASSP 2024-2024 IEEE International Conference on Acoustics, Speech and …" [ref=f1e1070]:
+                  - link "Edge attention learning for efficient camouflaged object detection" [ref=f1e1071] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:SpbeaW3--B0C
+                  - generic [ref=f1e1072]: Z Liu, P Jiang, L Lin, X Deng
+                  - generic [ref=f1e1073]: ICASSP 2024-2024 IEEE International Conference on Acoustics, Speech and …
+                - cell "30" [ref=f1e1074]:
+                  - link "30" [ref=f1e1075] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=2905649348858585554
+                - cell "2024" [ref=f1e1076]:
+                  - generic [ref=f1e1077]: "2024"
+              - 'row "Haina Storage: A Decentralized Secure Storage Framework Based on Improved Blockchain Structure Z Zhou, C Wang, X Deng, J Lu, Q Wen, C Zhang, H Li arXiv preprint arXiv:2404.01606 1 2024" [ref=f1e1078]':
+                - 'cell "Haina Storage: A Decentralized Secure Storage Framework Based on Improved Blockchain Structure Z Zhou, C Wang, X Deng, J Lu, Q Wen, C Zhang, H Li arXiv preprint arXiv:2404.01606" [ref=f1e1079]':
+                  - 'link "Haina Storage: A Decentralized Secure Storage Framework Based on Improved Blockchain Structure" [ref=f1e1080] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:8xutWZnSdmoC
+                  - generic [ref=f1e1081]: Z Zhou, C Wang, X Deng, J Lu, Q Wen, C Zhang, H Li
+                  - generic [ref=f1e1082]: arXiv preprint arXiv:2404.01606
+                - cell "1" [ref=f1e1083]:
+                  - link "1" [ref=f1e1084] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=9537518363212453723
+                - cell "2024" [ref=f1e1085]:
+                  - generic [ref=f1e1086]: "2024"
+              - row "Distributed soft video transmission based on hybrid digital and analog scheme X Chen, C Chen, X Deng Internet of Things 25, 101011 1 2024" [ref=f1e1087]:
+                - cell "Distributed soft video transmission based on hybrid digital and analog scheme X Chen, C Chen, X Deng Internet of Things 25, 101011" [ref=f1e1088]:
+                  - link "Distributed soft video transmission based on hybrid digital and analog scheme" [ref=f1e1089] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:k8Z6L05lTy4C
+                  - generic [ref=f1e1090]: X Chen, C Chen, X Deng
+                  - generic [ref=f1e1091]: Internet of Things 25, 101011
+                - cell "1" [ref=f1e1092]:
+                  - link "1" [ref=f1e1093] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=1427067274729827592
+                - cell "2024" [ref=f1e1094]:
+                  - generic [ref=f1e1095]: "2024"
+              - row "Dependent task offloading in edge computing using GNN and deep reinforcement learning Z Cao, X Deng, S Yue, P Jiang, J Ren, J Gui IEEE Internet of Things Journal 11 (12), 21632-21646 78 2024" [ref=f1e1096]:
+                - cell "Dependent task offloading in edge computing using GNN and deep reinforcement learning Z Cao, X Deng, S Yue, P Jiang, J Ren, J Gui IEEE Internet of Things Journal 11 (12), 21632-21646" [ref=f1e1097]:
+                  - link "Dependent task offloading in edge computing using GNN and deep reinforcement learning" [ref=f1e1098] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:epqYDVWIO7EC
+                  - generic [ref=f1e1099]: Z Cao, X Deng, S Yue, P Jiang, J Ren, J Gui
+                  - generic [ref=f1e1100]: IEEE Internet of Things Journal 11 (12), 21632-21646
+                - cell "78" [ref=f1e1101]:
+                  - link "78" [ref=f1e1102] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=8974807791247430435
+                - cell "2024" [ref=f1e1103]:
+                  - generic [ref=f1e1104]: "2024"
+              - row "Allocating energy-objective aware workflow in distributed edge micro data centres MM Kadum, X Deng The Journal of Supercomputing 80 (5), 6486-6521 1 2024" [ref=f1e1105]:
+                - cell "Allocating energy-objective aware workflow in distributed edge micro data centres MM Kadum, X Deng The Journal of Supercomputing 80 (5), 6486-6521" [ref=f1e1106]:
+                  - link "Allocating energy-objective aware workflow in distributed edge micro data centres" [ref=f1e1107] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:tuHXwOkdijsC
+                  - generic [ref=f1e1108]: MM Kadum, X Deng
+                  - generic [ref=f1e1109]: The Journal of Supercomputing 80 (5), 6486-6521
+                - cell "1" [ref=f1e1110]:
+                  - link "1" [ref=f1e1111] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=2359917070485556049
+                - cell "2024" [ref=f1e1112]:
+                  - generic [ref=f1e1113]: "2024"
+              - 'row "Spectrum-energy-efficient mode selection and resource allocation for heterogeneous V2X networks: A federated multi-agent deep reinforcement learning approach J Gui, L Lin, X Deng, L Cai IEEE/ACM Transactions on Networking 32 (3), 2689-2704 33 2024" [ref=f1e1114]':
+                - 'cell "Spectrum-energy-efficient mode selection and resource allocation for heterogeneous V2X networks: A federated multi-agent deep reinforcement learning approach J Gui, L Lin, X Deng, L Cai IEEE/ACM Transactions on Networking 32 (3), 2689-2704" [ref=f1e1115]':
+                  - 'link "Spectrum-energy-efficient mode selection and resource allocation for heterogeneous V2X networks: A federated multi-agent deep reinforcement learning approach" [ref=f1e1116] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:i2xiXl-TujoC
+                  - generic [ref=f1e1117]: J Gui, L Lin, X Deng, L Cai
+                  - generic [ref=f1e1118]: IEEE/ACM Transactions on Networking 32 (3), 2689-2704
+                - cell "33" [ref=f1e1119]:
+                  - link "33" [ref=f1e1120] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=15249324815187287063
+                - cell "2024" [ref=f1e1121]:
+                  - generic [ref=f1e1122]: "2024"
+              - 'row "Familiar paths are the best: Incentive mechanism based on path-dependence considering space-time coverage in crowdsensing D Li, C Li, X Deng, H Liu, J Liu IEEE Transactions on Mobile Computing 23 (10), 9304-9323 15 2024" [ref=f1e1123]':
+                - 'cell "Familiar paths are the best: Incentive mechanism based on path-dependence considering space-time coverage in crowdsensing D Li, C Li, X Deng, H Liu, J Liu IEEE Transactions on Mobile Computing 23 (10), 9304-9323" [ref=f1e1124]':
+                  - 'link "Familiar paths are the best: Incentive mechanism based on path-dependence considering space-time coverage in crowdsensing" [ref=f1e1125] [cursor=pointer]':
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:S16KYo8Pm5AC
+                  - generic [ref=f1e1126]: D Li, C Li, X Deng, H Liu, J Liu
+                  - generic [ref=f1e1127]: IEEE Transactions on Mobile Computing 23 (10), 9304-9323
+                - cell "15" [ref=f1e1128]:
+                  - link "15" [ref=f1e1129] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=17481241062648606189
+                - cell "2024" [ref=f1e1130]:
+                  - generic [ref=f1e1131]: "2024"
+              - row "Multi-compression scale DNN inference acceleration based on cloud-edge-end collaboration H Qi, F Ren, L Wang, P Jiang, S Wan, X Deng ACM Transactions on Embedded Computing Systems 23 (1), 1-25 38 2024" [ref=f1e1132]:
+                - cell "Multi-compression scale DNN inference acceleration based on cloud-edge-end collaboration H Qi, F Ren, L Wang, P Jiang, S Wan, X Deng ACM Transactions on Embedded Computing Systems 23 (1), 1-25" [ref=f1e1133]:
+                  - link "Multi-compression scale DNN inference acceleration based on cloud-edge-end collaboration" [ref=f1e1134] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:WZBGuue-350C
+                  - generic [ref=f1e1135]: H Qi, F Ren, L Wang, P Jiang, S Wan, X Deng
+                  - generic [ref=f1e1136]: ACM Transactions on Embedded Computing Systems 23 (1), 1-25
+                - cell "38" [ref=f1e1137]:
+                  - link "38" [ref=f1e1138] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=7949570854232476577
+                - cell "2024" [ref=f1e1139]:
+                  - generic [ref=f1e1140]: "2024"
+              - row "Collaborative intelligent delivery with one truck and multiple heterogeneous drones in COVID-19 pandemic environment Y Luo, X Deng, W Zhang, Y Ke, S Wan, Y Qian IEEE Transactions on Intelligent Transportation Systems 25 (7), 7907-7920 22 2024" [ref=f1e1141]:
+                - cell "Collaborative intelligent delivery with one truck and multiple heterogeneous drones in COVID-19 pandemic environment Y Luo, X Deng, W Zhang, Y Ke, S Wan, Y Qian IEEE Transactions on Intelligent Transportation Systems 25 (7), 7907-7920" [ref=f1e1142]:
+                  - link "Collaborative intelligent delivery with one truck and multiple heterogeneous drones in COVID-19 pandemic environment" [ref=f1e1143] [cursor=pointer]:
+                    - /url: /citations?view_op=view_citation&hl=en&user=zwmacb4AAAAJ&pagesize=100&sortby=pubdate&citation_for_view=zwmacb4AAAAJ:e_rmSamDkqQC
+                  - generic [ref=f1e1144]: Y Luo, X Deng, W Zhang, Y Ke, S Wan, Y Qian
+                  - generic [ref=f1e1145]: IEEE Transactions on Intelligent Transportation Systems 25 (7), 7907-7920
+                - cell "22" [ref=f1e1146]:
+                  - link "22" [ref=f1e1147] [cursor=pointer]:
+                    - /url: https://scholar.google.com/scholar?oi=bibs&hl=en&cites=5662366097809364080
+                - cell "2024" [ref=f1e1148]:
+                  - generic [ref=f1e1149]: "2024"
+          - generic [ref=f1e1150]:
+            - generic [ref=f1e1151]: Articles 1–100
+            - button "Show more" [ref=f1e1153] [cursor=pointer]:
+              - generic [ref=f1e1156]: Show more
+  - contentinfo [ref=f1e1157]:
+    - generic [ref=f1e1158]:
+      - link "Privacy" [ref=f1e1159] [cursor=pointer]:
+        - /url: //www.google.com/intl/en/policies/privacy/
+      - link "Terms" [ref=f1e1160] [cursor=pointer]:
+        - /url: //www.google.com/intl/en/policies/terms/
+      - button "Help" [ref=f1e1161] [cursor=pointer]

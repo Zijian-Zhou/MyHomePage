@@ -566,21 +566,7 @@ class MediaFile(models.Model):
         h.update(b'|')
         h.update((self.file.name or '').encode('utf-8'))
         h.update(b'|')
-        try:
-            if self.file:
-                try:
-                    current_pos = self.file.tell()
-                except Exception:
-                    current_pos = None
-                if hasattr(self.file, 'seek'):
-                    self.file.seek(0)
-                chunk = self.file.read(1024 * 1024)
-                if current_pos is not None and hasattr(self.file, 'seek'):
-                    self.file.seek(current_pos)
-                h.update(chunk or b'')
-        except Exception:
-            # Fall back to filename/timestamp based hash when file stream is unavailable.
-            pass
+        h.update(str(getattr(self.file, 'size', '') or '').encode('utf-8'))
         return h.hexdigest()
 
     def save(self, *args, **kwargs):

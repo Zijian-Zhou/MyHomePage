@@ -11,6 +11,14 @@ import time
 from .security import decrypt_identity, decrypt_login_field, identity_digest
 
 
+def get_client_ip(request):
+    if getattr(settings, 'TRUST_X_FORWARDED_FOR', False):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            return x_forwarded_for.split(',')[0].strip()
+    return (request.META.get('REMOTE_ADDR', '') or '').strip()
+
+
 class IPBasedLanguageMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -23,8 +31,7 @@ class IPBasedLanguageMiddleware:
         if 'django_language' in request.session:
             return self.get_response(request)
 
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        ip = (x_forwarded_for.split(',')[0] if x_forwarded_for else request.META.get('REMOTE_ADDR', '')).strip()
+        ip = get_client_ip(request)
 
         if ip in ['127.0.0.1', 'localhost', '::1']:
             return self.get_response(request)
@@ -165,8 +172,7 @@ class AdminLoginRateLimitMiddleware:
         return response
 
     def _build_identifier(self, request):
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        ip = (x_forwarded_for.split(',')[0] if x_forwarded_for else request.META.get('REMOTE_ADDR', '')).strip()
+        ip = get_client_ip(request)
         return ip or 'unknown'
 
     def _attempt_key(self, identifier):

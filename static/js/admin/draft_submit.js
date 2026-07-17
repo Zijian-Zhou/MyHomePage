@@ -6,7 +6,7 @@
   }
 
   function label() {
-    return getLang() === 'zh' ? '±£´æÎª²Ý¸å' : 'Save as draft';
+    return getLang() === 'zh' ? '\u4fdd\u5b58\u4e3a\u8349\u7a3f' : 'Save as draft';
   }
 
   document.addEventListener('DOMContentLoaded', function () {

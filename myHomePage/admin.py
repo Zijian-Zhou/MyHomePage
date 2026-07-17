@@ -13,8 +13,6 @@ from .services import sync_publications, ORCIDService, GoogleScholarService, ORC
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.admin.sites import AdminSite
 from django.template.response import TemplateResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 from django import forms
 from django.contrib.auth.models import User, Group
 import bibtexparser
@@ -647,6 +645,11 @@ class PublicationAdmin(DraftSaveMixin, BaseAdmin):
         ]
         return custom_urls + urls
 
+    def _entry_to_raw_bibtex(self, entry):
+        database = bibtexparser.bibdatabase.BibDatabase()
+        database.entries = [entry]
+        return bibtexparser.dumps(database).strip()
+
     def parse_bibtex(self, request):
         """Parse BibTeX data"""
         if not request.user.is_authenticated:
@@ -739,7 +742,7 @@ class PublicationAdmin(DraftSaveMixin, BaseAdmin):
                 'raw_bibtex': bibtex_data,
                 'bibtex_key': entry.get('ID', ''),
                 'date': date.strftime('%Y-%m-%d') if date else None,
-                'keywords': keywords,
+                'keywords': ', '.join(keywords),
                 'highlighted_authors': '',
                 'corresponding_authors': ''
             }
@@ -823,10 +826,10 @@ class PublicationAdmin(DraftSaveMixin, BaseAdmin):
                         doi=entry.get('doi', ''),
                         url=entry.get('url', '') or (entry.get('doi', '') and f"https://doi.org/{entry['doi']}"),
                         bibtex_type=entry.get('ENTRYTYPE', ''),
-                        raw_bibtex=bibtexparser.dumps(bib_database),
+                        raw_bibtex=self._entry_to_raw_bibtex(entry),
                         bibtex_key=entry.get('ID', ''),
                         date=date,
-                        keywords=keywords
+                        keywords=', '.join(keywords)
                     )
                     publication.save()
                     imported += 1
@@ -838,9 +841,9 @@ class PublicationAdmin(DraftSaveMixin, BaseAdmin):
             # Return import results
             message = _('Successfully imported %(count)d entries') % {'count': imported}
             if skipped > 0:
-                message += _('，skipped %(count)d existing entries') % {'count': skipped}
+                message += _('; skipped %(count)d existing entries') % {'count': skipped}
             if errors:
-                message += _('，%(count)d entries failed') % {'count': len(errors)}
+                message += _('; %(count)d entries failed') % {'count': len(errors)}
                 
             return JsonResponse({
                 'success': True,

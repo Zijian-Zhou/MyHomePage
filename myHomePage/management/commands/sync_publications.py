@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from django.db import models
 from datetime import timedelta
 from myHomePage.models import Profile, SystemConfig
 from myHomePage.services import sync_publications
@@ -17,17 +18,17 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # 获取同步间隔
         sync_interval = timedelta(hours=SystemConfig.get_sync_interval_hours())
-        
+
         # 构建查询
         query = Profile.objects.filter(
             # 启用了自动同步
             models.Q(auto_sync_orcid=True) | models.Q(auto_sync_google_scholar=True)
         )
-        
+
         # 如果指定了用户ID
         if options['profile']:
             query = query.filter(id=options['profile'])
-        
+
         # 如果不是强制同步，添加时间过滤
         if not options['force']:
             query = query.filter(
@@ -35,13 +36,13 @@ class Command(BaseCommand):
                 models.Q(last_sync_time__isnull=True) |
                 models.Q(last_sync_time__lt=timezone.now() - sync_interval)
             )
-        
+
         profiles = query.distinct()
-        
+
         if not profiles:
             self.stdout.write(self.style.WARNING('没有需要同步的用户'))
             return
-        
+
         total_imported = 0
         for profile in profiles:
             try:
@@ -59,9 +60,9 @@ class Command(BaseCommand):
                         f'同步失败: {str(e)}'
                     )
                 )
-        
+
         self.stdout.write(
             self.style.SUCCESS(
                 f'同步完成，共导入 {total_imported} 篇出版物'
             )
-        ) 
+        )

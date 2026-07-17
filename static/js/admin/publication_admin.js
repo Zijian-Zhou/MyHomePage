@@ -13,7 +13,18 @@ window.addEventListener('load', function() {
                 const importForm = $('#import-bibtex-form');
                 let pasteTimeout;
 
-                console.log('Initialized elements:', {
+                const DEBUG = false;
+                function debugLog() {
+                    if (DEBUG && window.console) console.log.apply(console, arguments);
+                }
+                function debugWarn() {
+                    if (DEBUG && window.console) console.warn.apply(console, arguments);
+                }
+                function debugError() {
+                    if (DEBUG && window.console) console.error.apply(console, arguments);
+                }
+
+                debugLog('Initialized elements:', {
                     bibtexInput: bibtexInput.length,
                     bibtexFile: bibtexFile.length,
                     importModal: importModal.length,
@@ -126,7 +137,7 @@ window.addEventListener('load', function() {
 
                 // 处理文本输入和粘贴
                 bibtexInput.on('input paste', function(e) {
-                    console.log(getMessage('input_event')); // 调试日志
+                    debugLog(getMessage('input_event')); // 调试日志
                     
                     // 清除之前的定时器
                     if (pasteTimeout) {
@@ -136,23 +147,23 @@ window.addEventListener('load', function() {
                     // 设置新的定时器，等待粘贴完成
                     pasteTimeout = setTimeout(() => {
                         const bibtexData = $(this).val();
-                        console.log(getMessage('bibtex_data'), bibtexData); // 调试日志
+                        debugLog(getMessage('bibtex_data'), bibtexData); // 调试日志
                     }, 500); // 500ms 延迟，确保粘贴完成
                 });
 
                 // 处理文件上传
                 bibtexFile.on('change', function(e) {
-                    console.log('File input changed'); // 调试日志
+                    debugLog('File input changed'); // 调试日志
                     const file = e.target.files[0];
                     if (file) {
-                        console.log('File selected:', file.name); // 调试日志
+                        debugLog('File selected:', file.name); // 调试日志
                         const reader = new FileReader();
                         reader.onload = function(e) {
                             const bibtexData = e.target.result;
-                            console.log('File content loaded:', bibtexData); // 调试日志
+                            debugLog('File content loaded:', bibtexData); // 调试日志
                             // 将文件内容设置到输入框
                             $('#id_bibtex_text').val(bibtexData);
-                            console.log('Textarea value after setting:', $('#id_bibtex_text').val()); // 调试日志
+                            debugLog('Textarea value after setting:', $('#id_bibtex_text').val()); // 调试日志
                         };
                         reader.readAsText(file);
                     }
@@ -184,11 +195,11 @@ window.addEventListener('load', function() {
                 // 处理导入表单提交
                 importForm.on('submit', function(e) {
                     e.preventDefault();
-                    console.log('Import form submitted'); // 调试日志
+                    debugLog('Import form submitted'); // 调试日志
                     
                     // 获取 BibTeX 数据
                     const bibtexData = $('#id_bibtex_text').val();
-                    console.log('Original BibTeX data:', bibtexData); // 调试日志
+                    debugLog('Original BibTeX data:', bibtexData); // 调试日志
                     
                     if (!bibtexData || bibtexData.trim() === '') {
                         showAlert('error', getMessage('no_bibtex_data'));
@@ -197,15 +208,15 @@ window.addEventListener('load', function() {
                     
                     // 预处理 BibTeX 数据
                     const processedBibTeX = preprocessBibTeX(bibtexData);
-                    console.log('Processed BibTeX data:', processedBibTeX); // 调试日志
+                    debugLog('Processed BibTeX data:', processedBibTeX); // 调试日志
                     
                     // 获取当前页面的 URL
                     const currentUrl = window.location.href;
-                    console.log('Current URL:', currentUrl); // 调试日志
+                    debugLog('Current URL:', currentUrl); // 调试日志
                     
                     // 构建导入 URL
-                    const importUrl = currentUrl + 'import-bibtex/';
-                    console.log('Import URL:', importUrl); // 调试日志
+                    const importUrl = window.location.pathname.replace(/\/?$/, '/') + 'import-bibtex/';
+                    debugLog('Import URL:', importUrl); // 调试日志
                     
                     // 构建请求数据
                     const requestData = {
@@ -213,14 +224,14 @@ window.addEventListener('load', function() {
                         csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
                     };
                     
-                    console.log('Request data:', requestData); // 调试日志
+                    debugLog('Request data:', requestData); // 调试日志
                     
                     $.ajax({
                         url: importUrl,
                         method: 'POST',
                         data: requestData,
                         success: function(response) {
-                            console.log('Import success:', response); // 调试日志
+                            debugLog('Import success:', response); // 调试日志
                             
                             if (response.success) {
                                 // 存储导入结果到 sessionStorage
@@ -238,9 +249,9 @@ window.addEventListener('load', function() {
                             }
                         },
                         error: function(xhr, status, error) {
-                            console.error('Import error:', error); // 调试日志
-                            console.error('Status:', status);
-                            console.error('Response:', xhr.responseText);
+                            debugError('Import error:', error); // 调试日志
+                            debugError('Status:', status);
+                            debugError('Response:', xhr.responseText);
                             
                             let errorMsg = getMessage('parse_failed');
                             if (xhr.responseJSON && xhr.responseJSON.error) {
@@ -345,11 +356,11 @@ window.addEventListener('load', function() {
 
                 // 解析 BibTeX 数据
                 function parseBibTeX(bibtexData) {
-                    console.log('Parsing BibTeX data:', bibtexData);
+                    debugLog('Parsing BibTeX data:', bibtexData);
                     
                     // 获取当前页面的 URL
                     const currentUrl = window.location.href;
-                    console.log('Current URL:', currentUrl);
+                    debugLog('Current URL:', currentUrl);
                     
                     // 构建解析 URL - 处理 add、change 和主列表页面
                     let parseUrl;
@@ -366,27 +377,27 @@ window.addEventListener('load', function() {
                         window.location.href = addUrl;
                         return;
                     } else {
-                        console.error('Invalid URL format');
+                        debugError('Invalid URL format');
                         return;
                     }
-                    console.log('Parse URL:', parseUrl);
+                    debugLog('Parse URL:', parseUrl);
                     
                     // 构建请求数据
                     const requestData = {
                         bibtex_text: bibtexData,
                         csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
                     };
-                    console.log('Request data:', requestData);
+                    debugLog('Request data:', requestData);
                     
                     $.ajax({
                         url: parseUrl,
                         method: 'POST',
                         data: requestData,
                         success: function(response) {
-                            console.log('Raw response:', response);
+                            debugLog('Raw response:', response);
                             
                             if (!response) {
-                                console.error('Empty response received');
+                                debugError('Empty response received');
                                 showFeedback(
                                     $('#id_bibtex_text'),
                                     'error',
@@ -396,7 +407,7 @@ window.addEventListener('load', function() {
                             }
                             
                             if (response.error) {
-                                console.error('Error in response:', response.error);
+                                debugError('Error in response:', response.error);
                                 showFeedback(
                                     $('#id_bibtex_text'),
                                     'error',
@@ -408,7 +419,7 @@ window.addEventListener('load', function() {
                             if (response.exists) {
                                 // 如果条目已存在，显示编辑链接
                                 const editUrl = currentUrl.replace(/\/add\/?$/, `/${response.id}/change/`);
-                                console.log('Edit URL:', editUrl);
+                                debugLog('Edit URL:', editUrl);
                                 
                                 const message = getMessage('entry_exists');
                                 const editLink = $('<a>')
@@ -438,14 +449,14 @@ window.addEventListener('load', function() {
                                     'corresponding_authors': response.corresponding_authors || ''
                                 };
                                 
-                                console.log('Fields to update:', fields);
+                                debugLog('Fields to update:', fields);
                                 
                                 // 更新每个字段
                                 Object.entries(fields).forEach(([field, value]) => {
                                     const fieldElement = $(`#id_${field}`);
                                     if (fieldElement.length) {
                                         fieldElement.val(value);
-                                        console.log(`Setting ${field} to:`, value);
+                                        debugLog(`Setting ${field} to:`, value);
                                         
                                         // 显示字段更新反馈
                                         showFeedback(
@@ -454,7 +465,7 @@ window.addEventListener('load', function() {
                                             getMessage('field_updated').replace('%(field)s', field)
                                         );
                                     } else {
-                                        console.warn(`Field #id_${field} not found in form`);
+                                        debugWarn(`Field #id_${field} not found in form`);
                                     }
                                 });
                                 
@@ -467,16 +478,16 @@ window.addEventListener('load', function() {
                             }
                         },
                         error: function(xhr, status, error) {
-                            console.error('Parse error:', error);
-                            console.error('Status:', status);
-                            console.error('Response:', xhr.responseText);
+                            debugError('Parse error:', error);
+                            debugError('Status:', status);
+                            debugError('Response:', xhr.responseText);
                             
                             let response;
                             try {
                                 response = JSON.parse(xhr.responseText);
-                                console.error('Parsed error response:', response);
+                                debugError('Parsed error response:', response);
                             } catch (e) {
-                                console.error('Error parsing response:', e);
+                                debugError('Error parsing response:', e);
                                 response = { error: getMessage('unknown_error') };
                             }
                             
@@ -516,6 +527,6 @@ window.addEventListener('load', function() {
             });
         })(django.jQuery);
     } else {
-        console.error('django.jQuery is not available');
+        if (window.console) console.error('django.jQuery is not available');
     }
-}); 
+});

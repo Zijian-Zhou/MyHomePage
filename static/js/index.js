@@ -14,14 +14,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Add active class to navigation items on scroll
-    const sections = document.querySelectorAll('section');
-    const navItems = document.querySelectorAll('.nav-item');
-
     window.addEventListener('scroll', () => {
         let current = '';
+        const sections = document.querySelectorAll('section');
+        const navItems = document.querySelectorAll('.nav-item');
         sections.forEach(section => {
             const sectionTop = section.offsetTop;
-            const sectionHeight = section.clientHeight;
             if (pageYOffset >= sectionTop - 200) {
                 current = section.getAttribute('id');
             }
@@ -104,8 +102,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const citeButton = e.target.closest('.cite-button');
         if (citeButton) {
             e.preventDefault();
-            const encodedBibtex = citeButton.getAttribute('data-bibtex') || '';
-            const bibtex = encodedBibtex ? decodeURIComponent(encodedBibtex.replace(/\+/g, '%20')) : '';
+            const source = citeButton.parentNode ? citeButton.parentNode.querySelector('.publication-bibtex-source') : null;
+            const bibtex = source ? source.value : '';
             if (!bibtex.trim()) return;
 
             setCiteButtonState(citeButton, 'copying');
