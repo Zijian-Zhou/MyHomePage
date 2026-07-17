@@ -8,7 +8,7 @@ from django.utils.html import format_html
 from django.urls import reverse
 from django.utils import timezone
 from datetime import timedelta, datetime
-from .models import Profile, Publication, Research, SystemConfig, News, Section, SectionItem, MediaFile
+from .models import Profile, Publication, Research, SystemConfig, News, Section, SectionItem, MediaFile, AIConfig
 from .services import sync_publications, ORCIDService, GoogleScholarService, ORCIDOAuth, deduplicate_publications
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.admin.sites import AdminSite
@@ -103,6 +103,44 @@ def _validate_footer_items_json(value):
             raise forms.ValidationError(_('Each footer item must include a non-empty "content".'))
     return value
 
+
+
+def _validate_ai_config_json(value):
+    value = (value or '').strip()
+    if not value:
+        return value
+    try:
+        payload = json.loads(value)
+    except (ValueError, TypeError):
+        raise forms.ValidationError(
+            '\u0041\u0049 \u914d\u7f6e\u5fc5\u987b\u662f\u5408\u6cd5 \u004a\u0053\u004f\u004e\u3002'
+            if _is_zh_mode()
+            else _('AI Configuration value must be valid JSON.')
+        )
+
+    if not isinstance(payload, dict):
+        raise forms.ValidationError(
+            '\u0041\u0049 \u914d\u7f6e\u5fc5\u987b\u662f \u004a\u0053\u004f\u004e \u5bf9\u8c61\u3002'
+            if _is_zh_mode()
+            else _('AI Configuration must be a JSON object.')
+        )
+
+    providers = payload.get('providers')
+    if providers is not None:
+        if not isinstance(providers, list):
+            raise forms.ValidationError(
+                '\u0041\u0049 \u914d\u7f6e\u4e2d\u7684 \u0070\u0072\u006f\u0076\u0069\u0064\u0065\u0072\u0073 \u5fc5\u987b\u662f\u6570\u7ec4\u3002'
+                if _is_zh_mode()
+                else _('AI Configuration providers must be a list.')
+            )
+        for provider in providers:
+            if not isinstance(provider, dict) or not str(provider.get('name', '')).strip():
+                raise forms.ValidationError(
+                    '\u6bcf\u4e2a \u0041\u0049 \u0070\u0072\u006f\u0076\u0069\u0064\u0065\u0072 \u5fc5\u987b\u5305\u542b\u975e\u7a7a \u006e\u0061\u006d\u0065\u3002'
+                    if _is_zh_mode()
+                    else _('Each AI provider must include a non-empty name.')
+                )
+    return value
 
 def _strip_zh_fields(fieldsets):
     cleaned = []
@@ -298,6 +336,7 @@ class CustomAdminSite(AdminSite):
             'publication': _('Publications'),
             'research': _('Research Projects'),
             'systemconfig': _('System Configurations'),
+            'aiconfig': _('AI Configurations'),
             'news': _('News'),
             'section': _('Custom Sections'),
             'mediafile': _('Media Files'),
@@ -1128,6 +1167,59 @@ class SystemConfigAdmin(admin.ModelAdmin):
         extra_context['systemconfig_current_category'] = current_category
         return super().changeform_view(request, object_id, form_url, extra_context)
 
+
+class AIConfigAdminForm(forms.ModelForm):
+    class Meta:
+        model = AIConfig
+        fields = '__all__'
+
+    def clean_config_json(self):
+        return _validate_ai_config_json(self.cleaned_data.get('config_json', ''))
+
+
+class AIConfigAdmin(admin.ModelAdmin):
+    form = AIConfigAdminForm
+    list_display = ('name', 'provider', 'model_name', 'base_url', 'is_default', 'is_active', 'updated_at')
+    list_filter = ('provider', 'is_default', 'is_active')
+    search_fields = ('name', 'provider', 'model_name', 'base_url', 'description')
+    fieldsets = (
+        (_('Basic Information'), {
+            'fields': ('name', 'provider', 'model_name', 'base_url', 'api_key')
+        }),
+        (_('Advanced Configuration'), {
+            'fields': ('config_json', 'description', 'is_default', 'is_active')
+        }),
+    )
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if 'config_json' in form.base_fields:
+            form.base_fields['config_json'].required = False
+            form.base_fields['config_json'].help_text = (
+                '\u004a\u0053\u004f\u004e \u683c\u5f0f\u3002\u793a\u4f8b\uff1a{"temperature":0.2,"max_tokens":2048}'
+                if _is_zh_mode()
+                else _('JSON format. Example: {"temperature":0.2,"max_tokens":2048}')
+            )
+        return _apply_zh_field_labels(form, {
+            'name': '\u540d\u79f0',
+            'provider': '\u63d0\u4f9b\u5546',
+            'base_url': '\u0042\u0061\u0073\u0065 \u0055\u0052\u004c',
+            'api_key': '\u0041\u0050\u0049 \u5bc6\u94a5',
+            'model_name': '\u6a21\u578b',
+            'config_json': '\u914d\u7f6e \u004a\u0053\u004f\u004e',
+            'description': '\u63cf\u8ff0',
+            'is_default': '\u9ed8\u8ba4',
+            'is_active': '\u542f\u7528',
+        })
+
+    def save_model(self, request, obj, form, change):
+        if obj.is_default:
+            AIConfig.objects.exclude(pk=obj.pk).update(is_default=False)
+        super().save_model(request, obj, form, change)
+
+    class Media:
+        js = ('js/admin/ai_config_json_validate.js',)
+
 class NewsAdmin(DraftSaveMixin, BaseAdmin):
     list_display = ('title', 'is_active', 'is_draft', 'order', 'created_at', 'updated_at')
     list_filter = ('is_active', 'is_draft')
@@ -1299,6 +1391,7 @@ admin_site.register(Profile, ProfileAdmin)
 admin_site.register(Publication, PublicationAdmin)
 admin_site.register(Research, ResearchAdmin)
 admin_site.register(SystemConfig, SystemConfigAdmin)
+admin_site.register(AIConfig, AIConfigAdmin)
 admin_site.register(News, NewsAdmin)
 admin_site.register(Section, SectionAdmin)
 admin_site.register(MediaFile, MediaFileAdmin)

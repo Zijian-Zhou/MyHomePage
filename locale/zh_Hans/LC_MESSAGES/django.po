@@ -512,3 +512,45 @@ msgstr "????????????"
 
 msgid "Enable Chinese must be \"1\" (enabled) or \"0\" (disabled)."
 msgstr "????????? \"1\"????? \"0\"?????"
+
+msgid "AI Configuration"
+msgstr "AI 配置"
+
+msgid "AI Configurations"
+msgstr "AI 配置"
+
+msgid "Provider"
+msgstr "提供商"
+
+msgid "Base URL"
+msgstr "Base URL"
+
+msgid "API Key"
+msgstr "API 密钥"
+
+msgid "Model"
+msgstr "模型"
+
+msgid "Configuration JSON"
+msgstr "配置 JSON"
+
+msgid "Default"
+msgstr "默认"
+
+msgid "Advanced Configuration"
+msgstr "高级配置"
+
+msgid "JSON format. Example: {\"temperature\":0.2,\"max_tokens\":2048}"
+msgstr "JSON 格式。示例：{\"temperature\":0.2,\"max_tokens\":2048}"
+
+msgid "AI Configuration value must be valid JSON."
+msgstr "AI 配置必须是合法 JSON。"
+
+msgid "AI Configuration must be a JSON object."
+msgstr "AI 配置必须是 JSON 对象。"
+
+msgid "AI Configuration providers must be a list."
+msgstr "AI 配置中的 providers 必须是数组。"
+
+msgid "Each AI provider must include a non-empty name."
+msgstr "每个 AI provider 必须包含非空 name。"

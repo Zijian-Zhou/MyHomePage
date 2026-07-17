@@ -429,6 +429,43 @@ class SystemConfig(models.Model):
         except (ValueError, TypeError):
             return 6
 
+
+class AIConfig(models.Model):
+    """Configuration for LLM providers used by admin assistance features."""
+    name = models.CharField(_('Name'), max_length=100, unique=True)
+    provider = models.CharField(_('Provider'), max_length=100, blank=True, default='')
+    base_url = models.URLField(_('Base URL'), max_length=500, blank=True, default='')
+    api_key = models.CharField(_('API Key'), max_length=500, blank=True, default='')
+    model_name = models.CharField(_('Model'), max_length=200, blank=True, default='')
+    config_json = models.TextField(_('Configuration JSON'), blank=True, default='')
+    description = models.TextField(_('Description'), blank=True, default='')
+    is_default = models.BooleanField(_('Default'), default=False)
+    is_active = models.BooleanField(_('Is Active'), default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = _('AI Configuration')
+        verbose_name_plural = _('AI Configurations')
+        ordering = ['-is_default', 'name']
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def get_default(cls):
+        return cls.objects.filter(is_active=True, is_default=True).first() or cls.objects.filter(is_active=True).first()
+
+    def get_extra_config(self):
+        if not self.config_json:
+            return {}
+        try:
+            import json
+            data = json.loads(self.config_json)
+        except Exception:
+            return {}
+        return data if isinstance(data, dict) else {}
+
 class News(models.Model):
     """News model for sharing information"""
     title = models.CharField(_('Title'), max_length=200)

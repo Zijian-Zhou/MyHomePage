@@ -95,6 +95,7 @@
     return categoryEl && categoryEl.value === "footer_items";
   }
 
+
   function validateAndShow(form, categoryEl, valueEl) {
     var errorNode = ensureErrorNode(form);
     var messageList = document.getElementById("footer-json-messages");
