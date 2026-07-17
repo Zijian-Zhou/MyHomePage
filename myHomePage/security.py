@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from django.conf import settings
+from django.core import signing
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
@@ -69,6 +70,19 @@ def encrypt_identity(value):
         padding.OAEP(mgf=padding.MGF1(algorithm=hashes.SHA256()), algorithm=hashes.SHA256(), label=None),
     )
     return base64.b64encode(ciphertext).decode("ascii")
+
+
+def sign_identity(value):
+    return signing.dumps(value, salt="myHomePage.auth.identity")
+
+
+def verify_signed_identity(token):
+    if not token:
+        return None
+    try:
+        return signing.loads(token, salt="myHomePage.auth.identity")
+    except signing.BadSignature:
+        return None
 
 
 def _normalize_b64(token):

@@ -25,4 +25,8 @@ app.conf.beat_schedule = {
         'task': 'myHomePage.tasks.sync_publications_task',
         'schedule': timedelta(minutes=1),
     },
+    'clear-expired-sessions': {
+        'task': 'myHomePage.tasks.clear_expired_sessions_task',
+        'schedule': timedelta(hours=1),
+    },
 } 

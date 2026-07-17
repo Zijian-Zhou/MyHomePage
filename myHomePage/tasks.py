@@ -1,5 +1,6 @@
 from celery import shared_task
 from datetime import datetime, timedelta
+from django.contrib.sessions.models import Session
 from django.utils import timezone
 from .models import Profile, SystemConfig
 from .services import sync_publications
@@ -34,4 +35,10 @@ def sync_publications_task():
 
 def get_sync_interval():
     """获取同步间隔时间（秒）"""
-    return SystemConfig.get_sync_interval_seconds() 
+    return SystemConfig.get_sync_interval_seconds()
+
+
+@shared_task
+def clear_expired_sessions_task():
+    deleted, _ = Session.objects.filter(expire_date__lt=timezone.now()).delete()
+    return deleted

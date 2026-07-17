@@ -2,13 +2,14 @@ from django.utils import translation
 from django.conf import settings
 from django.core.cache import cache
 from django.contrib.auth import logout
+from django.contrib.sessions.models import Session
 from django.utils import timezone
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 import requests
 import time
 
-from .security import decrypt_identity, decrypt_login_field, identity_digest
+from .security import decrypt_identity, decrypt_login_field, identity_digest, sign_identity, verify_signed_identity
 
 
 def get_client_ip(request):
@@ -90,6 +91,7 @@ class SessionSecurityMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        self._clear_expired_sessions_hourly()
         user = getattr(request, "user", None)
         if user and user.is_authenticated:
             sig = request.session.get("auth_sig")
@@ -107,16 +109,31 @@ class SessionSecurityMiddleware:
                 return self.get_response(request)
 
             digest = identity_digest(user)
-            decrypted = decrypt_identity(sig)
+            decrypted = verify_signed_identity(sig)
+            if decrypted is None:
+                # Backward compatibility for sessions created before auth signatures
+                # were moved away from in-memory RSA keys.
+                decrypted = decrypt_identity(sig)
             if decrypted != digest:
                 logout(request)
                 request.session.flush()
                 return self.get_response(request)
+            if verify_signed_identity(sig) is None:
+                request.session["auth_sig"] = sign_identity(digest)
 
             # Refresh session timestamp to enforce rolling 30-minute window
             request.session["auth_ts"] = now_ts
 
         return self.get_response(request)
+
+    def _clear_expired_sessions_hourly(self):
+        cache_key = "session_cleanup_last_run"
+        now_ts = int(timezone.now().timestamp())
+        last_run = cache.get(cache_key)
+        if last_run and now_ts - int(last_run) < 3600:
+            return
+        cache.set(cache_key, now_ts, timeout=3600)
+        Session.objects.filter(expire_date__lt=timezone.now()).delete()
 
 
 class LoginEncryptionMiddleware:
