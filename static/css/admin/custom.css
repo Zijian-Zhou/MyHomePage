@@ -657,6 +657,10 @@
     display: flex;
     justify-content: center;
     gap: 10px;
+    flex-wrap: wrap !important;
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow: visible !important;
 }
 
 .submit-row input {
@@ -668,6 +672,9 @@
     border: none;
     cursor: pointer;
     transition: all 0.3s ease;
+    max-width: 100%;
+    white-space: normal;
+    flex: 0 1 auto;
 }
 
 .submit-row input:hover {
@@ -785,4 +792,43 @@
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+}
+
+/* Keep admin edit forms inside the viewport when extra controls are injected. */
+#content,
+#content-main,
+#content-main form,
+#content-main .module,
+.aligned .form-row,
+.aligned .form-row .flex-container {
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+.aligned .form-row {
+    overflow-wrap: anywhere;
+}
+
+.aligned .form-row .flex-container {
+    flex-wrap: wrap;
+}
+
+.aligned .form-row input[type="text"],
+.aligned .form-row input[type="url"],
+.aligned .form-row input[type="email"],
+.aligned .form-row textarea,
+.aligned .form-row select {
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+.auto-translate-control {
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+.auto-translate-button {
+    box-sizing: border-box;
+    max-width: 100%;
+    white-space: normal;
 }

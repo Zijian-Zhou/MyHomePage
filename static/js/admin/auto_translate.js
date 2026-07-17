@@ -13,8 +13,8 @@
 
   var messages = {
     en: {
-      translateZh: "Translate Chinese",
-      translateEn: "Translate English",
+      translateZh: "Translate ZH",
+      translateEn: "Translate EN",
       noText: "No text",
       translating: "Translating...",
       done: "Done",
@@ -174,8 +174,8 @@
     style.id = "auto-translate-style";
     style.textContent = [
       ".auto-translate-control{margin:18px 0 12px;}",
-      ".flex-container>.auto-translate-control{margin:0 0 0 18px;}",
-      ".auto-translate-button{font-size:12px;line-height:1.4;padding:4px 10px;}",
+      ".flex-container>.auto-translate-control{flex:0 1 auto;margin:8px 0 0 0;}",
+      ".auto-translate-button{box-sizing:border-box;max-width:100%;font-size:12px;line-height:1.4;padding:4px 10px;white-space:normal;}",
       ".auto-translate-button.auto-translate-error{border-color:#ba2121;color:#ba2121;}",
       "html[data-theme='dark'] .auto-translate-button.auto-translate-error,body.dark-mode .auto-translate-button.auto-translate-error{border-color:#ff8a8a;color:#ffb1b1;}"
     ].join("");
