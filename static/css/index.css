@@ -715,6 +715,126 @@ button.publication-action {
     transform: translateX(4px);
 }
 
+.news-actions {
+    margin-top: 1rem;
+}
+
+.news-detail {
+    max-width: 860px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 2rem 2.25rem;
+}
+
+.news-detail-title {
+    text-align: center;
+    margin-bottom: 0.9rem;
+    line-height: 1.2;
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.news-detail-divider {
+    width: 100%;
+    max-width: 760px;
+    height: 1px;
+    margin: 0 auto 0.85rem;
+    background: var(--border-color);
+    opacity: 0.8;
+}
+
+.news-detail > .news-content > .news-detail-date {
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    margin-bottom: 1.35rem;
+}
+
+.news-detail-image {
+    margin: 1.25rem 0;
+}
+
+.news-detail-image img {
+    width: 100%;
+    max-height: 460px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.news-detail-content {
+    overflow-wrap: anywhere;
+    max-width: 760px;
+    margin: 0 auto;
+    font-size: 1.03rem;
+    line-height: 1.82;
+}
+
+.news-detail-content p,
+.news-detail-content ul,
+.news-detail-content ol,
+.news-detail-content blockquote,
+.news-detail-content pre,
+.news-detail-content table {
+    margin-bottom: 1.1rem;
+}
+
+.news-detail .news-actions,
+.news-detail-nav {
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.news-detail-content img,
+.news-detail-content video,
+.news-detail-content iframe {
+    max-width: 100%;
+    height: auto;
+}
+
+.news-detail-content pre {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.news-detail-content table {
+    max-width: 100%;
+    display: block;
+    overflow-x: auto;
+}
+
+.news-detail-nav {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+    margin-top: 0.75rem;
+}
+
+.news-nav-link {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    white-space: nowrap;
+    width: fit-content;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@media (max-width: 768px) {
+    .news-detail {
+        padding: 1.5rem;
+    }
+
+    .news-detail-content {
+        max-width: 100%;
+        font-size: 1rem;
+        line-height: 1.72;
+    }
+}
 
 .custom-section .section-items {
     margin-top: 16px;

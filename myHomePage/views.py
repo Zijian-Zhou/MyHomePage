@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.views import View
 from .models import Profile, Publication, Research, News, Section, SystemConfig, MediaFile
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -104,6 +104,20 @@ def index(request):
     """Homepage view"""
     context = _build_home_context(request)
     return render(request, 'index.html', context)
+
+
+def news_detail(request, pk):
+    news = get_object_or_404(News, pk=pk, is_active=True, is_draft=False, enable_detail=True)
+    context = _build_home_context(request)
+    detail_news = list(
+        News.objects.filter(is_active=True, is_draft=False, enable_detail=True)
+        .order_by('-order', '-created_at', '-id')
+    )
+    current_index = next((idx for idx, item in enumerate(detail_news) if item.pk == news.pk), None)
+    context['news'] = news
+    context['previous_news'] = detail_news[current_index - 1] if current_index and current_index > 0 else None
+    context['next_news'] = detail_news[current_index + 1] if current_index is not None and current_index + 1 < len(detail_news) else None
+    return render(request, 'news_detail.html', context)
 
 @login_required
 def orcid_authorize(request):

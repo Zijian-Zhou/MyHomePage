@@ -1221,13 +1221,18 @@ class AIConfigAdmin(admin.ModelAdmin):
         js = ('js/admin/ai_config_json_validate.js',)
 
 class NewsAdmin(DraftSaveMixin, BaseAdmin):
-    list_display = ('title', 'is_active', 'is_draft', 'order', 'created_at', 'updated_at')
-    list_filter = ('is_active', 'is_draft')
-    search_fields = ('title', 'title_zh', 'content', 'content_zh')
+    list_display = ('title', 'enable_detail', 'is_active', 'is_draft', 'order', 'created_at', 'updated_at')
+    list_filter = ('enable_detail', 'is_active', 'is_draft')
+    search_fields = ('title', 'title_zh', 'summary', 'summary_zh', 'content', 'content_zh')
     ordering = ('-order', '-created_at')
     fieldsets = (
         (_('Basic Information'), {
-            'fields': ('title', 'title_zh', 'content', 'content_zh', 'is_active', 'is_draft', 'order')
+            'fields': (
+                'title', 'title_zh',
+                'summary', 'summary_zh',
+                'content', 'content_zh',
+                'enable_detail', 'is_active', 'is_draft', 'order'
+            )
         }),
         (_('Media'), {
             'fields': ('image',)
@@ -1250,8 +1255,11 @@ class NewsAdmin(DraftSaveMixin, BaseAdmin):
         return _apply_zh_field_labels(form, {
             'title': '标题',
             'title_zh': '标题（中文）',
+            'summary': '\u6458\u8981',
+            'summary_zh': '\u6458\u8981\uff08\u4e2d\u6587\uff09',
             'content': '内容',
             'content_zh': '内容（中文）',
+            'enable_detail': '\u5f00\u542f\u8be6\u60c5\u9875',
             'image': '图片',
             'is_active': '启用',
             'is_draft': '草稿',

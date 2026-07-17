@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{{ news.get_display_title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="section news-detail-section">
+        <div class="container">
+            <article class="news-item news-detail">
+                <div class="news-content">
+                    <h2 class="section-title news-detail-title">{{ news.get_display_title }}</h2>
+                    <div class="news-detail-divider"></div>
+                    <p class="date news-detail-date">{{ news.created_at|date:"Y-m-d" }}</p>
+                    {% if news.image %}
+                    <div class="news-detail-image">
+                        <img src="{{ news.image.url }}" alt="{{ news.get_display_title }}">
+                    </div>
+                    {% endif %}
+                    <div class="content news-detail-content">{{ news.get_formatted_content|safe }}</div>
+                    <div class="publication-actions news-actions">
+                        <a href="{% url 'index' %}#news" class="paper-link publication-action">
+                            {% if is_chinese_page %}&#36820;&#22238;&#26032;&#38395;{% else %}{% trans "Back to News" %}{% endif %}
+                        </a>
+                    </div>
+                    {% if previous_news or next_news %}
+                    <nav class="news-detail-nav" aria-label="{% trans 'News navigation' %}">
+                        {% if previous_news %}
+                        <a href="{% url 'news_detail' previous_news.pk %}" class="paper-link publication-action news-nav-link">
+                            {% if is_chinese_page %}&#19978;&#19968;&#31687;&#65306;{% else %}{% trans "Previous" %}: {% endif %}{{ previous_news.get_display_title }}
+                        </a>
+                        {% endif %}
+                        {% if next_news %}
+                        <a href="{% url 'news_detail' next_news.pk %}" class="paper-link publication-action news-nav-link">
+                            {% if is_chinese_page %}&#19979;&#19968;&#31687;&#65306;{% else %}{% trans "Next" %}: {% endif %}{{ next_news.get_display_title }}
+                        </a>
+                        {% endif %}
+                    </nav>
+                    {% endif %}
+                </div>
+            </article>
+        </div>
+    </section>
+</div>
+{% endblock %}

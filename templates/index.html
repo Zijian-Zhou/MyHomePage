@@ -151,7 +151,14 @@
                     <div class="news-content">
                         <h4>{{ news.get_display_title }}</h4>
                         <p class="date">{{ news.created_at|date:"Y-m-d" }}</p>
-                        <div class="content">{{ news.get_formatted_content|safe }}</div>
+                        <div class="content">{{ news.get_formatted_summary|safe }}</div>
+                        {% if news.enable_detail %}
+                        <div class="publication-actions news-actions">
+                            <a href="{% url 'news_detail' news.pk %}" class="paper-link publication-action">
+                                {% if is_chinese_page %}&#26597;&#30475;&#35814;&#24773;{% else %}{% trans "View Details" %}{% endif %}
+                            </a>
+                        </div>
+                        {% endif %}
                     </div>
                     {% if news.image %}
                     <div class="news-image">

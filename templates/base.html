@@ -21,24 +21,24 @@
                 </div>
                 <div class="navbar-menu">
                     {% if show_about %}
-                    <a href="#about" class="nav-item">{% trans "About" %}</a>
+                    <a href="{% url 'index' %}#about" class="nav-item">{% trans "About" %}</a>
                     {% endif %}
                     {% if show_publications %}
-                    <a href="#publications" class="nav-item">{% trans "Publications" %}</a>
+                    <a href="{% url 'index' %}#publications" class="nav-item">{% trans "Publications" %}</a>
                     {% endif %}
                     {% if show_research %}
-                    <a href="#research" class="nav-item">{% trans "Research" %}</a>
+                    <a href="{% url 'index' %}#research" class="nav-item">{% trans "Research" %}</a>
                     {% endif %}
                     {% if show_news %}
-                    <a href="#news" class="nav-item">{% trans "News" %}</a>
+                    <a href="{% url 'index' %}#news" class="nav-item">{% trans "News" %}</a>
                     {% endif %}
                     {% if show_custom_sections %}
                         {% for section in sections %}
-                        <a href="#section-{{ section.id }}" class="nav-item">{{ section.get_display_title }}</a>
+                        <a href="{% url 'index' %}#section-{{ section.id }}" class="nav-item">{{ section.get_display_title }}</a>
                         {% endfor %}
                     {% endif %}
                     {% if show_contact %}
-                    <a href="#contact" class="nav-item">{% trans "Contact" %}</a>
+                    <a href="{% url 'index' %}#contact" class="nav-item">{% trans "Contact" %}</a>
                     {% endif %}
                     <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
                         <i class="fas fa-moon"></i>

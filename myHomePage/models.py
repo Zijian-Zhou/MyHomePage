@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
 from django.utils.html import escape
@@ -8,6 +9,7 @@ from django.utils.safestring import mark_safe
 import markdown
 import hashlib
 import time
+import re
 
 
 def _use_zh_content():
@@ -470,8 +472,11 @@ class News(models.Model):
     """News model for sharing information"""
     title = models.CharField(_('Title'), max_length=200)
     title_zh = models.CharField(_('Title (Chinese)'), max_length=200, blank=True, default='')
+    summary = models.TextField(_('Summary'), blank=True, default='', help_text=_('Maximum 500 words.'))
+    summary_zh = models.TextField(_('Summary (Chinese)'), blank=True, default='', help_text=_('Maximum 500 words.'))
     content = models.TextField(_('Content'))
     content_zh = models.TextField(_('Content (Chinese)'), blank=True, default='')
+    enable_detail = models.BooleanField(_('Enable Detail Page'), default=False)
     image = models.ImageField(_('Image'), upload_to='news_images/', blank=True, null=True)
     created_at = models.DateTimeField(_('Created at'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated at'), auto_now=True)
@@ -497,12 +502,53 @@ class News(models.Model):
             return self.content_zh
         return self.content
 
+    def get_display_summary(self):
+        if _use_zh_content() and self.summary_zh:
+            return self.summary_zh
+        if self.summary:
+            return self.summary
+        return self._truncate_summary(self.get_display_content(), 300)
+
     def get_formatted_content(self):
         """Convert markdown content to safe HTML (raw HTML is escaped)."""
         content = self.get_display_content()
         if not content:
             return ''
         return markdown.markdown(escape(content), extensions=['extra'])
+
+    def get_formatted_summary(self):
+        summary = self.get_display_summary()
+        if not summary:
+            return ''
+        return markdown.markdown(escape(summary), extensions=['extra'])
+
+    @staticmethod
+    def _truncate_summary(value, limit):
+        text = (value or '').strip()
+        if not text:
+            return ''
+        tokens = list(re.finditer(r'[\u4e00-\u9fff]|[A-Za-z0-9]+', text))
+        if len(tokens) <= limit:
+            return text
+        word_count = 0
+        for token in tokens:
+            word_count += 1
+            if word_count == limit:
+                summary = text[:token.end()]
+                break
+        summary = re.sub(r'\s+', ' ', summary).strip()
+        return summary.rstrip('.,;:!?，。；：！？') + '...'
+
+    def clean(self):
+        super().clean()
+        errors = {}
+        for field_name in ('summary', 'summary_zh'):
+            value = getattr(self, field_name, '') or ''
+            tokens = re.findall(r'[\u4e00-\u9fff]|[A-Za-z0-9]+', value)
+            if len(tokens) > 500:
+                errors[field_name] = _('Summary must not exceed 500 words.')
+        if errors:
+            raise ValidationError(errors)
 
 class Section(models.Model):
     title = models.CharField(_('Title'), max_length=200)
