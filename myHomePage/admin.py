@@ -976,13 +976,18 @@ class PublicationAdmin(DraftSaveMixin, BaseAdmin):
             return JsonResponse({'error': _('Failed to import BibTeX data: %(error)s') % {'error': str(e)}}, status=400)
 
 class ResearchAdmin(DraftSaveMixin, BaseAdmin):
-    list_display = ('title', 'is_active', 'is_draft', 'order', 'start_date', 'end_date', 'is_current')
-    search_fields = ('title', 'title_zh', 'description', 'description_zh')
-    list_filter = ('is_current', 'is_active', 'is_draft', 'start_date')
+    list_display = ('title', 'enable_detail', 'is_active', 'is_draft', 'order', 'start_date', 'end_date', 'is_current')
+    search_fields = ('title', 'title_zh', 'summary', 'summary_zh', 'description', 'description_zh')
+    list_filter = ('enable_detail', 'is_current', 'is_active', 'is_draft', 'start_date')
     date_hierarchy = 'start_date'
     fieldsets = (
         (_('Basic Information'), {
-            'fields': ('title', 'title_zh', 'description', 'description_zh', 'is_active', 'is_draft', 'order')
+            'fields': (
+                'title', 'title_zh',
+                'summary', 'summary_zh',
+                'description', 'description_zh',
+                'enable_detail', 'is_active', 'is_draft', 'order'
+            )
         }),
         (_('Timeline'), {
             'fields': ('start_date', 'end_date', 'is_current')
@@ -1000,17 +1005,20 @@ class ResearchAdmin(DraftSaveMixin, BaseAdmin):
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
         return _apply_zh_field_labels(form, {
-            'title': '标题',
-            'title_zh': '标题（中文）',
-            'description': '描述',
-            'description_zh': '描述（中文）',
-            'start_date': '开始时间',
-            'end_date': '结束时间',
-            'is_current': '正在进行',
-            'image': '图片',
-            'is_active': '启用',
-            'is_draft': '草稿',
-            'order': '排序',
+            'title': '\u6807\u9898',
+            'title_zh': '\u6807\u9898\uff08\u4e2d\u6587\uff09',
+            'summary': '\u6458\u8981',
+            'summary_zh': '\u6458\u8981\uff08\u4e2d\u6587\uff09',
+            'description': '\u63cf\u8ff0',
+            'description_zh': '\u63cf\u8ff0\uff08\u4e2d\u6587\uff09',
+            'enable_detail': '\u5f00\u542f\u8be6\u60c5\u9875',
+            'start_date': '\u5f00\u59cb\u65f6\u95f4',
+            'end_date': '\u7ed3\u675f\u65f6\u95f4',
+            'is_current': '\u6b63\u5728\u8fdb\u884c',
+            'image': '\u56fe\u7247',
+            'is_active': '\u542f\u7528',
+            'is_draft': '\u8349\u7a3f',
+            'order': '\u6392\u5e8f',
         })
 
     def get_fieldsets(self, request, obj=None):

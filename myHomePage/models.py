@@ -210,11 +210,14 @@ class Publication(models.Model):
         return mark_safe(' and '.join(rendered))
 
 class Research(models.Model):
-    """研究项目模型"""
+    """Research project model."""
     title = models.CharField(max_length=200)
     title_zh = models.CharField(_('Title (Chinese)'), max_length=200, blank=True, default='')
+    summary = models.TextField(_('Summary'), blank=True, default='', help_text=_('Maximum 500 words.'))
+    summary_zh = models.TextField(_('Summary (Chinese)'), blank=True, default='', help_text=_('Maximum 500 words.'))
     description = models.TextField()
     description_zh = models.TextField(_('Description (Chinese)'), blank=True, default='')
+    enable_detail = models.BooleanField(_('Enable Detail Page'), default=False)
     start_date = models.DateField()
     end_date = models.DateField(blank=True, null=True)
     is_current = models.BooleanField(default=False)
@@ -242,6 +245,36 @@ class Research(models.Model):
         if _use_zh_content() and self.description_zh:
             return self.description_zh
         return self.description
+
+    def get_display_summary(self):
+        if _use_zh_content() and self.summary_zh:
+            return self.summary_zh
+        if self.summary:
+            return self.summary
+        return News._truncate_summary(self.get_display_description(), 300)
+
+    def get_formatted_description(self):
+        description = self.get_display_description()
+        if not description:
+            return ''
+        return markdown.markdown(escape(description), extensions=['extra'])
+
+    def get_formatted_summary(self):
+        summary = self.get_display_summary()
+        if not summary:
+            return ''
+        return markdown.markdown(escape(summary), extensions=['extra'])
+
+    def clean(self):
+        super().clean()
+        errors = {}
+        for field_name in ('summary', 'summary_zh'):
+            value = getattr(self, field_name, '') or ''
+            tokens = re.findall(r'[\u4e00-\u9fff]|[A-Za-z0-9]+', value)
+            if len(tokens) > 500:
+                errors[field_name] = _('Summary must not exceed 500 words.')
+        if errors:
+            raise ValidationError(errors)
 
 class SystemConfig(models.Model):
     """系统配置模型"""

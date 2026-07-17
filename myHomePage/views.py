@@ -107,10 +107,10 @@ def index(request):
 
 
 def news_detail(request, pk):
-    news = get_object_or_404(News, pk=pk, is_active=True, is_draft=False, enable_detail=True)
+    news = get_object_or_404(News, pk=pk, is_active=True, is_draft=False)
     context = _build_home_context(request)
     detail_news = list(
-        News.objects.filter(is_active=True, is_draft=False, enable_detail=True)
+        News.objects.filter(is_active=True, is_draft=False)
         .order_by('-order', '-created_at', '-id')
     )
     current_index = next((idx for idx, item in enumerate(detail_news) if item.pk == news.pk), None)
@@ -118,6 +118,20 @@ def news_detail(request, pk):
     context['previous_news'] = detail_news[current_index - 1] if current_index and current_index > 0 else None
     context['next_news'] = detail_news[current_index + 1] if current_index is not None and current_index + 1 < len(detail_news) else None
     return render(request, 'news_detail.html', context)
+
+
+def research_detail(request, pk):
+    research = get_object_or_404(Research, pk=pk, is_active=True, is_draft=False)
+    context = _build_home_context(request)
+    detail_research = list(
+        Research.objects.filter(is_active=True, is_draft=False)
+        .order_by('-order', '-start_date', '-id')
+    )
+    current_index = next((idx for idx, item in enumerate(detail_research) if item.pk == research.pk), None)
+    context['research'] = research
+    context['previous_research'] = detail_research[current_index - 1] if current_index and current_index > 0 else None
+    context['next_research'] = detail_research[current_index + 1] if current_index is not None and current_index + 1 < len(detail_research) else None
+    return render(request, 'research_detail.html', context)
 
 @login_required
 def orcid_authorize(request):

@@ -18,7 +18,13 @@
                         <img src="{{ news.image.url }}" alt="{{ news.get_display_title }}">
                     </div>
                     {% endif %}
-                    <div class="content news-detail-content">{{ news.get_formatted_content|safe }}</div>
+                    <div class="content news-detail-content">
+                        {% if news.enable_detail %}
+                            {{ news.get_formatted_content|safe }}
+                        {% else %}
+                            {{ news.get_formatted_summary|safe }}
+                        {% endif %}
+                    </div>
                     <div class="publication-actions news-actions">
                         <a href="{% url 'index' %}#news" class="paper-link publication-action">
                             {% if is_chinese_page %}&#36820;&#22238;&#26032;&#38395;{% else %}{% trans "Back to News" %}{% endif %}

@@ -201,7 +201,14 @@
                                 {{ research.start_date|date:"Y-m" }} - {{ research.end_date|date:"Y-m" }}
                             {% endif %}
                         </p>
-                        <div class="description">{{ research.get_display_description|linebreaks }}</div>
+                        <div class="description">{{ research.get_formatted_summary|safe }}</div>
+                        {% if research.enable_detail %}
+                        <div class="publication-actions research-actions">
+                            <a href="{% url 'research_detail' research.pk %}" class="paper-link publication-action">
+                                {% if is_chinese_page %}&#26597;&#30475;&#35814;&#24773;{% else %}{% trans "View Details" %}{% endif %}
+                            </a>
+                        </div>
+                        {% endif %}
                     </div>
                     {% if research.image %}
                     <div class="research-image">

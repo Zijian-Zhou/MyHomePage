@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{{ research.get_display_title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="section research-detail-section">
+        <div class="container">
+            <article class="news-item news-detail research-detail">
+                <div class="news-content">
+                    <h2 class="section-title news-detail-title">{{ research.get_display_title }}</h2>
+                    <div class="news-detail-divider"></div>
+                    <p class="date news-detail-date">
+                        {% if research.is_current %}
+                            {% if is_chinese_page %}&#27491;&#22312;&#36827;&#34892;{% else %}{% trans "Current" %}{% endif %}
+                            ({{ research.start_date|date:"Y-m" }} - {% if is_chinese_page %}&#33267;&#20170;{% else %}{% trans "Present" %}{% endif %})
+                        {% else %}
+                            {{ research.start_date|date:"Y-m" }} - {{ research.end_date|date:"Y-m" }}
+                        {% endif %}
+                    </p>
+                    {% if research.image %}
+                    <div class="news-detail-image">
+                        <img src="{{ research.image.url }}" alt="{{ research.get_display_title }}">
+                    </div>
+                    {% endif %}
+                    <div class="content news-detail-content">
+                        {% if research.enable_detail %}
+                            {{ research.get_formatted_description|safe }}
+                        {% else %}
+                            {{ research.get_formatted_summary|safe }}
+                        {% endif %}
+                    </div>
+                    <div class="publication-actions news-actions">
+                        <a href="{% url 'index' %}#research" class="paper-link publication-action">
+                            {% if is_chinese_page %}&#36820;&#22238;&#30740;&#31350;{% else %}{% trans "Back to Research" %}{% endif %}
+                        </a>
+                    </div>
+                    {% if previous_research or next_research %}
+                    <nav class="news-detail-nav" aria-label="{% trans 'Research navigation' %}">
+                        {% if previous_research %}
+                        <a href="{% url 'research_detail' previous_research.pk %}" class="paper-link publication-action news-nav-link">
+                            {% if is_chinese_page %}&#19978;&#19968;&#31687;&#65306;{% else %}{% trans "Previous" %}: {% endif %}{{ previous_research.get_display_title }}
+                        </a>
+                        {% endif %}
+                        {% if next_research %}
+                        <a href="{% url 'research_detail' next_research.pk %}" class="paper-link publication-action news-nav-link">
+                            {% if is_chinese_page %}&#19979;&#19968;&#31687;&#65306;{% else %}{% trans "Next" %}: {% endif %}{{ next_research.get_display_title }}
+                        </a>
+                        {% endif %}
+                    </nav>
+                    {% endif %}
+                </div>
+            </article>
+        </div>
+    </section>
+</div>
+{% endblock %}
