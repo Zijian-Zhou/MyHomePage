@@ -18,9 +18,33 @@ from django.contrib.auth.models import User, Group
 import bibtexparser
 import json
 import logging
+import os
+from contextlib import contextmanager
 from django.shortcuts import redirect
 
 logger = logging.getLogger(__name__)
+
+
+@contextmanager
+def _without_env_proxies():
+    proxy_keys = (
+        'HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY',
+        'http_proxy', 'https_proxy', 'all_proxy',
+        'NO_PROXY', 'no_proxy',
+    )
+    old_values = {key: os.environ.get(key) for key in proxy_keys}
+    for key in proxy_keys:
+        os.environ.pop(key, None)
+    os.environ['NO_PROXY'] = '*'
+    os.environ['no_proxy'] = '*'
+    try:
+        yield
+    finally:
+        for key in proxy_keys:
+            if old_values[key] is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = old_values[key]
 
 
 def _is_zh_mode():
@@ -210,10 +234,17 @@ class CustomAdminSite(AdminSite):
             return JsonResponse({'error': _('Unsupported target language.')}, status=400)
 
         try:
-            import translators as ts
-        except Exception:
+            with _without_env_proxies():
+                import translators as ts
+        except ModuleNotFoundError:
             return JsonResponse(
                 {'error': _('The translators package is not installed in this environment.')},
+                status=500
+            )
+        except Exception as exc:
+            logger.warning('The translators package failed to initialize: %s', exc)
+            return JsonResponse(
+                {'error': _('The translators package is installed but failed to initialize.')},
                 status=500
             )
 
@@ -223,12 +254,13 @@ class CustomAdminSite(AdminSite):
         errors = []
         for translator in ('alibaba', 'sogou', 'google', 'bing'):
             try:
-                translated = ts.translate_text(
-                    query_text=text,
-                    translator=translator,
-                    from_language=from_language,
-                    to_language=to_language,
-                )
+                with _without_env_proxies():
+                    translated = ts.translate_text(
+                        query_text=text,
+                        translator=translator,
+                        from_language=from_language,
+                        to_language=to_language,
+                    )
                 return JsonResponse({'translated_text': translated, 'translator': translator})
             except Exception as exc:
                 errors.append(f'{translator}: {exc.__class__.__name__}')

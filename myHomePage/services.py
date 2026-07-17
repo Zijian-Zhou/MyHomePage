@@ -729,8 +729,7 @@ def _calculate_completeness_score(publication):
     return score
 
 def _update_publication(existing_pub, new_pub):
-    """用新记录的字段更新现有记录"""
-    # 定义需要更新的字段列表
+    """Merge richer incoming publication fields into an existing record."""
     fields_to_update = [
         'title', 'authors', 'journal', 'year', 'month', 'day',
         'doi', 'url', 'keywords', 'raw_bibtex', 'bibtex_type', 'date'
@@ -738,8 +737,8 @@ def _update_publication(existing_pub, new_pub):
 
     prefer_longer_fields = {'title', 'authors', 'journal', 'raw_bibtex'}
     prefer_list_fields = {'keywords'}
+    changed = False
 
-    # 遍历字段，尽量保留更丰富的内容
     for field in fields_to_update:
         new_value = getattr(new_pub, field, None)
         existing_value = getattr(existing_pub, field, None)
@@ -747,11 +746,13 @@ def _update_publication(existing_pub, new_pub):
             continue
         if existing_value in (None, '', []):
             setattr(existing_pub, field, new_value)
+            changed = True
             continue
 
         if field in prefer_longer_fields:
             if isinstance(new_value, str) and isinstance(existing_value, str) and len(new_value) > len(existing_value):
                 setattr(existing_pub, field, new_value)
+                changed = True
             continue
 
         if field in prefer_list_fields:
@@ -760,26 +761,30 @@ def _update_publication(existing_pub, new_pub):
             merged = sorted(set(existing_items) | set(new_items))
             if merged and merged != existing_items:
                 setattr(existing_pub, field, '; '.join(merged))
+                changed = True
             continue
 
         if field == 'doi':
             if not existing_value and new_value:
                 setattr(existing_pub, field, new_value)
+                changed = True
             continue
         if field == 'url':
             if _is_better_url(new_value, existing_value):
                 setattr(existing_pub, field, new_value)
+                changed = True
             continue
         if field == 'date':
             if _date_score(new_value) > _date_score(existing_value):
                 setattr(existing_pub, field, new_value)
+                changed = True
             continue
 
-    # 保存更新后的记录
     _refresh_publication_bibtex(existing_pub, save=False)
-    existing_pub.save()
-    logger.info(f"Updated publication {existing_pub.bibtex_key} with more complete information")
-
+    if changed:
+        existing_pub.save()
+        logger.info(f"Updated publication {existing_pub.bibtex_key} with more complete information")
+    return changed
 
 def _normalize_doi(doi):
     if not doi:
@@ -970,6 +975,23 @@ def _is_duplicate(pub_a, pub_b):
     if not title_a or not title_b:
         return False
     return title_a == title_b
+
+
+def _find_duplicate_publication(publication):
+    doi = _normalize_doi(publication.doi)
+    if doi:
+        existing = Publication.objects.filter(doi__iexact=doi).first()
+        if existing:
+            return existing
+
+    title_key = _normalize_title(publication.title)
+    if not title_key:
+        return None
+
+    for existing in Publication.objects.exclude(title='').only('id', 'title', 'doi'):
+        if _normalize_title(existing.title) == title_key:
+            return existing
+    return None
 
 
 def _deduplicate_publications():
