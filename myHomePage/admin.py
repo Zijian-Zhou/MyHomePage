@@ -1187,15 +1187,21 @@ class AIConfigAdminForm(forms.ModelForm):
 
 class AIConfigAdmin(admin.ModelAdmin):
     form = AIConfigAdminForm
-    list_display = ('name', 'provider', 'model_name', 'base_url', 'is_default', 'is_active', 'updated_at')
-    list_filter = ('provider', 'is_default', 'is_active')
+    list_display = ('name', 'provider', 'model_name', 'base_url', 'check_status', 'test_link', 'is_default', 'is_active', 'updated_at')
+    list_filter = ('provider', 'is_default', 'is_active', 'last_check_ok')
     search_fields = ('name', 'provider', 'model_name', 'base_url', 'description')
+    readonly_fields = ('last_check_at', 'last_check_ok', 'last_check_message')
+    actions = ('check_selected_availability',)
     fieldsets = (
         (_('Basic Information'), {
             'fields': ('name', 'provider', 'model_name', 'base_url', 'api_key')
         }),
         (_('Advanced Configuration'), {
             'fields': ('config_json', 'description', 'is_default', 'is_active')
+        }),
+        (_('Availability Check'), {
+            'fields': ('last_check_at', 'last_check_ok', 'last_check_message'),
+            'classes': ('collapse',)
         }),
     )
 
@@ -1218,12 +1224,98 @@ class AIConfigAdmin(admin.ModelAdmin):
             'description': '\u63cf\u8ff0',
             'is_default': '\u9ed8\u8ba4',
             'is_active': '\u542f\u7528',
+            'last_check_at': '\u4e0a\u6b21\u68c0\u6d4b\u65f6\u95f4',
+            'last_check_ok': '\u4e0a\u6b21\u68c0\u6d4b\u7ed3\u679c',
+            'last_check_message': '\u4e0a\u6b21\u68c0\u6d4b\u4fe1\u606f',
         })
 
     def save_model(self, request, obj, form, change):
         if obj.is_default:
             AIConfig.objects.exclude(pk=obj.pk).update(is_default=False)
         super().save_model(request, obj, form, change)
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                '<path:object_id>/check/',
+                self.admin_site.admin_view(self.check_view),
+                name='myHomePage_aiconfig_check',
+            ),
+            path(
+                'check-all/',
+                self.admin_site.admin_view(self.check_all_view),
+                name='myHomePage_aiconfig_check_all',
+            ),
+        ]
+        return custom_urls + urls
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['ai_check_all_url'] = reverse('admin:myHomePage_aiconfig_check_all')
+        return super().changelist_view(request, extra_context=extra_context)
+
+    def check_status(self, obj):
+        if obj.last_check_ok is True:
+            label = '\u6b63\u5e38' if _is_zh_mode() else 'OK'
+            color = '#15803d'
+        elif obj.last_check_ok is False:
+            label = '\u5931\u8d25' if _is_zh_mode() else 'Failed'
+            color = '#b91c1c'
+        else:
+            label = '\u672a\u68c0\u6d4b' if _is_zh_mode() else 'Not checked'
+            color = '#6b7280'
+        return format_html('<span style="color:{};font-weight:700;">{}</span>', color, label)
+    check_status.short_description = _('Availability')
+
+    def test_link(self, obj):
+        url = reverse('admin:myHomePage_aiconfig_check', args=[obj.pk])
+        label = '\u68c0\u6d4b' if _is_zh_mode() else 'Test'
+        return format_html('<a class="button" href="{}">{}</a>', url, label)
+    test_link.short_description = _('Keep-alive Test')
+
+    def _message_check_results(self, request, results):
+        ok_count = sum(1 for item in results if item.get('ok') is True)
+        skipped_count = sum(1 for item in results if item.get('ok') is None)
+        failed = [item for item in results if item.get('ok') is False]
+        if failed:
+            detail = '; '.join('{}: {}'.format(item.get('name', ''), item.get('detail', '')) for item in failed[:3])
+            messages.warning(
+                request,
+                _('%(ok)s provider(s) available, %(failed)s failed, %(skipped)s skipped. %(detail)s') % {
+                    'ok': ok_count,
+                    'failed': len(failed),
+                    'skipped': skipped_count,
+                    'detail': detail,
+                }
+            )
+        else:
+            messages.success(
+                request,
+                _('%(ok)s provider(s) available, %(skipped)s skipped.') % {
+                    'ok': ok_count,
+                    'skipped': skipped_count,
+                }
+            )
+
+    def check_view(self, request, object_id):
+        from .ai_services import check_ai_config
+        obj = self.get_object(request, object_id)
+        if obj is None:
+            messages.error(request, _('AI Configuration does not exist.'))
+            return redirect('admin:myHomePage_aiconfig_changelist')
+        self._message_check_results(request, [check_ai_config(obj)])
+        return redirect('admin:myHomePage_aiconfig_changelist')
+
+    def check_all_view(self, request):
+        from .ai_services import check_all_ai_configs
+        self._message_check_results(request, check_all_ai_configs())
+        return redirect('admin:myHomePage_aiconfig_changelist')
+
+    def check_selected_availability(self, request, queryset):
+        from .ai_services import check_all_ai_configs
+        self._message_check_results(request, check_all_ai_configs(queryset))
+    check_selected_availability.short_description = _('Run keep-alive test for selected AI configurations')
 
     class Media:
         js = ('js/admin/ai_config_json_validate.js',)

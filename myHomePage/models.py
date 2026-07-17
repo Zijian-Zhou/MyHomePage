@@ -4,12 +4,14 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
+from django.utils import timezone
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 import markdown
 import hashlib
 import time
 import re
+import json
 
 
 def _use_zh_content():
@@ -467,8 +469,25 @@ class SystemConfig(models.Model):
 
 class AIConfig(models.Model):
     """Configuration for LLM providers used by admin assistance features."""
+    OPENAI = 'openai'
+    OPENAI_COMPATIBLE = 'openai_compatible'
+    GLM_BIGMODEL = 'glm_bigmodel'
+    DEEPSEEK = 'deepseek'
+    SCNET_QWEN = 'scnet_qwen'
+    SCNET_MINIMAX = 'scnet_minimax'
+    FELO_PPT = 'felo_ppt'
+    PROVIDER_CHOICES = (
+        (OPENAI, 'OpenAI Official'),
+        (OPENAI_COMPATIBLE, 'OpenAI Compatible'),
+        (GLM_BIGMODEL, 'GLM BigModel'),
+        (DEEPSEEK, 'DeepSeek'),
+        (SCNET_QWEN, 'SCNet Qwen'),
+        (SCNET_MINIMAX, 'SCNet MiniMax'),
+        (FELO_PPT, 'Felo PPT API'),
+    )
+
     name = models.CharField(_('Name'), max_length=100, unique=True)
-    provider = models.CharField(_('Provider'), max_length=100, blank=True, default='')
+    provider = models.CharField(_('Provider'), max_length=100, choices=PROVIDER_CHOICES, blank=True, default=OPENAI_COMPATIBLE)
     base_url = models.URLField(_('Base URL'), max_length=500, blank=True, default='')
     api_key = models.CharField(_('API Key'), max_length=500, blank=True, default='')
     model_name = models.CharField(_('Model'), max_length=200, blank=True, default='')
@@ -476,6 +495,9 @@ class AIConfig(models.Model):
     description = models.TextField(_('Description'), blank=True, default='')
     is_default = models.BooleanField(_('Default'), default=False)
     is_active = models.BooleanField(_('Is Active'), default=True)
+    last_check_at = models.DateTimeField(_('Last Check At'), null=True, blank=True)
+    last_check_ok = models.BooleanField(_('Last Check OK'), null=True, blank=True)
+    last_check_message = models.TextField(_('Last Check Message'), blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -491,15 +513,74 @@ class AIConfig(models.Model):
     def get_default(cls):
         return cls.objects.filter(is_active=True, is_default=True).first() or cls.objects.filter(is_active=True).first()
 
+    @classmethod
+    def active_provider_configs(cls):
+        return [
+            item.to_provider_config()
+            for item in cls.objects.filter(is_active=True).order_by('-is_default', 'name')
+            if item.is_complete_for_text()
+        ]
+
     def get_extra_config(self):
         if not self.config_json:
             return {}
         try:
-            import json
             data = json.loads(self.config_json)
         except Exception:
             return {}
         return data if isinstance(data, dict) else {}
+
+    def get_api_base(self):
+        base = (self.base_url or '').strip()
+        if base:
+            return base.rstrip('/')
+        defaults = {
+            self.OPENAI: 'https://api.openai.com/v1',
+            self.OPENAI_COMPATIBLE: 'https://api.openai.com/v1',
+            self.GLM_BIGMODEL: 'https://open.bigmodel.cn/api/paas/v4',
+            self.DEEPSEEK: 'https://api.deepseek.com',
+            self.SCNET_QWEN: 'https://api.scnet.cn/api/llm/v1',
+            self.SCNET_MINIMAX: 'https://api.scnet.cn/api/llm/v1',
+            self.FELO_PPT: 'https://openapi.felo.ai',
+        }
+        return defaults.get(self.provider, '').rstrip('/')
+
+    def get_params(self):
+        params = self.get_extra_config()
+        return params if params else {'temperature': 0.2}
+
+    def is_complete_for_text(self):
+        if self.provider == self.FELO_PPT:
+            return False
+        return bool(self.get_api_base() and self.api_key and self.model_name)
+
+    def to_provider_config(self):
+        return {
+            'id': self.pk,
+            'name': self.name,
+            'provider_type': self.provider or self.OPENAI_COMPATIBLE,
+            'api_base': self.get_api_base(),
+            'api_key': self.api_key or '',
+            'model_name': self.model_name or '',
+            'params': self.get_params(),
+        }
+
+    def set_check_result(self, ok, message=''):
+        self.last_check_at = timezone.now()
+        self.last_check_ok = bool(ok)
+        self.last_check_message = str(message or '')[:2000]
+        self.is_active = bool(ok)
+        self.save(update_fields=['last_check_at', 'last_check_ok', 'last_check_message', 'is_active', 'updated_at'])
+
+    def clean(self):
+        super().clean()
+        if self.config_json:
+            try:
+                payload = json.loads(self.config_json)
+            except (ValueError, TypeError):
+                raise ValidationError({'config_json': _('AI Configuration value must be valid JSON.')})
+            if not isinstance(payload, dict):
+                raise ValidationError({'config_json': _('AI Configuration must be a JSON object.')})
 
 class News(models.Model):
     """News model for sharing information"""
