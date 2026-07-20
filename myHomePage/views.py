@@ -1,14 +1,15 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views import View
-from .models import Profile, Publication, Research, News, Section, SystemConfig, MediaFile
+from .models import Profile, Publication, PublicationFile, Research, News, Section, SystemConfig, MediaFile
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
 from .services import ORCIDOAuth
 from django.conf import settings
 from django.contrib.auth.models import User, Group
-from django.http import JsonResponse, Http404
+from django.http import FileResponse, JsonResponse, Http404
 from django.core.paginator import Paginator
+from django.db.models import Prefetch
 import logging
 import os
 
@@ -30,7 +31,11 @@ def _build_home_context(request=None):
         path = getattr(request, 'path', '') or ''
         is_chinese_page = path.startswith('/zh-hans/') or path.startswith('/zh-cn/')
     profile = Profile.objects.filter(is_active=True, is_draft=False).first()
-    publications_qs = Publication.objects.filter(is_active=True, is_draft=False).order_by('-order', '-year')
+    publications_qs = (
+        Publication.objects.filter(is_active=True, is_draft=False)
+        .prefetch_related(Prefetch('files', queryset=PublicationFile.objects.filter(is_active=True).order_by('order', 'id')))
+        .order_by('-order', '-year')
+    )
     research_qs = Research.objects.filter(is_active=True, is_draft=False).order_by('-order')
     news_qs = News.objects.filter(is_active=True, is_draft=False).order_by('-order', '-created_at')
     sections = Section.objects.filter(is_active=True, is_draft=False).prefetch_related('items').order_by('-order')
@@ -104,6 +109,48 @@ def index(request):
     """Homepage view"""
     context = _build_home_context(request)
     return render(request, 'index.html', context)
+
+
+def publication_file_download(request, access_key):
+    publication_file = get_object_or_404(
+        PublicationFile.objects.select_related('publication'),
+        access_key=access_key,
+        is_active=True,
+        publication__is_active=True,
+        publication__is_draft=False,
+    )
+    if not publication_file.file:
+        raise Http404
+    return FileResponse(
+        publication_file.file.open('rb'),
+        as_attachment=True,
+        filename=os.path.basename(publication_file.file.name),
+    )
+
+
+def publication_detail(request, pk):
+    publication = get_object_or_404(
+        Publication.objects.prefetch_related(
+            Prefetch('files', queryset=PublicationFile.objects.filter(is_active=True).order_by('order', 'id'))
+        ),
+        pk=pk,
+        is_active=True,
+        is_draft=False,
+    )
+    context = _build_home_context(request)
+    detail_publications = list(
+        Publication.objects.filter(is_active=True, is_draft=False)
+        .order_by('-order', '-year', '-id')
+    )
+    current_index = next((idx for idx, item in enumerate(detail_publications) if item.pk == publication.pk), None)
+    context['publication'] = publication
+    context['previous_publication'] = detail_publications[current_index - 1] if current_index and current_index > 0 else None
+    context['next_publication'] = (
+        detail_publications[current_index + 1]
+        if current_index is not None and current_index + 1 < len(detail_publications)
+        else None
+    )
+    return render(request, 'publication_detail.html', context)
 
 
 def news_detail(request, pk):

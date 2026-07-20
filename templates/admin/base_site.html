@@ -7,7 +7,7 @@
 {% block extrastyle %}
 {{ block.super }}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-<link rel="stylesheet" href="{% static 'css/admin/custom.css' %}?v=20260717-1">
+<link rel="stylesheet" href="{% static 'css/admin/custom.css' %}?v=20260720-1">
 <link rel="stylesheet" href="{% static 'css/admin/dark_mode.css' %}">
 <link rel="stylesheet" href="{% static 'css/admin/publication.css' %}">
 {% endblock %}
@@ -20,6 +20,8 @@
   window.HOMEPAGE_ADMIN_TRANSLATE_URL = "{% url 'admin:auto-translate-field' %}";
 </script>
 <script src="{% static 'js/admin/auto_translate.js' %}"></script>
+<script src="{% static 'js/admin/change_form_outline.js' %}?v=20260720-2"></script>
+<script src="{% static 'js/admin/publication_detail_preview.js' %}?v=20260720-5"></script>
 {% endif %}
 {% endblock %}
 

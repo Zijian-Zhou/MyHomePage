@@ -394,7 +394,7 @@ button.publication-action {
 .cite-button {
     position: relative;
     overflow: hidden;
-    min-width: 4.8rem;
+    min-width: 0;
     text-align: center;
 }
 
@@ -412,10 +412,12 @@ button.publication-action {
 
 .cite-button.copied {
     color: #1c8c54;
+    min-width: 4.8rem;
 }
 
 .cite-button.copy-failed {
     color: #c64b4b;
+    min-width: 4.8rem;
 }
 
 [data-theme="dark"] .cite-button.copied {

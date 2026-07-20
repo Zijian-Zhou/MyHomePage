@@ -208,6 +208,10 @@ def _pick_provider():
 
 def generate_text(system_prompt, user_prompt, temperature=0.2):
     config = _pick_provider()
+    return generate_text_with_config(config, system_prompt, user_prompt, temperature)
+
+
+def generate_text_with_config(config, system_prompt, user_prompt, temperature=0.2):
     provider = build_provider(config)
     response = provider.chat(
         model=config.get('model_name'),
@@ -221,3 +225,12 @@ def generate_text(system_prompt, user_prompt, temperature=0.2):
     if not content:
         raise RuntimeError('LLM returned empty response')
     return content
+
+
+def generate_text_with_provider(provider_id, system_prompt, user_prompt, temperature=0.2):
+    item = AIConfig.objects.filter(pk=provider_id).first()
+    if not item:
+        raise RuntimeError('Selected LLM provider does not exist')
+    if not item.is_complete_for_text():
+        raise RuntimeError('Selected LLM provider is incomplete')
+    return generate_text_with_config(item.to_provider_config(), system_prompt, user_prompt, temperature)

@@ -673,3 +673,37 @@
     background-color: var(--bg-secondary);
     font-weight: bold;
 } 
+
+/* Frontend action links use fixed right margin for consistent spacing. */
+.main-content .publication-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0;
+    margin-top: 1rem;
+}
+
+.main-content .publication-actions .paper-link,
+.main-content .publication-action {
+    margin-top: 0;
+    margin-right: 0.85rem;
+    margin-bottom: 0.55rem;
+    line-height: 1.4;
+}
+
+.main-content .publication-actions .paper-link:last-child,
+.main-content .publication-action:last-child {
+    margin-right: 0;
+}
+
+.main-content .news-detail-nav {
+    gap: 0;
+    margin-top: 0.75rem;
+}
+
+.main-content .news-detail-nav .paper-link {
+    margin-top: 0;
+    margin-right: 0.85rem;
+    margin-bottom: 0.55rem;
+    line-height: 1.4;
+}

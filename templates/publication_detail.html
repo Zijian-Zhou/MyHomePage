@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{{ publication.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="section news-detail-section publication-detail-section">
+        <div class="container">
+            <article class="news-item news-detail publication-detail">
+                <div class="news-content">
+                    <h2 class="section-title news-detail-title">{{ publication.title }}</h2>
+                    <div class="news-detail-divider"></div>
+                    <p class="date news-detail-date">
+                        {{ publication.authors }}{% if publication.year %} &middot; {{ publication.year }}{% endif %}
+                    </p>
+                    {% if publication.image %}
+                    <div class="news-detail-image">
+                        <img src="{{ publication.image.url }}" alt="{{ publication.title }}">
+                    </div>
+                    {% endif %}
+                    <div class="content news-detail-content">{{ publication.get_formatted_detail_or_summary|safe }}</div>
+                    <div class="publication-actions news-actions">
+                        <a href="{% url 'index' %}#publications" class="paper-link publication-action">
+                            {% if is_chinese_page %}&#36820;&#22238;&#20986;&#29256;&#29289;{% else %}{% trans "Back to Publications" %}{% endif %}
+                        </a>
+                        {% if publication.url %}
+                        <a href="{{ publication.url }}" target="_blank" class="paper-link publication-action" rel="noopener noreferrer">{% trans "View Paper" %}</a>
+                        {% endif %}
+                        {% if publication.raw_bibtex %}
+                        <button
+                            type="button"
+                            class="paper-link publication-action cite-button"
+                            data-copy-error-label="{% if is_chinese_page %}&#22797;&#21046;&#22833;&#36133;{% else %}{% trans 'Copy failed' %}{% endif %}"
+                            aria-live="polite"
+                        >
+                            <span class="cite-button-label">{% if is_chinese_page %}&#24341;&#29992;{% else %}{% trans "Cite" %}{% endif %}</span>
+                            <span class="cite-button-feedback" data-copied-label="{% if is_chinese_page %}&#24050;&#22797;&#21046;{% else %}{% trans "Copied" %}{% endif %}">{% if is_chinese_page %}&#24050;&#22797;&#21046;{% else %}{% trans "Copied" %}{% endif %}</span>
+                        </button>
+                        <textarea class="publication-bibtex-source" hidden>{{ publication.raw_bibtex }}</textarea>
+                        {% endif %}
+                        {% for file_item in publication.get_active_files %}
+                        <a
+                            href="{{ file_item.get_download_url }}"
+                            class="paper-link publication-action"
+                            {% if file_item.is_url_item %}target="_blank" rel="noopener noreferrer"{% else %}download{% endif %}
+                        >{{ file_item.get_display_text }}</a>
+                        {% endfor %}
+                    </div>
+                    {% if previous_publication or next_publication %}
+                    <nav class="news-detail-nav" aria-label="{% trans 'Publication navigation' %}">
+                        {% if previous_publication %}
+                        <a href="{% url 'publication_detail' previous_publication.pk %}" class="paper-link publication-action news-nav-link">
+                            {% if is_chinese_page %}&#19978;&#19968;&#31687;&#65306;{% else %}{% trans "Previous" %}: {% endif %}{{ previous_publication.title }}
+                        </a>
+                        {% endif %}
+                        {% if next_publication %}
+                        <a href="{% url 'publication_detail' next_publication.pk %}" class="paper-link publication-action news-nav-link">
+                            {% if is_chinese_page %}&#19979;&#19968;&#31687;&#65306;{% else %}{% trans "Next" %}: {% endif %}{{ next_publication.title }}
+                        </a>
+                        {% endif %}
+                    </nav>
+                    {% endif %}
+                </div>
+            </article>
+        </div>
+    </section>
+</div>
+{% endblock %}

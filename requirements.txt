@@ -13,3 +13,4 @@ python-dotenv>=1.0.0
 cryptography<42
 importlib-metadata<5
 translators==5.7.0
+pypdf<5

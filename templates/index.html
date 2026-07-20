@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/admin/publication.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin/publication.css' %}?v=20260720-2">
 {% endblock %}
 
 {% block title %}{{ profile.get_html_title }}{% endblock %}
@@ -97,10 +97,15 @@
                         {% if pub.doi %}
                         <p class="doi">DOI: <a href="https://doi.org/{{ pub.doi }}" target="_blank">{{ pub.doi }}</a></p>
                         {% endif %}
-                        {% if pub.url or pub.raw_bibtex %}
+                        {% if pub.enable_detail or pub.url or pub.raw_bibtex or pub.get_active_files %}
                         <div class="publication-actions">
+                            {% if pub.enable_detail %}
+                            <a href="{% url 'publication_detail' pub.pk %}" class="paper-link publication-action">
+                                [{% if is_chinese_page %}&#26597;&#30475;&#35814;&#24773;{% else %}{% trans "View Details" %}{% endif %}]
+                            </a>
+                            {% endif %}
                             {% if pub.url %}
-                            <a href="{{ pub.url }}" target="_blank" class="paper-link publication-action" rel="noopener noreferrer">{% trans "View Paper" %}</a>
+                            <a href="{{ pub.url }}" target="_blank" class="paper-link publication-action" rel="noopener noreferrer">[{% trans "View Paper" %}]</a>
                             {% endif %}
                             {% if pub.raw_bibtex %}
                             <button
@@ -109,11 +114,18 @@
                                 data-copy-error-label="{% if is_chinese_page %}&#22797;&#21046;&#22833;&#36133;{% else %}{% trans 'Copy failed' %}{% endif %}"
                                 aria-live="polite"
                             >
-                                <span class="cite-button-label">{% if is_chinese_page %}&#24341;&#29992;{% else %}{% trans "Cite" %}{% endif %}</span>
-                                <span class="cite-button-feedback" data-copied-label="{% if is_chinese_page %}&#24050;&#22797;&#21046;{% else %}{% trans "Copied" %}{% endif %}">{% if is_chinese_page %}&#24050;&#22797;&#21046;{% else %}{% trans "Copied" %}{% endif %}</span>
+                                <span class="cite-button-label">[{% if is_chinese_page %}&#24341;&#29992;{% else %}{% trans "Cite" %}{% endif %}]</span>
+                                <span class="cite-button-feedback" data-copied-label="[{% if is_chinese_page %}&#24050;&#22797;&#21046;{% else %}{% trans "Copied" %}{% endif %}]">[{% if is_chinese_page %}&#24050;&#22797;&#21046;{% else %}{% trans "Copied" %}{% endif %}]</span>
                             </button>
                             <textarea class="publication-bibtex-source" hidden>{{ pub.raw_bibtex }}</textarea>
                             {% endif %}
+                            {% for file_item in pub.get_active_files %}
+                            <a
+                                href="{{ file_item.get_download_url }}"
+                                class="paper-link publication-action"
+                                {% if file_item.is_url_item %}target="_blank" rel="noopener noreferrer"{% else %}download{% endif %}
+                            >[{{ file_item.get_display_text }}]</a>
+                            {% endfor %}
                         </div>
                         {% endif %}
                     </div>
@@ -155,7 +167,7 @@
                         {% if news.enable_detail %}
                         <div class="publication-actions news-actions">
                             <a href="{% url 'news_detail' news.pk %}" class="paper-link publication-action">
-                                {% if is_chinese_page %}&#26597;&#30475;&#35814;&#24773;{% else %}{% trans "View Details" %}{% endif %}
+                                [{% if is_chinese_page %}&#26597;&#30475;&#35814;&#24773;{% else %}{% trans "View Details" %}{% endif %}]
                             </a>
                         </div>
                         {% endif %}
@@ -205,7 +217,7 @@
                         {% if research.enable_detail %}
                         <div class="publication-actions research-actions">
                             <a href="{% url 'research_detail' research.pk %}" class="paper-link publication-action">
-                                {% if is_chinese_page %}&#26597;&#30475;&#35814;&#24773;{% else %}{% trans "View Details" %}{% endif %}
+                                [{% if is_chinese_page %}&#26597;&#30475;&#35814;&#24773;{% else %}{% trans "View Details" %}{% endif %}]
                             </a>
                         </div>
                         {% endif %}

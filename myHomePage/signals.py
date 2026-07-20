@@ -3,7 +3,7 @@ from django.db.models.signals import post_delete, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
 
-from .models import MediaFile, News, Profile, Publication, Research
+from .models import MediaFile, News, Profile, Publication, PublicationFile, Research
 from .security import identity_digest, sign_identity
 
 
@@ -52,6 +52,16 @@ def delete_replaced_publication_image_file(sender, instance, **kwargs):
 
     if existing.image and existing.image != instance.image:
         existing.image.delete(save=False)
+
+
+@receiver(post_delete, sender=PublicationFile)
+def delete_publication_attached_file(sender, instance, **kwargs):
+    _delete_file_field(instance.file)
+
+
+@receiver(pre_save, sender=PublicationFile)
+def delete_replaced_publication_attached_file(sender, instance, **kwargs):
+    _delete_replaced_file(sender, instance, 'file')
 
 
 def _delete_file_field(file_field):

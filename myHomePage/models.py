@@ -158,6 +158,9 @@ class Publication(models.Model):
         help_text=_('Day (1-31)'))
     doi = models.CharField(_('DOI'), max_length=100, null=True, blank=True, default=None)
     url = models.URLField(_('URL'), blank=True)
+    enable_detail = models.BooleanField(_('Enable Detail Page'), default=False)
+    detail_content = models.TextField(_('Detail Content'), blank=True, default='')
+    detail_content_zh = models.TextField(_('Detail Content (Chinese)'), blank=True, default='')
     is_active = models.BooleanField(_('Active'), default=True)
     is_draft = models.BooleanField(_('Draft'), default=False)
     order = models.IntegerField(_('Order'), default=0)
@@ -210,6 +213,114 @@ class Publication(models.Model):
             rendered.append(display_name)
 
         return mark_safe(' and '.join(rendered))
+
+    def get_active_files(self):
+        cached = getattr(self, '_prefetched_objects_cache', {}).get('files')
+        if cached is not None:
+            return [item for item in cached if item.is_active]
+        return self.files.filter(is_active=True).order_by('order', 'id')
+
+    def get_display_detail_content(self):
+        if _use_zh_content() and self.detail_content_zh:
+            return self.detail_content_zh
+        return self.detail_content
+
+    def get_formatted_detail_content(self):
+        content = self.get_display_detail_content()
+        if not content:
+            return ''
+        return markdown.markdown(escape(content), extensions=['extra'])
+
+    def get_info_summary_markdown(self):
+        lines = [
+            '### {}'.format(self.title),
+            '',
+            '- **Authors:** {}'.format(self.authors or '-'),
+            '- **Venue:** {}'.format(self.journal or '-'),
+        ]
+        if self.year:
+            lines.append('- **Year:** {}'.format(self.year))
+        if self.date:
+            lines.append('- **Publication date:** {}'.format(self.date))
+        if self.doi:
+            lines.append('- **DOI:** {}'.format(self.doi))
+        if self.url:
+            lines.append('- **URL:** {}'.format(self.url))
+        if self.keywords:
+            lines.append('- **Keywords:** {}'.format(self.keywords))
+        return '\n'.join(lines)
+
+    def get_formatted_detail_or_summary(self):
+        if self.enable_detail and self.get_display_detail_content():
+            return self.get_formatted_detail_content()
+        return markdown.markdown(escape(self.get_info_summary_markdown()), extensions=['extra'])
+
+
+class PublicationFile(models.Model):
+    """Downloadable files attached to a publication."""
+    PDF = 'PDF'
+    SLIDES = 'Slides'
+    CODE = 'Code'
+    DATA = 'Data'
+    SUPPLEMENT = 'Supplement'
+    OTHER = 'Other'
+    DISPLAY_CHOICES = (
+        (PDF, 'PDF'),
+        (SLIDES, 'Slides'),
+        (CODE, 'Code'),
+        (DATA, 'Data'),
+        (SUPPLEMENT, 'Supplement'),
+        (OTHER, 'Other'),
+    )
+
+    publication = models.ForeignKey(Publication, on_delete=models.CASCADE, related_name='files', verbose_name=_('Publication'))
+    file = models.FileField(_('File'), upload_to='publication_files/', blank=True, null=True)
+    url = models.URLField(_('URL'), max_length=500, blank=True, default='')
+    display_text = models.CharField(_('Display Text'), max_length=80, choices=DISPLAY_CHOICES, default=PDF)
+    custom_display_text = models.CharField(_('Custom Display Text'), max_length=80, blank=True, default='')
+    access_key = models.CharField(max_length=64, unique=True, db_index=True, blank=True, default='')
+    is_active = models.BooleanField(_('Active'), default=True)
+    order = models.IntegerField(_('Order'), default=0)
+    created_at = models.DateTimeField(_('Created at'), auto_now_add=True)
+    updated_at = models.DateTimeField(_('Updated at'), auto_now=True)
+
+    class Meta:
+        verbose_name = _('Publication File')
+        verbose_name_plural = _('Publication Files')
+        ordering = ['order', 'id']
+
+    def __str__(self):
+        return self.get_display_text()
+
+    def get_display_text(self):
+        return self.custom_display_text or self.display_text or self.PDF
+
+    def get_download_url(self):
+        if self.url:
+            return self.url
+        if not self.access_key:
+            return ''
+        return '/publication-file/{}/'.format(self.access_key)
+
+    def is_url_item(self):
+        return bool(self.url)
+
+    def clean(self):
+        super().clean()
+        if not self.file and not self.url:
+            raise ValidationError(_('Please provide either a file or a URL.'))
+
+    def save(self, *args, **kwargs):
+        if not self.access_key:
+            raw = '{}:{}:{}:{}:{}'.format(
+                time.time(),
+                self.publication_id or '',
+                self.file.name if self.file else '',
+                self.url or '',
+                self.get_display_text(),
+            )
+            self.access_key = hashlib.sha256(raw.encode('utf-8')).hexdigest()
+        super().save(*args, **kwargs)
 
 class Research(models.Model):
     """Research project model."""

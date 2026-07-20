@@ -1,14 +1,15 @@
 from django.contrib import admin
+from django.conf import settings
 from django.urls import path
 from django.http import HttpResponseRedirect, JsonResponse
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
-from django.utils.html import format_html
+from django.utils.html import escape, format_html
 from django.urls import reverse
 from django.utils import timezone
 from datetime import timedelta, datetime
-from .models import Profile, Publication, Research, SystemConfig, News, Section, SectionItem, MediaFile, AIConfig
+from .models import Profile, Publication, PublicationFile, Research, SystemConfig, News, Section, SectionItem, MediaFile, AIConfig
 from .services import sync_publications, ORCIDService, GoogleScholarService, ORCIDOAuth, deduplicate_publications
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.admin.sites import AdminSite
@@ -19,6 +20,7 @@ import bibtexparser
 import json
 import logging
 import os
+import markdown
 from contextlib import contextmanager
 from django.shortcuts import redirect
 
@@ -696,8 +698,34 @@ class PublicationAdminForm(forms.ModelForm):
         model = Publication
         fields = '__all__'
 
+
+class PublicationFileInline(admin.TabularInline):
+    model = PublicationFile
+    extra = 1
+    fields = ('file', 'url', 'display_text', 'custom_display_text', 'is_active', 'order')
+    verbose_name = _('File List')
+    verbose_name_plural = _('File List')
+
+    def get_formset(self, request, obj=None, **kwargs):
+        self.verbose_name = '\u6587\u4ef6\u5217\u8868' if _is_zh_mode() else _('File List')
+        self.verbose_name_plural = '\u6587\u4ef6\u5217\u8868' if _is_zh_mode() else _('File List')
+        formset = super().get_formset(request, obj, **kwargs)
+        if _is_zh_mode():
+            for field_name, label in {
+                'file': '\u6587\u4ef6',
+                'url': '\u7eaf URL',
+                'display_text': '\u9996\u9875\u663e\u793a\u6587\u5b57',
+                'custom_display_text': '\u81ea\u5b9a\u4e49\u663e\u793a\u6587\u5b57',
+                'is_active': '\u542f\u7528',
+                'order': '\u6392\u5e8f',
+            }.items():
+                if field_name in formset.form.base_fields:
+                    formset.form.base_fields[field_name].label = label
+        return formset
+
 class PublicationAdmin(DraftSaveMixin, BaseAdmin):
     form = PublicationAdminForm
+    inlines = (PublicationFileInline,)
     list_display = ('title', 'get_formatted_authors', 'journal', 'year', 'is_active', 'is_draft', 'order')
     search_fields = ('title', 'authors', 'journal')
     list_filter = ('is_active', 'is_draft', 'year')
@@ -705,6 +733,10 @@ class PublicationAdmin(DraftSaveMixin, BaseAdmin):
     fieldsets = (
         (_('Basic Information'), {
             'fields': ('title', 'authors', 'journal', 'year', 'date', 'is_active', 'is_draft', 'order', 'image')
+        }),
+        (_('Detail Page'), {
+            'fields': ('enable_detail', 'detail_content', 'detail_content_zh'),
+            'description': _('Paste publication detail content here. Markdown is supported.')
         }),
         (_('Author Settings'), {
             'fields': ('highlighted_authors', 'corresponding_authors'),
@@ -732,25 +764,44 @@ class PublicationAdmin(DraftSaveMixin, BaseAdmin):
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
         return _apply_zh_field_labels(form, {
-            'title': '标题',
-            'authors': '作者',
-            'journal': '期刊/会议',
-            'year': '年份',
-            'date': '发表日期',
+            'title': '\u6807\u9898',
+            'authors': '\u4f5c\u8005',
+            'journal': '\u671f\u520a/\u4f1a\u8bae',
+            'year': '\u5e74\u4efd',
+            'month': '\u6708\u4efd',
+            'day': '\u65e5',
+            'date': '\u53d1\u8868\u65e5\u671f',
             'doi': 'DOI',
             'url': 'URL',
-            'image': '图片',
-            'highlighted_authors': '高亮作者',
-            'corresponding_authors': '通讯作者',
-            'bibtex_key': 'BibTeX 键',
-            'bibtex_type': 'BibTeX 类型',
-            'raw_bibtex': '原始 BibTeX',
-            'is_active': '启用',
-            'is_draft': '草稿',
-            'order': '排序',
-            'bibtex_input': 'BibTeX 输入',
-            'bibtex_file': 'BibTeX 文件',
+            'enable_detail': '\u5f00\u542f\u8be6\u60c5\u9875',
+            'detail_content': '\u8be6\u60c5\u5185\u5bb9',
+            'detail_content_zh': '\u8be6\u60c5\u5185\u5bb9\uff08\u4e2d\u6587\uff09',
+            'image': '\u56fe\u7247',
+            'highlighted_authors': '\u9ad8\u4eae\u4f5c\u8005',
+            'corresponding_authors': '\u901a\u8baf\u4f5c\u8005',
+            'bibtex_key': 'BibTeX \u952e',
+            'bibtex_type': 'BibTeX \u7c7b\u578b',
+            'raw_bibtex': '\u539f\u59cb BibTeX',
+            'is_active': '\u542f\u7528',
+            'is_draft': '\u8349\u7a3f',
+            'order': '\u6392\u5e8f',
+            'bibtex_input': 'BibTeX \u8f93\u5165',
+            'bibtex_file': 'BibTeX \u6587\u4ef6',
         })
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj)
+        if not _is_zh_mode():
+            return fieldsets
+        title_map = {
+            'Basic Information': '\u57fa\u672c\u4fe1\u606f',
+            'Detail Page': '\u8be6\u60c5\u9875',
+            'Author Settings': '\u4f5c\u8005\u8bbe\u7f6e',
+            'Links': '\u94fe\u63a5',
+            'BibTeX Information': 'BibTeX \u4fe1\u606f',
+            'BibTeX Import': 'BibTeX \u5bfc\u5165',
+        }
+        return tuple((title_map.get(str(title), title), opts) for title, opts in fieldsets)
 
     def get_formatted_authors(self, obj):
         return obj.get_formatted_authors()
@@ -759,10 +810,188 @@ class PublicationAdmin(DraftSaveMixin, BaseAdmin):
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
+            path('preview-detail/', self.admin_site.admin_view(self.preview_detail), name='publication-preview-detail'),
+            path('<path:object_id>/ai-providers/', self.admin_site.admin_view(self.ai_providers), name='publication-ai-providers'),
+            path('<path:object_id>/generate-detail/', self.admin_site.admin_view(self.generate_detail), name='publication-generate-detail'),
+            path('<path:object_id>/save-detail/', self.admin_site.admin_view(self.save_detail), name='publication-save-detail'),
             path('parse-bibtex/', self.admin_site.admin_view(self.parse_bibtex), name='parse-bibtex'),
             path('import-bibtex/', self.admin_site.admin_view(self.import_bibtex), name='import-bibtex'),
         ]
         return custom_urls + urls
+
+    def preview_detail(self, request):
+        if request.method != 'POST':
+            return JsonResponse({'error': _('Unsupported request method')}, status=405)
+        content = request.POST.get('content', '')
+        html = markdown.markdown(escape(content), extensions=['extra']) if content else ''
+        return JsonResponse({'html': html})
+
+    def _detail_preview_html(self, content):
+        return markdown.markdown(escape(content or ''), extensions=['extra']) if content else ''
+
+    def _read_template_file(self, filename):
+        path = os.path.join(settings.BASE_DIR, 'templates', filename)
+        try:
+            with open(path, 'r', encoding='utf-8') as handle:
+                return handle.read()
+        except Exception:
+            return ''
+
+    def _extract_pdf_text(self, file_path, max_chars=12000):
+        if not file_path or not os.path.exists(file_path):
+            return ''
+        try:
+            try:
+                from pypdf import PdfReader
+            except Exception:
+                from PyPDF2 import PdfReader
+            reader = PdfReader(file_path)
+            chunks = []
+            total = 0
+            for page in getattr(reader, 'pages', []):
+                try:
+                    text = page.extract_text() or ''
+                except Exception:
+                    text = ''
+                text = ' '.join(text.split())
+                if not text:
+                    continue
+                chunks.append(text)
+                total += len(text)
+                if total >= max_chars:
+                    break
+            return ' '.join(chunks)[:max_chars]
+        except Exception as exc:
+            logger.warning('Failed to extract publication PDF text: %s', exc)
+            return ''
+
+    def _publication_ai_payload(self, publication, metadata):
+        data = {
+            'title': metadata.get('title') or publication.title,
+            'authors': metadata.get('authors') or publication.authors,
+            'journal': metadata.get('journal') or publication.journal,
+            'year': metadata.get('year') or publication.year,
+            'date': metadata.get('date') or publication.date,
+            'doi': metadata.get('doi') or publication.doi,
+            'url': metadata.get('url') or publication.url,
+            'keywords': metadata.get('keywords') or publication.keywords,
+            'raw_bibtex': metadata.get('raw_bibtex') or publication.raw_bibtex,
+        }
+        files = []
+        pdf_chunks = []
+        for item in publication.get_active_files():
+            file_name = os.path.basename(item.file.name) if item.file else ''
+            file_label = item.get_display_text()
+            entry = {'label': file_label, 'file_name': file_name}
+            if file_name.lower().endswith('.pdf') and item.file:
+                pdf_text = self._extract_pdf_text(item.file.path)
+                entry['extracted_text_chars'] = len(pdf_text)
+                if pdf_text:
+                    pdf_chunks.append('File: {} ({})\n{}'.format(file_name, file_label, pdf_text))
+            files.append(entry)
+        data['files'] = files
+        data['pdf_text'] = '\n\n'.join(pdf_chunks)[:18000]
+        return data
+
+    def _parse_llm_detail_response(self, content):
+        raw = (content or '').strip()
+        if raw.startswith('```'):
+            raw = raw.strip('`')
+            raw = raw[4:].strip() if raw.lower().startswith('json') else raw.strip()
+        try:
+            data = json.loads(raw)
+        except Exception:
+            return {'en': raw, 'zh': ''}
+        return {
+            'en': str(data.get('detail_content') or data.get('en') or data.get('detail_content_en') or '').strip(),
+            'zh': str(data.get('detail_content_zh') or data.get('zh') or '').strip(),
+        }
+
+    def ai_providers(self, request, object_id):
+        if request.method != 'GET':
+            return JsonResponse({'error': _('Unsupported request method')}, status=405)
+        from .ai_services import check_ai_config
+        results = []
+        for item in AIConfig.objects.all().order_by('-is_default', 'name'):
+            if not item.is_complete_for_text():
+                continue
+            checked = check_ai_config(item)
+            if checked.get('ok') is True:
+                results.append({
+                    'id': item.pk,
+                    'name': item.name,
+                    'provider': item.provider,
+                    'model_name': item.model_name,
+                    'is_default': item.is_default,
+                })
+        return JsonResponse({'providers': results})
+
+    def generate_detail(self, request, object_id):
+        if request.method != 'POST':
+            return JsonResponse({'error': _('Unsupported request method')}, status=405)
+        publication = self.get_object(request, object_id)
+        if publication is None:
+            return JsonResponse({'error': _('Publication must be saved before AI generation.')}, status=404)
+        try:
+            payload = json.loads(request.body.decode('utf-8') or '{}')
+        except Exception:
+            payload = {}
+        provider_id = payload.get('provider_id')
+        if not provider_id:
+            return JsonResponse({'error': _('Please select an LLM provider.')}, status=400)
+        metadata = payload.get('metadata') if isinstance(payload.get('metadata'), dict) else {}
+        feedback = (payload.get('feedback') or '').strip()
+        previous = payload.get('previous') if isinstance(payload.get('previous'), dict) else {}
+        source_data = self._publication_ai_payload(publication, metadata)
+        template_zh = self._read_template_file('paper_introduction_framework.md')
+        template_en = self._read_template_file('paper_introduction_framework_en.md')
+        system_prompt = (
+            'You are a rigorous research writing assistant. Generate publication detail content in Markdown. '
+            'Return strict JSON only with keys "detail_content" and "detail_content_zh". '
+            'Do not fabricate facts that are not supported by metadata or extracted file text; state uncertainty where needed.'
+        )
+        user_prompt = json.dumps({
+            'task': 'Generate or revise homepage publication detail introduction.',
+            'metadata': source_data,
+            'english_template': template_en,
+            'chinese_template': template_zh,
+            'previous_result': previous,
+            'user_feedback': feedback,
+            'requirements': [
+                'detail_content must be English Markdown.',
+                'detail_content_zh must be Simplified Chinese Markdown.',
+                'Use the provided templates as structure, but adapt to the actual paper.',
+                'Prefer evidence from PDF text when available.',
+            ],
+        }, ensure_ascii=False)
+        try:
+            from .ai_services import generate_text_with_provider
+            content = generate_text_with_provider(provider_id, system_prompt, user_prompt, temperature=0.2)
+            parsed = self._parse_llm_detail_response(content)
+        except Exception as exc:
+            return JsonResponse({'error': str(exc)}, status=500)
+        return JsonResponse({
+            'detail_content': parsed['en'],
+            'detail_content_zh': parsed['zh'],
+            'html': self._detail_preview_html(parsed['en']),
+            'html_zh': self._detail_preview_html(parsed['zh']),
+        })
+
+    def save_detail(self, request, object_id):
+        if request.method != 'POST':
+            return JsonResponse({'error': _('Unsupported request method')}, status=405)
+        publication = self.get_object(request, object_id)
+        if publication is None:
+            return JsonResponse({'error': _('Publication does not exist.')}, status=404)
+        try:
+            payload = json.loads(request.body.decode('utf-8') or '{}')
+        except Exception:
+            payload = {}
+        publication.detail_content = payload.get('detail_content') or ''
+        publication.detail_content_zh = payload.get('detail_content_zh') or ''
+        publication.enable_detail = True
+        publication.save(update_fields=['detail_content', 'detail_content_zh', 'enable_detail', 'updated_at'])
+        return JsonResponse({'ok': True})
 
     def _entry_to_raw_bibtex(self, entry):
         database = bibtexparser.bibdatabase.BibDatabase()
