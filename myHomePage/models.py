@@ -404,6 +404,7 @@ class SystemConfig(models.Model):
         ('linkedin_token', _('LinkedIn Token')),
         ('highlighted_authors', _('Highlighted Authors')),
         ('footer_items', _('Footer Items')),
+        ('resource_log_retention_hours', _('Resource Log Retention Hours')),
     ]
     
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, verbose_name=_('Category'))
@@ -434,6 +435,7 @@ class SystemConfig(models.Model):
                 'linkedin_token': 'LinkedIn 令牌',
                 'highlighted_authors': '高亮作者',
                 'footer_items': '页脚显示项',
+                'resource_log_retention_hours': '\u8d44\u6e90\u76d1\u63a7\u65e5\u5fd7\u4fdd\u7559\u65f6\u957f',
             }
             return zh_labels.get(self.category, self.category)
         return self.get_category_display()
@@ -576,6 +578,42 @@ class SystemConfig(models.Model):
             return max(1, value)
         except (ValueError, TypeError):
             return 6
+
+    @classmethod
+    def get_resource_log_retention_hours(cls):
+        try:
+            value = float(cls.get_value('resource_log_retention_hours', 168))
+            return max(1.0, value)
+        except (ValueError, TypeError):
+            return 168.0
+
+
+class ResourceMetricLog(models.Model):
+    """Historical samples collected by the system resource monitor."""
+    created_at = models.DateTimeField(_('Created at'), default=timezone.now, db_index=True)
+    cpu_percent = models.FloatField(_('CPU Percent'), null=True, blank=True)
+    memory_percent = models.FloatField(_('Memory Percent'), null=True, blank=True)
+    memory_total = models.BigIntegerField(_('Memory Total'), null=True, blank=True)
+    memory_used = models.BigIntegerField(_('Memory Used'), null=True, blank=True)
+    memory_available = models.BigIntegerField(_('Memory Available'), null=True, blank=True)
+    disk_percent = models.FloatField(_('Disk Percent'), null=True, blank=True)
+    disk_total = models.BigIntegerField(_('Disk Total'), null=True, blank=True)
+    disk_used = models.BigIntegerField(_('Disk Used'), null=True, blank=True)
+    disk_free = models.BigIntegerField(_('Disk Free'), null=True, blank=True)
+    network_sent = models.BigIntegerField(_('Network Sent'), null=True, blank=True)
+    network_received = models.BigIntegerField(_('Network Received'), null=True, blank=True)
+    upload_speed = models.FloatField(_('Upload Speed'), null=True, blank=True)
+    download_speed = models.FloatField(_('Download Speed'), null=True, blank=True)
+    process_memory_rss = models.BigIntegerField(_('Process Memory RSS'), null=True, blank=True)
+    process_threads = models.IntegerField(_('Process Threads'), null=True, blank=True)
+
+    class Meta:
+        verbose_name = _('Resource Metric Log')
+        verbose_name_plural = _('Resource Metric Logs')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return '{} CPU={} MEM={}'.format(self.created_at, self.cpu_percent, self.memory_percent)
 
 
 class AIConfig(models.Model):

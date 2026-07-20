@@ -11,6 +11,9 @@
     <a class="button" href="{% url 'admin:myHomePage_mediafile_add' %}">
       {% trans "Upload Media File" %}
     </a>
+    <a class="button" href="{% url 'admin:system-resources' %}">
+      {% if is_zh_mode %}&#31995;&#32479;&#36164;&#28304;&#30417;&#25511;{% else %}{% trans "System Resource Monitor" %}{% endif %}
+    </a>
   </div>
 </div>
 {{ block.super }}

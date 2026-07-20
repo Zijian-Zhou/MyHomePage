@@ -1,0 +1,129 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/admin/resource_monitor.css' %}?v=20260720-5">
+{% endblock %}
+
+{% block content %}
+{{ labels|json_script:"resource-monitor-labels" }}
+<div class="resource-monitor" data-endpoint="{{ resource_data_url }}">
+  <div class="resource-hero">
+    <div>
+      <h1>{{ labels.title }}</h1>
+      <p>{{ labels.subtitle }}</p>
+    </div>
+    <div class="resource-actions">
+      <label class="resource-toggle">
+        <input type="checkbox" data-resource-auto checked>
+        <span>{{ labels.auto_refresh }}</span>
+      </label>
+      <label class="resource-range">
+        <span>{{ labels.history_range }}</span>
+        <select data-resource-history-range>
+          <option value="15">15 min</option>
+          <option value="60" selected>1 h</option>
+          <option value="360">6 h</option>
+          <option value="1440">24 h</option>
+        </select>
+      </label>
+      <button type="button" class="button resource-refresh" data-resource-refresh>{{ labels.refresh }}</button>
+    </div>
+  </div>
+
+  <div class="resource-status" data-resource-status>
+    {{ labels.last_updated }}: <span data-resource-updated>--</span>
+  </div>
+
+  <h2 class="resource-section-title">{{ labels.realtime_data }}</h2>
+  <div class="resource-grid">
+    <section class="resource-card" data-metric-card="cpu">
+      <div class="resource-card-head">
+        <span>{{ labels.cpu }}</span>
+        <strong data-resource-value="cpu.percent">--%</strong>
+      </div>
+      <div class="resource-meter"><span data-resource-meter="cpu.percent"></span></div>
+      <dl>
+        <dt>{{ labels.usage }}</dt><dd data-resource-text="cpu.percent">--</dd>
+        <dt>{{ labels.total }}</dt><dd data-resource-text="cpu.count">--</dd>
+      </dl>
+    </section>
+
+    <section class="resource-card" data-metric-card="memory">
+      <div class="resource-card-head">
+        <span>{{ labels.memory }}</span>
+        <strong data-resource-value="memory.percent">--%</strong>
+      </div>
+      <div class="resource-meter"><span data-resource-meter="memory.percent"></span></div>
+      <dl>
+        <dt>{{ labels.used }}</dt><dd data-resource-text="memory.used_display">--</dd>
+        <dt>{{ labels.free }}</dt><dd data-resource-text="memory.available_display">--</dd>
+        <dt>{{ labels.total }}</dt><dd data-resource-text="memory.total_display">--</dd>
+      </dl>
+    </section>
+
+    <section class="resource-card" data-metric-card="disk">
+      <div class="resource-card-head">
+        <span>{{ labels.disk }}</span>
+        <strong data-resource-value="disk.percent">--%</strong>
+      </div>
+      <div class="resource-meter"><span data-resource-meter="disk.percent"></span></div>
+      <dl>
+        <dt>{{ labels.used }}</dt><dd data-resource-text="disk.used_display">--</dd>
+        <dt>{{ labels.free }}</dt><dd data-resource-text="disk.free_display">--</dd>
+        <dt>{{ labels.total }}</dt><dd data-resource-text="disk.total_display">--</dd>
+      </dl>
+    </section>
+
+    <section class="resource-card">
+      <div class="resource-card-head">
+        <span>{{ labels.network }}</span>
+      </div>
+      <dl>
+        <dt>{{ labels.upload_speed }}</dt><dd data-resource-text="network.upload_speed_display">--</dd>
+        <dt>{{ labels.download_speed }}</dt><dd data-resource-text="network.download_speed_display">--</dd>
+        <dt>{{ labels.sent }}</dt><dd data-resource-text="network.sent_display">--</dd>
+        <dt>{{ labels.received }}</dt><dd data-resource-text="network.received_display">--</dd>
+      </dl>
+    </section>
+  </div>
+
+  <section class="resource-report">
+    <div class="resource-report-head">
+      <div>
+        <h2>{{ labels.history_data }} - {{ labels.chart_title }}</h2>
+        <p>{{ labels.chart_hint }}</p>
+      </div>
+      <div class="resource-legend">
+        <span><i class="cpu-dot"></i>{{ labels.cpu }} <strong data-chart-value="cpu">--%</strong></span>
+        <span><i class="memory-dot"></i>{{ labels.memory }} <strong data-chart-value="memory">--%</strong></span>
+        <span><i class="disk-dot"></i>{{ labels.disk }} <strong data-chart-value="disk">--%</strong></span>
+      </div>
+    </div>
+    <canvas data-resource-chart width="900" height="280" aria-label="{{ labels.chart_title }}"></canvas>
+  </section>
+
+  <div class="resource-details">
+    <section class="resource-card">
+      <div class="resource-card-head"><span>{{ labels.system }}</span></div>
+      <dl>
+        <dt>{{ labels.platform }}</dt><dd data-resource-text="system.platform">--</dd>
+        <dt>{{ labels.python }}</dt><dd data-resource-text="system.python">--</dd>
+        <dt>{{ labels.uptime }}</dt><dd data-resource-text="system.uptime">--</dd>
+        <dt>{{ labels.load }}</dt><dd data-resource-text="system.load_avg">--</dd>
+      </dl>
+    </section>
+    <section class="resource-card">
+      <div class="resource-card-head"><span>{{ labels.process }}</span></div>
+      <dl>
+        <dt>PID</dt><dd data-resource-text="process.pid">--</dd>
+        <dt>{{ labels.process_memory }}</dt><dd data-resource-text="process.memory_rss_display">--</dd>
+        <dt>{{ labels.process_threads }}</dt><dd data-resource-text="process.threads">--</dd>
+        <dt>{{ labels.process_start }}</dt><dd data-resource-text="process.create_time">--</dd>
+      </dl>
+    </section>
+  </div>
+</div>
+<script src="{% static 'js/admin/resource_monitor.js' %}?v=20260720-4"></script>
+{% endblock %}

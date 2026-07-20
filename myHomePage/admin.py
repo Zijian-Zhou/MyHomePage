@@ -9,7 +9,7 @@ from django.utils.html import escape, format_html
 from django.urls import reverse
 from django.utils import timezone
 from datetime import timedelta, datetime
-from .models import Profile, Publication, PublicationFile, Research, SystemConfig, News, Section, SectionItem, MediaFile, AIConfig
+from .models import Profile, Publication, PublicationFile, Research, SystemConfig, ResourceMetricLog, News, Section, SectionItem, MediaFile, AIConfig
 from .services import sync_publications, ORCIDService, GoogleScholarService, ORCIDOAuth, deduplicate_publications
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.admin.sites import AdminSite
@@ -20,6 +20,8 @@ import bibtexparser
 import json
 import logging
 import os
+import platform
+import shutil
 import markdown
 from contextlib import contextmanager
 from django.shortcuts import redirect
@@ -68,6 +70,7 @@ def _category_label_map():
             'linkedin_token': 'LinkedIn 令牌',
             'highlighted_authors': '高亮作者',
             'footer_items': '页脚显示项',
+            'resource_log_retention_hours': '\u8d44\u6e90\u76d1\u63a7\u65e5\u5fd7\u4fdd\u7559\u65f6\u957f',
         }
     return {
         'enable_chinese': _('Enable Chinese'),
@@ -82,6 +85,7 @@ def _category_label_map():
         'linkedin_token': _('LinkedIn Token'),
         'highlighted_authors': _('Highlighted Authors'),
         'footer_items': _('Footer Items'),
+        'resource_log_retention_hours': _('Resource Log Retention Hours'),
     }
 
 
@@ -200,6 +204,22 @@ class SystemConfigAdminForm(forms.ModelForm):
                     else _('Cards Per Page must be a positive integer.')
                 )
             return str(parsed)
+        if category == 'resource_log_retention_hours':
+            try:
+                parsed = float(str(value).strip() or '168')
+            except (ValueError, TypeError):
+                raise forms.ValidationError(
+                    '\u8d44\u6e90\u76d1\u63a7\u65e5\u5fd7\u4fdd\u7559\u65f6\u957f\u5fc5\u987b\u662f\u6b63\u6570\u3002'
+                    if _is_zh_mode()
+                    else _('Resource Log Retention Hours must be a positive number.')
+                )
+            if parsed <= 0:
+                raise forms.ValidationError(
+                    '\u8d44\u6e90\u76d1\u63a7\u65e5\u5fd7\u4fdd\u7559\u65f6\u957f\u5fc5\u987b\u662f\u6b63\u6570\u3002'
+                    if _is_zh_mode()
+                    else _('Resource Log Retention Hours must be a positive number.')
+                )
+            return str(parsed)
         if category == 'footer_items':
             return _validate_footer_items_json(value)
         return (value or '').strip()
@@ -243,6 +263,8 @@ class CustomAdminSite(AdminSite):
             path('', self.admin_view(self.index), name='index'),
             path('toggle-dark-mode/', self.admin_view(self.toggle_dark_mode), name='toggle-dark-mode'),
             path('auto-translate-field/', self.admin_view(self.auto_translate_field), name='auto-translate-field'),
+            path('system-resources/', self.admin_view(self.system_resources), name='system-resources'),
+            path('system-resources/data/', self.admin_view(self.system_resources_data), name='system-resources-data'),
         ]
         return custom_urls + urls
 
@@ -319,7 +341,368 @@ class CustomAdminSite(AdminSite):
         context['index_title'] = _('HomePage Administration')
         context['footer_items'] = SystemConfig.get_footer_items()
         context['show_language_switcher'] = SystemConfig.is_chinese_enabled()
+        context['is_zh_mode'] = _is_zh_mode()
         return context
+
+    def _resource_labels(self):
+        if _is_zh_mode():
+            return {
+                'title': '\u7cfb\u7edf\u8d44\u6e90\u76d1\u63a7',
+                'subtitle': '\u67e5\u770b\u670d\u52a1\u5668 CPU\u3001\u5185\u5b58\u3001\u78c1\u76d8\u548c\u7f51\u7edc\u8d44\u6e90\u4f7f\u7528\u60c5\u51b5\u3002',
+                'refresh': '\u5237\u65b0',
+                'auto_refresh': '\u81ea\u52a8\u5237\u65b0',
+                'last_updated': '\u4e0a\u6b21\u66f4\u65b0',
+                'cpu': 'CPU',
+                'memory': '\u5185\u5b58',
+                'disk': '\u78c1\u76d8',
+                'network': '\u7f51\u7edc',
+                'process': '\u8fdb\u7a0b',
+                'system': '\u7cfb\u7edf',
+                'usage': '\u4f7f\u7528\u7387',
+                'used': '\u5df2\u7528',
+                'free': '\u53ef\u7528',
+                'total': '\u603b\u91cf',
+                'sent': '\u5df2\u53d1\u9001',
+                'received': '\u5df2\u63a5\u6536',
+                'upload_speed': '\u4e0a\u884c\u901f\u5ea6',
+                'download_speed': '\u4e0b\u884c\u901f\u5ea6',
+                'load': '\u8d1f\u8f7d',
+                'uptime': '\u8fd0\u884c\u65f6\u957f',
+                'python': 'Python',
+                'platform': '\u5e73\u53f0',
+                'process_memory': '\u5f53\u524d\u8fdb\u7a0b\u5185\u5b58',
+                'process_threads': '\u7ebf\u7a0b\u6570',
+                'process_start': '\u542f\u52a8\u65f6\u95f4',
+                'chart_title': '\u8fd1\u671f\u4f7f\u7528\u7387\u62a5\u8868',
+                'chart_hint': '\u6570\u636e\u7531\u540e\u7aef\u76d1\u63a7\u7ebf\u7a0b\u6301\u7eed\u91c7\u6837\uff0c\u53ef\u67e5\u770b\u5b9e\u65f6\u548c\u5386\u53f2\u6570\u636e\u3002',
+                'history_range': '\u5386\u53f2\u8303\u56f4',
+                'realtime_data': '\u5b9e\u65f6\u6570\u636e',
+                'history_data': '\u5386\u53f2\u6570\u636e',
+                'unavailable': '\u4e0d\u53ef\u7528',
+                'error': '\u8d44\u6e90\u6570\u636e\u83b7\u53d6\u5931\u8d25',
+            }
+        return {
+            'title': 'System Resource Monitor',
+            'subtitle': 'Inspect server CPU, memory, disk, and network usage.',
+            'refresh': 'Refresh',
+            'auto_refresh': 'Auto refresh',
+            'last_updated': 'Last updated',
+            'cpu': 'CPU',
+            'memory': 'Memory',
+            'disk': 'Disk',
+            'network': 'Network',
+            'process': 'Process',
+            'system': 'System',
+            'usage': 'Usage',
+            'used': 'Used',
+            'free': 'Free',
+            'total': 'Total',
+            'sent': 'Sent',
+            'received': 'Received',
+            'upload_speed': 'Upload speed',
+            'download_speed': 'Download speed',
+            'load': 'Load',
+            'uptime': 'Uptime',
+            'python': 'Python',
+            'platform': 'Platform',
+            'process_memory': 'Current process memory',
+            'process_threads': 'Threads',
+            'process_start': 'Start time',
+            'chart_title': 'Recent Usage Report',
+            'chart_hint': 'Data is continuously sampled by the backend monitor thread for realtime and historical views.',
+            'history_range': 'History range',
+            'realtime_data': 'Realtime data',
+            'history_data': 'History data',
+            'unavailable': 'Unavailable',
+            'error': 'Failed to load resource data',
+        }
+
+    def _format_bytes(self, value):
+        try:
+            value = float(value)
+        except (TypeError, ValueError):
+            return None
+        units = ['B', 'KB', 'MB', 'GB', 'TB']
+        for unit in units:
+            if value < 1024 or unit == units[-1]:
+                return f'{value:.1f} {unit}' if unit != 'B' else f'{int(value)} {unit}'
+            value /= 1024
+        return None
+
+    def _collect_resource_data(self):
+        now = timezone.localtime()
+        data = {
+            'timestamp': now.isoformat(),
+            'timestamp_display': now.strftime('%Y-%m-%d %H:%M:%S'),
+            'system': {
+                'platform': platform.platform(),
+                'python': platform.python_version(),
+                'processor': platform.processor() or platform.machine(),
+            },
+            'cpu': {'percent': None, 'count': os.cpu_count()},
+            'memory': {},
+            'disk': {},
+            'network': {},
+            'process': {'pid': os.getpid()},
+            'available': False,
+        }
+        try:
+            import psutil
+        except Exception as exc:
+            disk = shutil.disk_usage(str(settings.BASE_DIR))
+            data['available'] = True
+            data['warning'] = str(exc)
+            data['disk'] = {
+                'percent': round((disk.used / disk.total) * 100, 1) if disk.total else None,
+                'total': disk.total,
+                'used': disk.used,
+                'free': disk.free,
+                'total_display': self._format_bytes(disk.total),
+                'used_display': self._format_bytes(disk.used),
+                'free_display': self._format_bytes(disk.free),
+            }
+            data['memory'] = self._fallback_memory_data()
+            return data
+
+        data['available'] = True
+        cpu_percent = psutil.cpu_percent(interval=0.1)
+        vm = psutil.virtual_memory()
+        disk = psutil.disk_usage(str(settings.BASE_DIR))
+        net = psutil.net_io_counters()
+        proc = psutil.Process(os.getpid())
+        boot_time = datetime.fromtimestamp(psutil.boot_time(), tz=timezone.get_current_timezone())
+        uptime = now - boot_time
+
+        data.update({
+            'cpu': {
+                'percent': round(cpu_percent, 1),
+                'count': psutil.cpu_count(logical=True),
+                'physical_count': psutil.cpu_count(logical=False),
+            },
+            'memory': {
+                'percent': round(vm.percent, 1),
+                'total': vm.total,
+                'used': vm.used,
+                'available': vm.available,
+                'total_display': self._format_bytes(vm.total),
+                'used_display': self._format_bytes(vm.used),
+                'available_display': self._format_bytes(vm.available),
+            },
+            'disk': {
+                'percent': round(disk.percent, 1),
+                'total': disk.total,
+                'used': disk.used,
+                'free': disk.free,
+                'total_display': self._format_bytes(disk.total),
+                'used_display': self._format_bytes(disk.used),
+                'free_display': self._format_bytes(disk.free),
+            },
+            'network': {
+                'sent': net.bytes_sent,
+                'received': net.bytes_recv,
+                'sent_display': self._format_bytes(net.bytes_sent),
+                'received_display': self._format_bytes(net.bytes_recv),
+            },
+            'process': {
+                'pid': proc.pid,
+                'memory_rss': proc.memory_info().rss,
+                'memory_rss_display': self._format_bytes(proc.memory_info().rss),
+                'threads': proc.num_threads(),
+                'create_time': datetime.fromtimestamp(proc.create_time(), tz=timezone.get_current_timezone()).strftime('%Y-%m-%d %H:%M:%S'),
+            },
+            'system': {
+                'platform': platform.platform(),
+                'python': platform.python_version(),
+                'processor': platform.processor() or platform.machine(),
+                'boot_time': boot_time.strftime('%Y-%m-%d %H:%M:%S'),
+                'uptime': str(uptime).split('.')[0],
+            }
+        })
+        if hasattr(os, 'getloadavg'):
+            try:
+                data['system']['load_avg'] = ', '.join(f'{item:.2f}' for item in os.getloadavg())
+            except OSError:
+                data['system']['load_avg'] = None
+        return data
+
+    def _fallback_memory_data(self):
+        if os.name == 'nt':
+            try:
+                import ctypes
+
+                class MEMORYSTATUSEX(ctypes.Structure):
+                    _fields_ = [
+                        ('dwLength', ctypes.c_ulong),
+                        ('dwMemoryLoad', ctypes.c_ulong),
+                        ('ullTotalPhys', ctypes.c_ulonglong),
+                        ('ullAvailPhys', ctypes.c_ulonglong),
+                        ('ullTotalPageFile', ctypes.c_ulonglong),
+                        ('ullAvailPageFile', ctypes.c_ulonglong),
+                        ('ullTotalVirtual', ctypes.c_ulonglong),
+                        ('ullAvailVirtual', ctypes.c_ulonglong),
+                        ('sullAvailExtendedVirtual', ctypes.c_ulonglong),
+                    ]
+
+                status = MEMORYSTATUSEX()
+                status.dwLength = ctypes.sizeof(status)
+                ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(status))
+                used = status.ullTotalPhys - status.ullAvailPhys
+                return {
+                    'percent': round(float(status.dwMemoryLoad), 1),
+                    'total': status.ullTotalPhys,
+                    'used': used,
+                    'available': status.ullAvailPhys,
+                    'total_display': self._format_bytes(status.ullTotalPhys),
+                    'used_display': self._format_bytes(used),
+                    'available_display': self._format_bytes(status.ullAvailPhys),
+                }
+            except Exception:
+                return {}
+        try:
+            values = {}
+            with open('/proc/meminfo', 'r') as handle:
+                for line in handle:
+                    key, raw_value = line.split(':', 1)
+                    values[key] = int(raw_value.strip().split()[0]) * 1024
+            total = values.get('MemTotal')
+            available = values.get('MemAvailable')
+            if total and available is not None:
+                used = total - available
+                return {
+                    'percent': round((used / total) * 100, 1),
+                    'total': total,
+                    'used': used,
+                    'available': available,
+                    'total_display': self._format_bytes(total),
+                    'used_display': self._format_bytes(used),
+                    'available_display': self._format_bytes(available),
+                }
+        except Exception:
+            return {}
+        return {}
+
+    def system_resources(self, request):
+        labels = self._resource_labels()
+        context = {
+            **self.each_context(request),
+            'title': labels['title'],
+            'labels': labels,
+            'resource_data_url': reverse('admin:system-resources-data'),
+        }
+        request.current_app = self.name
+        return TemplateResponse(request, 'admin/system_resources.html', context)
+
+    def system_resources_data(self, request):
+        try:
+            history_minutes = int(request.GET.get('history_minutes', '60'))
+        except (TypeError, ValueError):
+            history_minutes = 60
+        history_minutes = max(5, min(history_minutes, 24 * 60))
+
+        latest = ResourceMetricLog.objects.order_by('-created_at').first()
+        if latest is None:
+            try:
+                from .resource_monitor import save_sample
+                latest = save_sample()
+            except Exception:
+                return JsonResponse(self._collect_resource_data())
+
+        payload = self._metric_log_to_resource_payload(latest)
+        payload['history_minutes'] = history_minutes
+        payload['history'] = self._resource_history(history_minutes)
+        return JsonResponse(payload)
+
+    def _metric_log_to_resource_payload(self, log):
+        now = timezone.localtime(log.created_at)
+        data = {
+            'timestamp': now.isoformat(),
+            'timestamp_display': now.strftime('%Y-%m-%d %H:%M:%S'),
+            'available': True,
+            'cpu': {
+                'percent': log.cpu_percent,
+                'count': os.cpu_count(),
+            },
+            'memory': {
+                'percent': log.memory_percent,
+                'total': log.memory_total,
+                'used': log.memory_used,
+                'available': log.memory_available,
+                'total_display': self._format_bytes(log.memory_total),
+                'used_display': self._format_bytes(log.memory_used),
+                'available_display': self._format_bytes(log.memory_available),
+            },
+            'disk': {
+                'percent': log.disk_percent,
+                'total': log.disk_total,
+                'used': log.disk_used,
+                'free': log.disk_free,
+                'total_display': self._format_bytes(log.disk_total),
+                'used_display': self._format_bytes(log.disk_used),
+                'free_display': self._format_bytes(log.disk_free),
+            },
+            'network': {
+                'sent': log.network_sent,
+                'received': log.network_received,
+                'upload_speed': log.upload_speed,
+                'download_speed': log.download_speed,
+                'sent_display': self._format_bytes(log.network_sent),
+                'received_display': self._format_bytes(log.network_received),
+                'upload_speed_display': self._format_speed(log.upload_speed),
+                'download_speed_display': self._format_speed(log.download_speed),
+            },
+            'process': {
+                'pid': os.getpid(),
+                'memory_rss': log.process_memory_rss,
+                'memory_rss_display': self._format_bytes(log.process_memory_rss),
+                'threads': log.process_threads,
+            },
+            'system': {
+                'platform': platform.platform(),
+                'python': platform.python_version(),
+                'processor': platform.processor() or platform.machine(),
+            },
+        }
+        try:
+            import psutil
+            boot_time = datetime.fromtimestamp(psutil.boot_time(), tz=timezone.get_current_timezone())
+            data['system']['boot_time'] = boot_time.strftime('%Y-%m-%d %H:%M:%S')
+            data['system']['uptime'] = str(timezone.localtime() - boot_time).split('.')[0]
+            proc = psutil.Process(os.getpid())
+            data['process']['create_time'] = datetime.fromtimestamp(
+                proc.create_time(),
+                tz=timezone.get_current_timezone(),
+            ).strftime('%Y-%m-%d %H:%M:%S')
+        except Exception:
+            pass
+        if hasattr(os, 'getloadavg'):
+            try:
+                data['system']['load_avg'] = ', '.join(f'{item:.2f}' for item in os.getloadavg())
+            except OSError:
+                data['system']['load_avg'] = None
+        return data
+
+    def _format_speed(self, value):
+        formatted = self._format_bytes(value)
+        return '{} /s'.format(formatted) if formatted else None
+
+    def _resource_history(self, minutes):
+        cutoff = timezone.now() - timedelta(minutes=minutes)
+        logs = list(ResourceMetricLog.objects.filter(created_at__gte=cutoff).order_by('created_at'))
+        if len(logs) > 360:
+            step = max(1, len(logs) // 360)
+            logs = logs[::step]
+        return [
+            {
+                'timestamp': timezone.localtime(log.created_at).isoformat(),
+                'timestamp_display': timezone.localtime(log.created_at).strftime('%H:%M:%S'),
+                'cpu': log.cpu_percent or 0,
+                'memory': log.memory_percent or 0,
+                'disk': log.disk_percent or 0,
+                'upload_speed': log.upload_speed or 0,
+                'download_speed': log.download_speed or 0,
+            }
+            for log in logs
+        ]
 
     def index(self, request, extra_context=None):
         app_list = self.get_app_list(request)
@@ -348,6 +731,14 @@ class CustomAdminSite(AdminSite):
         for app in app_list:
             if app.get('app_label') == 'myHomePage':
                 app['name'] = _('Homepage Content')
+                app['models'].append({
+                    'name': self._resource_labels()['title'],
+                    'object_name': 'SystemResourceMonitor',
+                    'perms': {'view': True, 'add': False, 'change': False, 'delete': False},
+                    'admin_url': reverse('admin:system-resources'),
+                    'add_url': None,
+                    'view_only': True,
+                })
             for model in app['models']:
                 info = (app['app_label'], model['object_name'].lower())
                 try:
@@ -1280,6 +1671,8 @@ class SystemConfigAdmin(admin.ModelAdmin):
                 default_value = '1'
             elif category == 'cards_per_page':
                 default_value = '6'
+            elif category == 'resource_log_retention_hours':
+                default_value = '168'
             else:
                 default_value = ''
             SystemConfig.objects.create(
@@ -1318,6 +1711,12 @@ class SystemConfigAdmin(admin.ModelAdmin):
                 if _is_zh_mode()
                 else _('Maximum number of cards displayed per page in each homepage section.')
             )
+        if obj and obj.category == 'resource_log_retention_hours':
+            form.base_fields['value'].help_text = (
+                '\u8d44\u6e90\u76d1\u63a7\u5386\u53f2\u65e5\u5fd7\u4fdd\u7559\u65f6\u957f\uff08\u5c0f\u65f6\uff09\uff0c\u9ed8\u8ba4 168 \u5c0f\u65f6\u3002'
+                if _is_zh_mode()
+                else _('How long resource monitor logs are retained, in hours. Default is 168 hours.')
+            )
         if obj and obj.category == 'scholar_proxy':
             form.base_fields['value'].help_text = _('Format: http://username:password@host:port or http://host:port')
         if obj and obj.category == 'footer_items':
@@ -1348,6 +1747,11 @@ class SystemConfigAdmin(admin.ModelAdmin):
                 value = str(max(1, int(float(value or '6'))))
             except (ValueError, TypeError):
                 value = '6'
+        if obj.category == 'resource_log_retention_hours':
+            try:
+                value = str(max(1.0, float(value or '168')))
+            except (ValueError, TypeError):
+                value = '168'
         if obj.category == 'footer_items':
             value = _validate_footer_items_json(value)
         if obj.category == 'sync_interval' and not value:
@@ -1356,6 +1760,8 @@ class SystemConfigAdmin(admin.ModelAdmin):
             obj.value = '1'
         elif obj.category == 'cards_per_page' and not value:
             obj.value = '6'
+        elif obj.category == 'resource_log_retention_hours' and not value:
+            obj.value = '168'
         else:
             obj.value = value
         super().save_model(request, obj, form, change)

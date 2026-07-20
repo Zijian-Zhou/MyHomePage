@@ -8,3 +8,5 @@ class MyhomepageConfig(AppConfig):
     def ready(self):
         # Register auth signal handlers
         from . import signals  # noqa: F401
+        from .resource_monitor import start_monitor_thread
+        start_monitor_thread()
