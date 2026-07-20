@@ -18,10 +18,13 @@
 {% if user.is_authenticated %}
 <script>
   window.HOMEPAGE_ADMIN_TRANSLATE_URL = "{% url 'admin:auto-translate-field' %}";
+  window.HOMEPAGE_ADMIN_CHINESE_ENABLED = {% if show_language_switcher %}true{% else %}false{% endif %};
 </script>
+{% if show_language_switcher %}
 <script src="{% static 'js/admin/auto_translate.js' %}"></script>
+{% endif %}
 <script src="{% static 'js/admin/change_form_outline.js' %}?v=20260720-2"></script>
-<script src="{% static 'js/admin/publication_detail_preview.js' %}?v=20260720-5"></script>
+<script src="{% static 'js/admin/publication_detail_preview.js' %}?v=20260720-6"></script>
 {% endif %}
 {% endblock %}
 

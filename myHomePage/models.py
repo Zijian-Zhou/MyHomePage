@@ -624,7 +624,6 @@ class AIConfig(models.Model):
     DEEPSEEK = 'deepseek'
     SCNET_QWEN = 'scnet_qwen'
     SCNET_MINIMAX = 'scnet_minimax'
-    FELO_PPT = 'felo_ppt'
     PROVIDER_CHOICES = (
         (OPENAI, 'OpenAI Official'),
         (OPENAI_COMPATIBLE, 'OpenAI Compatible'),
@@ -632,7 +631,6 @@ class AIConfig(models.Model):
         (DEEPSEEK, 'DeepSeek'),
         (SCNET_QWEN, 'SCNet Qwen'),
         (SCNET_MINIMAX, 'SCNet MiniMax'),
-        (FELO_PPT, 'Felo PPT API'),
     )
 
     name = models.CharField(_('Name'), max_length=100, unique=True)
@@ -690,7 +688,6 @@ class AIConfig(models.Model):
             self.DEEPSEEK: 'https://api.deepseek.com',
             self.SCNET_QWEN: 'https://api.scnet.cn/api/llm/v1',
             self.SCNET_MINIMAX: 'https://api.scnet.cn/api/llm/v1',
-            self.FELO_PPT: 'https://openapi.felo.ai',
         }
         return defaults.get(self.provider, '').rstrip('/')
 
@@ -699,8 +696,6 @@ class AIConfig(models.Model):
         return params if params else {'temperature': 0.2}
 
     def is_complete_for_text(self):
-        if self.provider == self.FELO_PPT:
-            return False
         return bool(self.get_api_base() and self.api_key and self.model_name)
 
     def to_provider_config(self):

@@ -1182,6 +1182,8 @@ class PublicationAdmin(DraftSaveMixin, BaseAdmin):
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super().get_fieldsets(request, obj)
+        if not SystemConfig.is_chinese_enabled():
+            return _strip_zh_fields(fieldsets)
         if not _is_zh_mode():
             return fieldsets
         title_map = {

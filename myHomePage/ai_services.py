@@ -114,9 +114,6 @@ def probe_provider_config(config):
         return False, 'API base is empty'
     if not config.get('model_name'):
         return False, 'Model name is empty'
-    if config.get('provider_type') == AIConfig.FELO_PPT:
-        return None, 'Felo PPT is skipped for text LLM keep-alive checks'
-
     try:
         provider = build_provider(config)
         response = provider.chat(

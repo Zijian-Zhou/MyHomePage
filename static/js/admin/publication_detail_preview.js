@@ -3,6 +3,10 @@
     return /^\/zh/i.test(window.location.pathname || '');
   }
 
+  function chineseEnabled() {
+    return window.HOMEPAGE_ADMIN_CHINESE_ENABLED !== false;
+  }
+
   const msg = {
     preview: isZh() ? '\u9884\u89c8' : 'Preview',
     aiGenerate: isZh() ? 'AI \u751f\u6210' : 'AI Generate',
@@ -122,7 +126,7 @@
       '<div class="publication-ai-preview" style="display:none;">',
       '<div class="publication-ai-preview-grid">',
       '<div><h4>' + msg.en + '</h4><div class="publication-ai-preview-en publication-detail-preview-body"></div></div>',
-      '<div><h4>' + msg.zh + '</h4><div class="publication-ai-preview-zh publication-detail-preview-body"></div></div>',
+      chineseEnabled() ? '<div><h4>' + msg.zh + '</h4><div class="publication-ai-preview-zh publication-detail-preview-body"></div></div>' : '',
       '</div>',
       '<textarea class="publication-ai-feedback" placeholder="' + msg.feedbackPlaceholder + '"></textarea>',
       '<div class="publication-ai-actions">',
@@ -180,7 +184,7 @@
       '</div>',
       '<div class="publication-ai-edit-grid">',
       '<label>' + msg.en + '<textarea class="publication-ai-edit-en"></textarea></label>',
-      '<label>' + msg.zh + '<textarea class="publication-ai-edit-zh"></textarea></label>',
+      chineseEnabled() ? '<label>' + msg.zh + '<textarea class="publication-ai-edit-zh"></textarea></label>' : '',
       '</div>',
       '<div class="publication-ai-actions publication-ai-edit-actions">',
       '<button type="button" class="button publication-ai-edit-confirm-btn">' + msg.saveEdited + '</button>',
@@ -215,7 +219,8 @@
       detail_content_zh: data.detail_content_zh || ''
     };
     mask.querySelector('.publication-ai-preview-en').innerHTML = data.html || '<p class="empty">No content</p>';
-    mask.querySelector('.publication-ai-preview-zh').innerHTML = data.html_zh || '<p class="empty">\u6682\u65e0\u5185\u5bb9</p>';
+    const zhPreview = mask.querySelector('.publication-ai-preview-zh');
+    if (zhPreview) zhPreview.innerHTML = data.html_zh || '<p class="empty">\u6682\u65e0\u5185\u5bb9</p>';
     mask.querySelector('.publication-ai-preview').style.display = 'block';
   }
 
@@ -305,7 +310,13 @@
 
   function saveGenerated(mask, data) {
     setStatus(mask, isZh() ? '\u6b63\u5728\u4fdd\u5b58...' : 'Saving...', false);
-    return postJson(adminPublicationUrl('save-detail'), data)
+    const payload = {
+      detail_content: data.detail_content || ''
+    };
+    if (chineseEnabled()) {
+      payload.detail_content_zh = data.detail_content_zh || '';
+    }
+    return postJson(adminPublicationUrl('save-detail'), payload)
       .then(function () {
         const enField = document.getElementById('id_detail_content');
         const zhField = document.getElementById('id_detail_content_zh');
@@ -328,12 +339,13 @@
   function openEditModal(aiMask, generated) {
     const editMask = ensureEditModal();
     editMask.querySelector('.publication-ai-edit-en').value = generated.detail_content || '';
-    editMask.querySelector('.publication-ai-edit-zh').value = generated.detail_content_zh || '';
+    const zhEdit = editMask.querySelector('.publication-ai-edit-zh');
+    if (zhEdit) zhEdit.value = generated.detail_content_zh || '';
     editMask.style.display = 'flex';
     editMask.querySelector('.publication-ai-edit-confirm-btn').onclick = function () {
       const edited = {
         detail_content: editMask.querySelector('.publication-ai-edit-en').value || '',
-        detail_content_zh: editMask.querySelector('.publication-ai-edit-zh').value || ''
+        detail_content_zh: zhEdit ? zhEdit.value || '' : generated.detail_content_zh || ''
       };
       saveGenerated(aiMask, edited);
     };
@@ -392,7 +404,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     window.setTimeout(function () {
       ensureActionRow(document.getElementById('id_detail_content'));
-      ensureActionRow(document.getElementById('id_detail_content_zh'));
+      if (chineseEnabled()) ensureActionRow(document.getElementById('id_detail_content_zh'));
     }, 0);
   });
 })();
