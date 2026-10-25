@@ -1,0 +1,24 @@
+#!/bin/sh
+
+set -eu
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+CREDENTIAL_FILE="$SCRIPT_DIR/docker-data/superadmin-credentials.txt"
+
+cd "$SCRIPT_DIR"
+docker compose up -d --build
+
+printf '\n'
+if [ -f "$CREDENTIAL_FILE" ]; then
+    printf '%s\n' 'Default administrator credentials:'
+    cat "$CREDENTIAL_FILE"
+    rm -f "$CREDENTIAL_FILE"
+    printf '%s\n' 'The one-time credential file has been removed.'
+else
+    printf '%s\n' 'Default superadmin already exists; its password was not changed.'
+fi
+
+PORT=$(docker compose port web 8000 2>/dev/null | head -n 1 | awk -F: '{print $NF}')
+PORT=${PORT:-8000}
+printf '\nHomepage: http://127.0.0.1:%s/en/\n' "$PORT"
+printf 'Administration: http://127.0.0.1:%s/en/admin/\n' "$PORT"

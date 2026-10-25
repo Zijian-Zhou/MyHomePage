@@ -11,6 +11,8 @@
     --shadow-color: rgba(0, 0, 0, 0.1);
     --header-bg: #ffffff;
     --nav-hover: #f0f0f0;
+    --markdown-link-color: #356f9f;
+    --markdown-link-hover-color: #244f73;
 }
 
 [data-theme="dark"] {
@@ -26,6 +28,8 @@
     --shadow-color: rgba(0, 0, 0, 0.3);
     --header-bg: #2d2d2d;
     --nav-hover: #404040;
+    --markdown-link-color: #9fb7ca;
+    --markdown-link-hover-color: #c3d2de;
 }
 
 * {
@@ -290,6 +294,27 @@ body {
 
 .bio p:last-child {
     margin-bottom: 0;
+}
+
+/* Keep links generated from Markdown readable without becoming overly bright. */
+.bio a,
+.news-item .content a,
+.research-item .description a,
+.news-detail-content a,
+.custom-section .section-content a {
+    color: var(--markdown-link-color);
+    text-decoration-color: currentColor;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+    transition: color 0.2s ease;
+}
+
+.bio a:hover,
+.news-item .content a:hover,
+.research-item .description a:hover,
+.news-detail-content a:hover,
+.custom-section .section-content a:hover {
+    color: var(--markdown-link-hover-color);
 }
 
 .academic-profiles {
@@ -754,6 +779,21 @@ button.publication-action {
     margin-bottom: 1.35rem;
 }
 
+.publication-detail-meta {
+    max-width: 760px;
+    margin: 0 auto 1.35rem;
+    text-align: center;
+}
+
+.publication-detail-meta p {
+    margin: 0;
+}
+
+.publication-detail-meta .publication-detail-date {
+    margin-top: 0.3rem;
+    opacity: 0.78;
+}
+
 .news-detail-image {
     margin: 1.25rem 0;
 }
@@ -806,6 +846,15 @@ button.publication-action {
     max-width: 100%;
     display: block;
     overflow-x: auto;
+}
+
+.detail-content-end {
+    width: 100%;
+    max-width: 760px;
+    margin: 1.75rem auto 0;
+    border: 0;
+    border-top: 1px solid var(--border-color);
+    opacity: 0.85;
 }
 
 .news-detail-nav {

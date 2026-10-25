@@ -1,0 +1,5 @@
+-r requirements.txt
+
+# Docker uses Python 3.11 and a maintained Celery release.
+Django<5.0
+celery>=5.3,<6.0

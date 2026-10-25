@@ -45,7 +45,7 @@
         title = textOf(node.querySelector('.inline-related > fieldset.module > h2'));
       }
       if (!title) title = directHeadingText(node);
-      if (!title) title = isZh ? '\u5355\u5143 ' + (index + 1) : 'Section ' + (index + 1);
+      if (!title) title = isZh ? '\u57fa\u672c\u4fe1\u606f' : 'Basic Information';
       if (isZh) title = zhTitle(title);
       if (!node.id) node.id = 'admin-outline-section-' + index;
       const key = node.id + '|' + title;

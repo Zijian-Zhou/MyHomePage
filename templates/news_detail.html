@@ -25,6 +25,7 @@
                             {{ news.get_formatted_summary|safe }}
                         {% endif %}
                     </div>
+                    <hr class="detail-content-end">
                     <div class="publication-actions news-actions">
                         <a href="{% url 'index' %}#news" class="paper-link publication-action">
                             {% if is_chinese_page %}&#36820;&#22238;&#26032;&#38395;{% else %}{% trans "Back to News" %}{% endif %}

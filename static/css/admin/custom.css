@@ -1148,3 +1148,13 @@ body.has-admin-detail-outline #content {
         grid-template-columns: 1fr;
     }
 }
+[data-theme="dark"] .publication-detail-preview-body a,
+[data-theme="dark"] .profile-bio-preview-body a {
+    color: #9fb7ca;
+    text-decoration-color: currentColor;
+}
+
+[data-theme="dark"] .publication-detail-preview-body a:hover,
+[data-theme="dark"] .profile-bio-preview-body a:hover {
+    color: #c3d2de;
+}

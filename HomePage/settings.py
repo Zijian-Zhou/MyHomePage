@@ -99,9 +99,12 @@ WSGI_APPLICATION = 'HomePage.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': os.getenv('DATABASE_PATH', str(BASE_DIR / 'db.sqlite3')),
     }
 }
+
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'amqp://guest:guest@localhost:5672//')
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 
 # Password validation
@@ -166,7 +169,7 @@ ADMIN_SITE_TITLE = "MyHomePage Admin Portal"
 ADMIN_INDEX_TITLE = "Welcome to MyHomePage Admin Portal"
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.getenv('MEDIA_ROOT', os.path.join(BASE_DIR, 'media'))
 
 # Session security
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'

@@ -31,6 +31,7 @@
                             {{ research.get_formatted_summary|safe }}
                         {% endif %}
                     </div>
+                    <hr class="detail-content-end">
                     <div class="publication-actions news-actions">
                         <a href="{% url 'index' %}#research" class="paper-link publication-action">
                             {% if is_chinese_page %}&#36820;&#22238;&#30740;&#31350;{% else %}{% trans "Back to Research" %}{% endif %}

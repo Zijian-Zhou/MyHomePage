@@ -1,0 +1,92 @@
+x-app: &app
+  build:
+    context: .
+  restart: unless-stopped
+  environment: &app-environment
+    DEBUG: "True"
+    ALLOWED_HOSTS: "localhost,127.0.0.1,0.0.0.0"
+    DATABASE_PATH: /data/db.sqlite3
+    MEDIA_ROOT: /app/media
+    CELERY_BROKER_URL: "amqp://${RABBITMQ_USER:-homepage}:${RABBITMQ_PASSWORD:-change-me}@broker:5672//"
+    ENABLE_IP_GEO_LANGUAGE: "False"
+    ENABLE_RESOURCE_MONITOR: "False"
+    DEFAULT_SUPERADMIN_USERNAME: "${DEFAULT_SUPERADMIN_USERNAME:-superadmin}"
+    DEFAULT_SUPERADMIN_EMAIL: "${DEFAULT_SUPERADMIN_EMAIL:-admin@example.com}"
+    SUPERADMIN_CREDENTIAL_FILE: /data/superadmin-credentials.txt
+  volumes:
+    - ./docker-data:/data
+    - ./media:/app/media
+
+services:
+  broker:
+    image: rabbitmq:3.13-alpine
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: "${RABBITMQ_USER:-homepage}"
+      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_PASSWORD:-change-me}"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+  init:
+    <<: *app
+    restart: "no"
+    depends_on:
+      broker:
+        condition: service_healthy
+    command:
+      - sh
+      - -c
+      - python manage.py migrate --noinput && python manage.py ensure_default_superadmin
+
+  web:
+    <<: *app
+    environment:
+      <<: *app-environment
+      ENABLE_RESOURCE_MONITOR: "True"
+    depends_on:
+      init:
+        condition: service_completed_successfully
+      broker:
+        condition: service_healthy
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000", "--noreload"]
+    ports:
+      - "${WEB_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/en/', timeout=5)"]
+      interval: 15s
+      timeout: 6s
+      retries: 10
+      start_period: 20s
+
+  worker:
+    <<: *app
+    depends_on:
+      init:
+        condition: service_completed_successfully
+      broker:
+        condition: service_healthy
+    command: ["celery", "-A", "myHomePage", "worker", "--loglevel=info"]
+
+  beat:
+    <<: *app
+    depends_on:
+      init:
+        condition: service_completed_successfully
+      broker:
+        condition: service_healthy
+    command:
+      - celery
+      - -A
+      - myHomePage
+      - beat
+      - --loglevel=info
+      - --pidfile=/tmp/celerybeat.pid
+      - --schedule=/tmp/celerybeat-schedule
+
+volumes:
+  rabbitmq-data:

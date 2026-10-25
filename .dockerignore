@@ -1,0 +1,12 @@
+.git
+.idea
+.env
+.pip-test
+__pycache__
+*.py[cod]
+*.sqlite3
+docker-data
+media
+celerybeat-schedule*
+celerybeat.pid
+*.log

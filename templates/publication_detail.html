@@ -11,15 +11,21 @@
                 <div class="news-content">
                     <h2 class="section-title news-detail-title">{{ publication.title }}</h2>
                     <div class="news-detail-divider"></div>
-                    <p class="date news-detail-date">
-                        {{ publication.authors }}{% if publication.year %} &middot; {{ publication.year }}{% endif %}
-                    </p>
+                    <div class="publication-detail-meta">
+                        <p class="date publication-detail-authors">{{ publication.get_formatted_authors|safe }}</p>
+                        {% if publication.date or publication.year %}
+                        <p class="date publication-detail-date">
+                            {% if publication.date %}{{ publication.date|date:"Y-m-d" }}{% else %}{{ publication.year }}{% endif %}
+                        </p>
+                        {% endif %}
+                    </div>
                     {% if publication.image %}
                     <div class="news-detail-image">
                         <img src="{{ publication.image.url }}" alt="{{ publication.title }}">
                     </div>
                     {% endif %}
                     <div class="content news-detail-content">{{ publication.get_formatted_detail_or_summary|safe }}</div>
+                    <hr class="detail-content-end">
                     <div class="publication-actions news-actions">
                         <a href="{% url 'index' %}#publications" class="paper-link publication-action">
                             {% if is_chinese_page %}&#36820;&#22238;&#20986;&#29256;&#29289;{% else %}{% trans "Back to Publications" %}{% endif %}
