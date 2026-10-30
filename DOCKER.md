@@ -32,6 +32,15 @@ Windows 使用 `Get-Content docker-data\superadmin-credentials.txt`，Linux/macO
 使用 `cat docker-data/superadmin-credentials.txt`，也可以在任意平台使用
 `docker compose logs init`。读取后请删除明文凭据文件。
 
+On Linux/macOS, the initialization container temporarily starts as root to fix
+ownership of the bind-mounted `/data` and `/app/media` directories, then drops
+to the non-root `django` user before migrations run. If startup fails, the helper
+scripts print initialization logs automatically. For direct Compose startup, run:
+
+```bash
+docker compose logs init
+```
+
 ## Status and logs
 
 ```powershell

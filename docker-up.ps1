@@ -7,6 +7,9 @@ Push-Location $projectRoot
 try {
     docker compose up -d --build
     if ($LASTEXITCODE -ne 0) {
+        Write-Host ''
+        Write-Host 'Docker Compose failed. Initialization logs:' -ForegroundColor Red
+        docker compose logs --no-color init
         throw 'Docker Compose failed to start.'
     }
 

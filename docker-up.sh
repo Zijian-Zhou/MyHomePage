@@ -6,7 +6,11 @@ SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 CREDENTIAL_FILE="$SCRIPT_DIR/docker-data/superadmin-credentials.txt"
 
 cd "$SCRIPT_DIR"
-docker compose up -d --build
+if ! docker compose up -d --build; then
+    printf '\n%s\n' 'Docker Compose failed. Initialization logs:' >&2
+    docker compose logs --no-color init >&2 || true
+    exit 1
+fi
 
 printf '\n'
 if [ -f "$CREDENTIAL_FILE" ]; then

@@ -35,6 +35,10 @@ services:
   init:
     <<: *app
     restart: "no"
+    user: "0:0"
+    environment:
+      <<: *app-environment
+      FIX_VOLUME_PERMISSIONS: "True"
     depends_on:
       broker:
         condition: service_healthy
