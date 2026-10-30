@@ -239,19 +239,14 @@ cp ./db.sqlite3 ./docker-data/db.sqlite3
 
 On Linux/macOS, a newly created bind-mounted directory may initially be owned by `root`. The `init` service starts with temporary root privileges only to assign `/data` and `/app/media` to the container's `django` user, then drops privileges before running migrations. Web, Worker, and Beat always run as the non-root `django` user. If initialization fails, both startup scripts automatically print the `init` service logs; when starting Compose directly, inspect them with `docker compose logs init`.
 
-You may also run `docker compose up -d --build` directly on every platform. Detached mode cannot print container logs automatically, so read the first-start credentials afterward:
-
-```powershell
-# Windows PowerShell
-Get-Content docker-data/superadmin-credentials.txt
-```
+You may also run `docker compose up -d --build` directly on every platform. Detached mode cannot print container logs automatically. The credential file is intentionally readable only by the container's `django` user, so read and remove it through the Web container rather than accessing the bind-mounted host file directly:
 
 ```bash
-# Linux/macOS
-cat docker-data/superadmin-credentials.txt
+docker compose exec -T web cat /data/superadmin-credentials.txt
+docker compose exec -T web rm -f /data/superadmin-credentials.txt
 ```
 
-Or use the platform-independent Compose log command:
+Alternatively, use the platform-independent initialization log command:
 
 ```bash
 docker compose logs init
@@ -623,7 +618,7 @@ cp ./db.sqlite3 ./docker-data/db.sqlite3
 
 在 Linux/macOS 上，新建的绑定挂载目录最初可能归 `root` 所有。`init` 服务仅在启动阶段临时以 root 身份修正 `/data` 和 `/app/media` 的所有权，随后在执行迁移前立即降权为容器内的 `django` 用户；Web、Worker 和 Beat 始终使用非 root 用户运行。如果初始化失败，Windows 和 Linux/macOS 启动脚本都会自动打印 `init` 日志；直接执行 Compose 时可使用 `docker compose logs init` 查看原因。
 
-所有平台都可以直接执行 `docker compose up -d --build`。由于 `-d` 后台模式不会自动输出容器日志，首次启动后请在 Windows 使用 `Get-Content docker-data\superadmin-credentials.txt`，在 Linux/macOS 使用 `cat docker-data/superadmin-credentials.txt`，或者在任意平台执行 `docker compose logs init`。读取后请删除明文凭据文件。后续启动不会重置已经存在的 `superadmin` 密码。
+所有平台都可以直接执行 `docker compose up -d --build`。由于 `-d` 后台模式不会自动输出容器日志，而且凭据文件按安全要求仅允许容器内的 `django` 用户读取，因此不要在宿主机直接执行 `cat` 或 `Get-Content`。首次启动后使用 `docker compose exec -T web cat /data/superadmin-credentials.txt` 读取，再执行 `docker compose exec -T web rm -f /data/superadmin-credentials.txt` 删除；也可以在任意平台执行 `docker compose logs init` 查看初始化输出。后续启动不会重置已经存在的 `superadmin` 密码。
 
 > 当前 Compose 默认使用 Django 开发服务器并设置 `DEBUG=True`，适合本地运行，不应直接暴露到公网生产环境。
 

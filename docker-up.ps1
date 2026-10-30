@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 
 $projectRoot = $PSScriptRoot
-$credentialFile = Join-Path $projectRoot 'docker-data\superadmin-credentials.txt'
+$credentialFile = '/data/superadmin-credentials.txt'
 
 Push-Location $projectRoot
 try {
@@ -14,10 +14,11 @@ try {
     }
 
     Write-Host ''
-    if (Test-Path -LiteralPath $credentialFile) {
+    docker compose exec -T web test -f $credentialFile
+    if ($LASTEXITCODE -eq 0) {
         Write-Host 'Default administrator credentials:' -ForegroundColor Cyan
-        Get-Content -LiteralPath $credentialFile
-        Remove-Item -LiteralPath $credentialFile -Force
+        docker compose exec -T web cat $credentialFile
+        docker compose exec -T web rm -f $credentialFile
         Write-Host 'The one-time credential file has been removed.' -ForegroundColor DarkGray
     }
     else {

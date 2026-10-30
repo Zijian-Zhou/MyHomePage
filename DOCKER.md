@@ -22,15 +22,19 @@ the web and Celery services start. On the first start, the script creates the
 `MyPageAdmin@YYYYMMDDHHMM`. Existing accounts are never reset on later starts.
 
 If Compose is started directly with `docker compose up -d --build`, detached
-mode cannot print container logs automatically. Retrieve first-start credentials
-with `Get-Content docker-data\superadmin-credentials.txt` on Windows,
-`cat docker-data/superadmin-credentials.txt` on Linux/macOS, or
-`docker compose logs init` on any platform. Delete the file after reading it.
+mode cannot print container logs automatically. The credential file has mode
+`0600` and belongs to the container's `django` user. Read and remove it through
+the Web container, or inspect the initialization logs:
+
+```bash
+docker compose exec -T web cat /data/superadmin-credentials.txt
+docker compose exec -T web rm -f /data/superadmin-credentials.txt
+docker compose logs init
+```
 
 如果直接使用 `docker compose up -d --build`，后台模式不会自动显示容器日志。
-Windows 使用 `Get-Content docker-data\superadmin-credentials.txt`，Linux/macOS
-使用 `cat docker-data/superadmin-credentials.txt`，也可以在任意平台使用
-`docker compose logs init`。读取后请删除明文凭据文件。
+凭据文件权限为 `0600` 且属于容器内的 `django` 用户，因此需要通过上面的
+`docker compose exec` 命令读取和删除，或者使用 `docker compose logs init`。
 
 On Linux/macOS, the initialization container temporarily starts as root to fix
 ownership of the bind-mounted `/data` and `/app/media` directories, then drops

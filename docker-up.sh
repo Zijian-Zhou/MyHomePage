@@ -3,7 +3,7 @@
 set -eu
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-CREDENTIAL_FILE="$SCRIPT_DIR/docker-data/superadmin-credentials.txt"
+CONTAINER_CREDENTIAL_FILE="/data/superadmin-credentials.txt"
 
 cd "$SCRIPT_DIR"
 if ! docker compose up -d --build; then
@@ -13,10 +13,10 @@ if ! docker compose up -d --build; then
 fi
 
 printf '\n'
-if [ -f "$CREDENTIAL_FILE" ]; then
+if docker compose exec -T web test -f "$CONTAINER_CREDENTIAL_FILE"; then
     printf '%s\n' 'Default administrator credentials:'
-    cat "$CREDENTIAL_FILE"
-    rm -f "$CREDENTIAL_FILE"
+    docker compose exec -T web cat "$CONTAINER_CREDENTIAL_FILE"
+    docker compose exec -T web rm -f "$CONTAINER_CREDENTIAL_FILE"
     printf '%s\n' 'The one-time credential file has been removed.'
 else
     printf '%s\n' 'Default superadmin already exists; its password was not changed.'
