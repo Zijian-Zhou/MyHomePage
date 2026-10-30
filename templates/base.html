@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% if profile %}{{ profile.get_formatted_display_name }}{% else %}{% trans "MyHomePage" %}{% endif %}</title>
     {% if profile and profile.profile_image %}
-    <link rel="icon" href="{{ profile.profile_image.url }}">
-    <link rel="apple-touch-icon" href="{{ profile.profile_image.url }}">
+    <link rel="icon" type="image/png" href="{% url 'site_icon' %}?v={{ profile.updated_at|date:'U' }}">
+    <link rel="apple-touch-icon" href="{% url 'site_icon' %}?v={{ profile.updated_at|date:'U' }}">
     {% endif %}
     <link href="{% static 'css/all.min.css' %}" rel="stylesheet" type="text/css">
     <link rel="stylesheet" type="text/css" href="{% static 'css/index.css' %}">

@@ -165,6 +165,7 @@ class Publication(models.Model):
     is_draft = models.BooleanField(_('Draft'), default=False)
     order = models.IntegerField(_('Order'), default=0)
     image = models.ImageField(_('Image'), upload_to='publication_images/', blank=True, null=True)
+    display_time = models.DateTimeField(_('Display Time'), default=timezone.now)
     created_at = models.DateTimeField(_('Created at'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated at'), auto_now=True)
     
@@ -338,6 +339,7 @@ class Research(models.Model):
     is_draft = models.BooleanField(_('Draft'), default=False)
     order = models.IntegerField(_('Order'), default=0)
     image = models.ImageField(upload_to='research_images/', blank=True, null=True)
+    display_time = models.DateTimeField(_('Display Time'), default=timezone.now)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -736,6 +738,7 @@ class News(models.Model):
     content_zh = models.TextField(_('Content (Chinese)'), blank=True, default='')
     enable_detail = models.BooleanField(_('Enable Detail Page'), default=False)
     image = models.ImageField(_('Image'), upload_to='news_images/', blank=True, null=True)
+    display_time = models.DateTimeField(_('Display Time'), default=timezone.now)
     created_at = models.DateTimeField(_('Created at'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated at'), auto_now=True)
     is_active = models.BooleanField(_('Active'), default=True)
@@ -745,7 +748,7 @@ class News(models.Model):
     class Meta:
         verbose_name = _('News')
         verbose_name_plural = _('News')
-        ordering = ['-order', '-created_at']
+        ordering = ['-order', '-display_time']
 
     def __str__(self):
         return self.title
@@ -816,6 +819,7 @@ class Section(models.Model):
     order = models.IntegerField(_('Order'), default=0)
     is_active = models.BooleanField(_('Active'), default=True)
     is_draft = models.BooleanField(_('Draft'), default=False)
+    display_time = models.DateTimeField(_('Display Time'), default=timezone.now)
     created_at = models.DateTimeField(_('Created at'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated at'), auto_now=True)
 
@@ -854,6 +858,7 @@ class SectionItem(models.Model):
     is_active = models.BooleanField(_('Active'), default=True)
     is_draft = models.BooleanField(_('Draft'), default=False)
     order = models.IntegerField(_('Order'), default=0)
+    display_time = models.DateTimeField(_('Display Time'), default=timezone.now)
     created_at = models.DateTimeField(_('Created at'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated at'), auto_now=True)
 

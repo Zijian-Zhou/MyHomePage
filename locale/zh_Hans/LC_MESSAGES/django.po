@@ -554,3 +554,9 @@ msgstr "AI 配置中的 providers 必须是数组。"
 
 msgid "Each AI provider must include a non-empty name."
 msgstr "每个 AI provider 必须包含非空 name。"
+
+msgid "Display Time"
+msgstr "显示时间"
+
+msgid "Timestamps"
+msgstr "时间信息"

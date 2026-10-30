@@ -28,6 +28,7 @@ def is_staff_user(user):
     return user.is_authenticated and user.is_staff
 
 urlpatterns = [
+    path('site-icon.png', home_views.site_icon, name='site_icon'),
     re_path(r'^media/markdown_assets/(?P<path>.*)$', home_views.media_asset_access, name='media_asset_access'),
     path('media-file/<slug:access_key>/', home_views.media_file_access, name='media_file_access'),
     path('publication-file/<slug:access_key>/', home_views.publication_file_download, name='publication_file_download'),

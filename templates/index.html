@@ -91,7 +91,7 @@
                 <div class="news-item">
                     <div class="news-content">
                         <h4>{{ news.get_display_title }}</h4>
-                        <p class="date">{{ news.created_at|date:"Y-m-d" }}</p>
+                        <p class="date">{{ news.display_time|date:"Y-m-d H:i" }}</p>
                         <div class="content">{{ news.get_formatted_summary|safe }}</div>
                         {% if news.enable_detail %}
                         <div class="publication-actions news-actions">

@@ -7,15 +7,52 @@ from django.utils.translation import gettext_lazy as _
 from .services import ORCIDOAuth
 from django.conf import settings
 from django.contrib.auth.models import User, Group
-from django.http import FileResponse, JsonResponse, Http404
+from django.http import FileResponse, HttpResponse, JsonResponse, Http404
 from django.core.paginator import Paginator
 from django.db.models import Prefetch
+from PIL import Image, ImageDraw, ImageOps
+from io import BytesIO
 import logging
 import os
 
 from django.views.static import serve as static_serve
 
 logger = logging.getLogger(__name__)
+
+
+def site_icon(request):
+    """Return the active profile image as a circular PNG favicon."""
+    profile = Profile.objects.filter(
+        is_active=True,
+        is_draft=False,
+    ).exclude(profile_image='').first()
+    if not profile or not profile.profile_image:
+        raise Http404
+
+    try:
+        with profile.profile_image.open('rb') as source:
+            image = ImageOps.exif_transpose(Image.open(source)).convert('RGBA')
+
+        size = 192
+        resampling = getattr(Image, 'Resampling', Image).LANCZOS
+        image = ImageOps.fit(image, (size, size), method=resampling, centering=(0.5, 0.5))
+
+        # Draw the mask at a higher resolution to keep the circular edge smooth.
+        mask_size = size * 4
+        mask = Image.new('L', (mask_size, mask_size), 0)
+        ImageDraw.Draw(mask).ellipse((0, 0, mask_size - 1, mask_size - 1), fill=255)
+        mask = mask.resize((size, size), resampling)
+        image.putalpha(mask)
+
+        output = BytesIO()
+        image.save(output, format='PNG', optimize=True)
+    except (OSError, ValueError):
+        logger.exception('Failed to generate the profile-based site icon.')
+        raise Http404
+
+    response = HttpResponse(output.getvalue(), content_type='image/png')
+    response['Cache-Control'] = 'public, max-age=86400'
+    return response
 
 def _safe_page(paginator, page_number):
     try:
@@ -37,7 +74,7 @@ def _build_home_context(request=None):
         .order_by('-order', '-year')
     )
     research_qs = Research.objects.filter(is_active=True, is_draft=False).order_by('-order')
-    news_qs = News.objects.filter(is_active=True, is_draft=False).order_by('-order', '-created_at')
+    news_qs = News.objects.filter(is_active=True, is_draft=False).order_by('-order', '-display_time')
     sections = Section.objects.filter(is_active=True, is_draft=False).prefetch_related('items').order_by('-order')
     footer_items = SystemConfig.get_footer_items()
 
@@ -158,7 +195,7 @@ def news_detail(request, pk):
     context = _build_home_context(request)
     detail_news = list(
         News.objects.filter(is_active=True, is_draft=False)
-        .order_by('-order', '-created_at', '-id')
+        .order_by('-order', '-display_time', '-id')
     )
     current_index = next((idx for idx, item in enumerate(detail_news) if item.pk == news.pk), None)
     context['news'] = news

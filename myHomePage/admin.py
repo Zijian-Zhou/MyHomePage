@@ -1137,7 +1137,7 @@ class PublicationFileInline(admin.TabularInline):
 class PublicationAdmin(DraftSaveMixin, BaseAdmin):
     form = PublicationAdminForm
     inlines = (PublicationFileInline,)
-    list_display = ('title', 'get_formatted_authors', 'journal', 'year', 'is_active', 'is_draft', 'order')
+    list_display = ('title', 'get_formatted_authors', 'journal', 'year', 'display_time', 'is_active', 'is_draft', 'order')
     search_fields = ('title', 'authors', 'journal')
     list_filter = ('is_active', 'is_draft', 'year')
     
@@ -1164,7 +1164,12 @@ class PublicationAdmin(DraftSaveMixin, BaseAdmin):
             'fields': ('bibtex_input', 'bibtex_file'),
             'description': _('Paste BibTeX data or upload a BibTeX file to automatically fill the fields')
         }),
+        (_('Timestamps'), {
+            'fields': ('display_time', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
     )
+    readonly_fields = ('created_at', 'updated_at')
 
     class Media:
         js = ('js/admin/publication_admin.js',)
@@ -1213,6 +1218,7 @@ class PublicationAdmin(DraftSaveMixin, BaseAdmin):
             'Links': '\u94fe\u63a5',
             'BibTeX Information': 'BibTeX \u4fe1\u606f',
             'BibTeX Import': 'BibTeX \u5bfc\u5165',
+            'Timestamps': '\u65f6\u95f4\u4fe1\u606f',
         }
         return tuple((title_map.get(str(title), title), opts) for title, opts in fieldsets)
 
@@ -1618,7 +1624,7 @@ class PublicationAdmin(DraftSaveMixin, BaseAdmin):
             return JsonResponse({'error': _('Failed to import BibTeX data: %(error)s') % {'error': str(e)}}, status=400)
 
 class ResearchAdmin(DraftSaveMixin, BaseAdmin):
-    list_display = ('title', 'enable_detail', 'is_active', 'is_draft', 'order', 'start_date', 'end_date', 'is_current')
+    list_display = ('title', 'enable_detail', 'is_active', 'is_draft', 'order', 'display_time', 'start_date', 'end_date', 'is_current')
     search_fields = ('title', 'title_zh', 'summary', 'summary_zh', 'description', 'description_zh')
     list_filter = ('enable_detail', 'is_current', 'is_active', 'is_draft', 'start_date')
     date_hierarchy = 'start_date'
@@ -1638,7 +1644,7 @@ class ResearchAdmin(DraftSaveMixin, BaseAdmin):
             'fields': ('image',)
         }),
         (_('Timestamps'), {
-            'fields': ('created_at', 'updated_at'),
+            'fields': ('display_time', 'created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
     )
@@ -1978,10 +1984,10 @@ class AIConfigAdmin(admin.ModelAdmin):
         js = ('js/admin/ai_config_json_validate.js',)
 
 class NewsAdmin(DraftSaveMixin, BaseAdmin):
-    list_display = ('title', 'enable_detail', 'is_active', 'is_draft', 'order', 'created_at', 'updated_at')
+    list_display = ('title', 'enable_detail', 'is_active', 'is_draft', 'order', 'display_time', 'created_at', 'updated_at')
     list_filter = ('enable_detail', 'is_active', 'is_draft')
     search_fields = ('title', 'title_zh', 'summary', 'summary_zh', 'content', 'content_zh')
-    ordering = ('-order', '-created_at')
+    ordering = ('-order', '-display_time')
     fieldsets = (
         (_('Basic Information'), {
             'fields': (
@@ -1995,7 +2001,7 @@ class NewsAdmin(DraftSaveMixin, BaseAdmin):
             'fields': ('image',)
         }),
         (_('Timestamps'), {
-            'fields': ('created_at', 'updated_at'),
+            'fields': ('display_time', 'created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
     )
@@ -2028,7 +2034,7 @@ class NewsAdmin(DraftSaveMixin, BaseAdmin):
 class SectionItemInline(admin.TabularInline):
     model = SectionItem
     extra = 1
-    fields = ('title', 'title_zh', 'content', 'content_zh', 'is_active', 'is_draft', 'order')
+    fields = ('title', 'title_zh', 'content', 'content_zh', 'is_active', 'is_draft', 'order', 'display_time')
     ordering = ('order', 'id')
 
     def get_fields(self, request, obj=None):
@@ -2056,7 +2062,7 @@ class SectionItemInline(admin.TabularInline):
 
 @admin.register(Section)
 class SectionAdmin(DraftSaveMixin, BaseAdmin):
-    list_display = ('title', 'order', 'is_active', 'is_draft', 'created_at', 'updated_at')
+    list_display = ('title', 'order', 'display_time', 'is_active', 'is_draft', 'created_at', 'updated_at')
     inlines = (SectionItemInline,)
     list_filter = ('is_active', 'is_draft')
     search_fields = ('title', 'title_zh', 'content', 'content_zh')
@@ -2066,7 +2072,7 @@ class SectionAdmin(DraftSaveMixin, BaseAdmin):
             'fields': ('title', 'title_zh', 'content', 'content_zh', 'is_active', 'is_draft', 'order')
         }),
         (_('Timestamps'), {
-            'fields': ('created_at', 'updated_at'),
+            'fields': ('display_time', 'created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
     )

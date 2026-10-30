@@ -12,7 +12,7 @@
                 <div class="news-content">
                     <h2 class="section-title news-detail-title">{{ news.get_display_title }}</h2>
                     <div class="news-detail-divider"></div>
-                    <p class="date news-detail-date">{{ news.created_at|date:"Y-m-d" }}</p>
+                    <p class="date news-detail-date">{{ news.display_time|date:"Y-m-d H:i" }}</p>
                     {% if news.image %}
                     <div class="news-detail-image">
                         <img src="{{ news.image.url }}" alt="{{ news.get_display_title }}">
