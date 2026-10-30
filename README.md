@@ -211,13 +211,14 @@ Runtime data:
 
 - SQLite: `docker-data/db.sqlite3`
 - Uploaded files: `media/`
+- Collected static files: `staticfiles/` (generated and safe to recreate)
 - RabbitMQ: Docker volume `homepage_rabbitmq-data`
 
 #### Host mounts and persistence
 
 Compose bind-mounts the host directory `./docker-data` at `/data` in every Django/Celery container. Django uses `/data/db.sqlite3`, so database changes made inside a container are written directly to `docker-data/db.sqlite3` on the host. The repository-root `db.sqlite3` is **not** mounted or used by the containers.
 
-The host `./media` directory is mounted at `/app/media`, so uploaded files are also shared with and retained on the host. RabbitMQ uses the Docker-managed `homepage_rabbitmq-data` named volume instead of a bind mount.
+The host `./media` directory is mounted at `/app/media`, so uploaded files are also shared with and retained on the host. The generated `./staticfiles` directory is mounted at `/app/staticfiles` for `collectstatic` and Nginx. RabbitMQ uses the Docker-managed `homepage_rabbitmq-data` named volume instead of a bind mount.
 
 To initialize Docker from the existing repository-root database, stop the stack before copying it:
 
@@ -378,6 +379,8 @@ Google Scholar may rate-limit or block automated requests. Use synchronization c
 ### Production deployment
 
 The supplied Compose file is a complete local stack, but production should use an HTTPS reverse proxy and a production WSGI/ASGI server rather than `runserver`.
+
+An Nginx example for `example.com` and `www.example.com`, including HTTPS redirects, static/media delivery, and protected-file proxying, is provided at `deploy/nginx/example.com.conf`. See `deploy/nginx/README.md` for bilingual installation instructions.
 
 Before production deployment:
 
@@ -590,13 +593,14 @@ docker compose down
 
 - SQLite：`docker-data/db.sqlite3`
 - 上传文件：`media/`
+- 收集后的静态文件：`staticfiles/`（自动生成，可重新创建）
 - RabbitMQ：Docker 数据卷 `homepage_rabbitmq-data`
 
 #### 宿主机挂载与数据持久化
 
 Compose 会把宿主机的 `./docker-data` 目录绑定挂载到所有 Django/Celery 容器中的 `/data`。Django 实际使用 `/data/db.sqlite3`，因此容器内产生的数据库修改会直接写入宿主机的 `docker-data/db.sqlite3`。项目根目录下原有的 `db.sqlite3` **不会**被容器挂载或使用。
 
-宿主机的 `./media` 会绑定挂载到容器的 `/app/media`，因此上传文件同样保留并共享在宿主机。RabbitMQ 不使用目录绑定，而是使用 Docker 管理的 `homepage_rabbitmq-data` 命名卷。
+宿主机的 `./media` 会绑定挂载到容器的 `/app/media`，因此上传文件同样保留并共享在宿主机。自动生成的 `./staticfiles` 会挂载到 `/app/staticfiles`，供 `collectstatic` 和 Nginx 使用。RabbitMQ 不使用目录绑定，而是使用 Docker 管理的 `homepage_rabbitmq-data` 命名卷。
 
 如果需要让 Docker 使用项目根目录已有的数据库，必须先关闭服务再复制：
 
@@ -740,6 +744,8 @@ Google Scholar 可能限制或阻止自动请求，请控制同步频率并遵�
 ### 生产部署
 
 当前 Compose 提供完整的本地运行环境，但生产环境应使用 HTTPS 反向代理和正式 WSGI/ASGI Server，而不是 `runserver`。
+
+项目已在 `deploy/nginx/example.com.conf` 提供适用于 `example.com` 和 `www.example.com` 的 Nginx 示例，包含 HTTPS 跳转、静态/媒体资源访问和受保护文件转发。双语安装说明见 `deploy/nginx/README.md`。
 
 上线前至少需要：
 

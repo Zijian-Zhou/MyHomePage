@@ -36,7 +36,7 @@ def _get_env_list(name, default=''):
 ALLOWED_HOSTS = _get_env_list('ALLOWED_HOSTS', '127.0.0.1,localhost')
 
 if not DEBUG:
-    if SECRET_KEY == DEFAULT_SECRET_KEY:
+    if SECRET_KEY == DEFAULT_SECRET_KEY or SECRET_KEY.startswith('django-insecure-'):
         raise ImproperlyConfigured('SECRET_KEY must be set in environment when DEBUG=False')
     if not ALLOWED_HOSTS:
         raise ImproperlyConfigured('ALLOWED_HOSTS must be set when DEBUG=False')
@@ -156,6 +156,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+STATIC_ROOT = os.getenv('STATIC_ROOT', str(BASE_DIR / 'staticfiles'))
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -190,6 +191,8 @@ SECURE_REFERRER_POLICY = os.getenv('SECURE_REFERRER_POLICY', 'same-origin')
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
 ENABLE_IP_GEO_LANGUAGE = os.getenv('ENABLE_IP_GEO_LANGUAGE', 'False').lower() in {'1', 'true', 'yes', 'on'}
+CSRF_TRUSTED_ORIGINS = _get_env_list('CSRF_TRUSTED_ORIGINS', '')
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 LOGIN_MAX_ATTEMPTS = int(os.getenv('LOGIN_MAX_ATTEMPTS', '5'))
 LOGIN_ATTEMPT_WINDOW_SECONDS = int(os.getenv('LOGIN_ATTEMPT_WINDOW_SECONDS', '600'))

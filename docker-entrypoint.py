@@ -23,6 +23,7 @@ def _drop_privileges(username):
     if os.getenv('FIX_VOLUME_PERMISSIONS', '').lower() in {'1', 'true', 'yes', 'on'}:
         _prepare_writable_tree('/data', account.pw_uid, account.pw_gid)
         _prepare_writable_tree('/app/media', account.pw_uid, account.pw_gid)
+        _prepare_writable_tree('/app/staticfiles', account.pw_uid, account.pw_gid)
 
     os.initgroups(account.pw_name, account.pw_gid)
     os.setgid(account.pw_gid)

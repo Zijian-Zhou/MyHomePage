@@ -17,7 +17,7 @@ COPY . .
 
 COPY docker-entrypoint.py /usr/local/bin/docker-entrypoint.py
 
-RUN mkdir -p /data /app/media \
+RUN mkdir -p /data /app/media /app/staticfiles \
     && chown -R django:django /app /data
 
 USER django
