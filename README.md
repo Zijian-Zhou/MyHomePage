@@ -380,13 +380,21 @@ Google Scholar may rate-limit or block automated requests. Use synchronization c
 
 The supplied Compose file is a complete local stack, but production should use an HTTPS reverse proxy and a production WSGI/ASGI server rather than `runserver`.
 
-An Nginx example for `example.com` and `www.example.com`, including HTTPS redirects, static/media delivery, and protected-file proxying, is provided at `deploy/nginx/example.com.conf`. See `deploy/nginx/README.md` for bilingual installation instructions.
+An Nginx example for `example.com` and `www.example.com`, including HTTPS redirects, static/media delivery, and protected-file proxying, is provided at `deploy/nginx/example.com.conf`, with a temporary HTTP-only `deploy/nginx/example.com.http.conf` for obtaining the certificate. See `deploy/nginx/README.md` for bilingual step-by-step instructions and troubleshooting.
+
+Common pitfalls when deploying to a cloud server:
+
+- Open inbound TCP 80/443 in the cloud provider's security group, not only in `ufw`.
+- Mainland-China servers require an ICP filing for the domain; otherwise the provider intercepts requests with its own `403` page and certificate renewal fails.
+- Install the HTTP-only site and issue the certificate (`certbot --webroot`) before installing the HTTPS site, because `nginx -t` fails when certificate files are missing.
+- Run `chmod 711 /home/<user>` so Nginx can read `staticfiles` and `media`.
+- Keep `127.0.0.1,localhost` in `ALLOWED_HOSTS` so the container health check passes.
 
 Before production deployment:
 
 1. Set `DEBUG=False` and provide a strong, unique `SECRET_KEY`.
-2. Configure `ALLOWED_HOSTS`, HTTPS, secure cookies, and HSTS carefully.
-3. Add production static-file collection/serving; the current settings do not define `STATIC_ROOT`.
+2. Configure `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, HTTPS, secure cookies, and HSTS carefully.
+3. Serve `STATIC_ROOT` (`./staticfiles`, filled by `collectstatic`) and public media through Nginx.
 4. Use persistent, backed-up database and media storage.
 5. Consider PostgreSQL/MySQL instead of SQLite for concurrent workloads.
 6. Run `python manage.py check --deploy` and resolve applicable warnings.
@@ -745,13 +753,21 @@ Google Scholar 可能限制或阻止自动请求，请控制同步频率并遵�
 
 当前 Compose 提供完整的本地运行环境，但生产环境应使用 HTTPS 反向代理和正式 WSGI/ASGI Server，而不是 `runserver`。
 
-项目已在 `deploy/nginx/example.com.conf` 提供适用于 `example.com` 和 `www.example.com` 的 Nginx 示例，包含 HTTPS 跳转、静态/媒体资源访问和受保护文件转发。双语安装说明见 `deploy/nginx/README.md`。
+项目已在 `deploy/nginx/example.com.conf` 提供适用于 `example.com` 和 `www.example.com` 的 Nginx 示例，包含 HTTPS 跳转、静态/媒体资源访问和受保护文件转发；另提供申请证书前使用的临时 HTTP 配置 `deploy/nginx/example.com.http.conf`。双语分步说明和常见问题见 `deploy/nginx/README.md`。
+
+部署到云服务器时的常见问题：
+
+- 需要在云厂商**安全组**中放行入方向 TCP 80/443，仅配置 `ufw` 不够。
+- 中国内地服务器的域名必须完成 ICP 备案，否则云厂商会用自己的 `403` 页面拦截请求，证书也无法续期。
+- 先启用临时 HTTP 配置并申请证书（`certbot --webroot`），再安装 HTTPS 配置，否则证书文件不存在会导致 `nginx -t` 失败。
+- 执行 `chmod 711 /home/<用户名>`，使 Nginx 能读取 `staticfiles` 和 `media`。
+- `ALLOWED_HOSTS` 中保留 `127.0.0.1,localhost`，否则容器健康检查失败。
 
 上线前至少需要：
 
 1. 设置 `DEBUG=False`，并提供新的高强度 `SECRET_KEY`。
-2. 正确配置 `ALLOWED_HOSTS`、HTTPS、安全 Cookie 和 HSTS。
-3. 增加生产静态文件收集和服务配置；当前设置未定义 `STATIC_ROOT`。
+2. 正确配置 `ALLOWED_HOSTS`、`CSRF_TRUSTED_ORIGINS`、HTTPS、安全 Cookie 和 HSTS。
+3. 通过 Nginx 提供 `STATIC_ROOT`（`./staticfiles`，由 `collectstatic` 生成）和公开媒体文件。
 4. 为数据库和媒体文件配置持久化与备份。
 5. 高并发环境考虑使用 PostgreSQL/MySQL 替代 SQLite。
 6. 执行 `python manage.py check --deploy` 并处理适用警告。

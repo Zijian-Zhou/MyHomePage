@@ -642,3 +642,26 @@ input[type=button]:hover {
 [data-theme="dark"] .sync-progress-text {
     color: #b9c3d4;
 }
+
+[data-theme="dark"] .admin-save-overlay {
+    background: rgba(5, 10, 20, 0.66);
+}
+
+[data-theme="dark"] .admin-save-overlay-card {
+    border-color: #364052;
+    background: #202633;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.46);
+}
+
+[data-theme="dark"] .admin-save-overlay-spinner {
+    border-color: #3a465a;
+    border-top-color: #83afd0;
+}
+
+[data-theme="dark"] .admin-save-overlay-title {
+    color: #edf2f8;
+}
+
+[data-theme="dark"] .admin-save-overlay-text {
+    color: #b9c5d5;
+}

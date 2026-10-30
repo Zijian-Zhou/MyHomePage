@@ -81,6 +81,49 @@
     </section>
     {% endif %}
 
+    <!-- News Section -->
+    {% if show_news %}
+    <section id="news" class="section">
+        <div class="container">
+            <h2 class="section-title">{% trans "News" %}</h2>
+            <div class="news">
+                {% for news in news_list %}
+                <div class="news-item">
+                    <div class="news-content">
+                        <h4>{{ news.get_display_title }}</h4>
+                        <p class="date">{{ news.created_at|date:"Y-m-d" }}</p>
+                        <div class="content">{{ news.get_formatted_summary|safe }}</div>
+                        {% if news.enable_detail %}
+                        <div class="publication-actions news-actions">
+                            <a href="{% url 'news_detail' news.pk %}" class="paper-link publication-action">
+                                [{% if is_chinese_page %}&#26597;&#30475;&#35814;&#24773;{% else %}{% trans "View Details" %}{% endif %}]
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if news.image %}
+                    <div class="news-image">
+                        <img src="{{ news.image.url }}" alt="{{ news.title }}">
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% if news_page.paginator.num_pages > 1 %}
+            <div class="section-pagination">
+                {% for num in news_page.paginator.page_range %}
+                    {% if num == news_page.number %}
+                        <span class="page-btn active">{{ num }}</span>
+                    {% else %}
+                        <a class="page-btn" href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}news_page={{ num }}#news">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </section>
+    {% endif %}
+
     <!-- Publications Section -->
     {% if show_publications %}
     <section id="publications" class="section">
@@ -144,49 +187,6 @@
                         <span class="page-btn active">{{ num }}</span>
                     {% else %}
                         <a class="page-btn" href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}pub_page={{ num }}#publications">{{ num }}</a>
-                    {% endif %}
-                {% endfor %}
-            </div>
-            {% endif %}
-        </div>
-    </section>
-    {% endif %}
-
-    <!-- News Section -->
-    {% if show_news %}
-    <section id="news" class="section">
-        <div class="container">
-            <h2 class="section-title">{% trans "News" %}</h2>
-            <div class="news">
-                {% for news in news_list %}
-                <div class="news-item">
-                    <div class="news-content">
-                        <h4>{{ news.get_display_title }}</h4>
-                        <p class="date">{{ news.created_at|date:"Y-m-d" }}</p>
-                        <div class="content">{{ news.get_formatted_summary|safe }}</div>
-                        {% if news.enable_detail %}
-                        <div class="publication-actions news-actions">
-                            <a href="{% url 'news_detail' news.pk %}" class="paper-link publication-action">
-                                [{% if is_chinese_page %}&#26597;&#30475;&#35814;&#24773;{% else %}{% trans "View Details" %}{% endif %}]
-                            </a>
-                        </div>
-                        {% endif %}
-                    </div>
-                    {% if news.image %}
-                    <div class="news-image">
-                        <img src="{{ news.image.url }}" alt="{{ news.title }}">
-                    </div>
-                    {% endif %}
-                </div>
-                {% endfor %}
-            </div>
-            {% if news_page.paginator.num_pages > 1 %}
-            <div class="section-pagination">
-                {% for num in news_page.paginator.page_range %}
-                    {% if num == news_page.number %}
-                        <span class="page-btn active">{{ num }}</span>
-                    {% else %}
-                        <a class="page-btn" href="?{% if request.GET.urlencode %}{{ request.GET.urlencode }}&{% endif %}news_page={{ num }}#news">{{ num }}</a>
                     {% endif %}
                 {% endfor %}
             </div>
