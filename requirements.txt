@@ -5,7 +5,8 @@ django-ckeditor>=6.7.0
 django-crispy-forms>=2.1
 crispy-bootstrap5>=0.7
 markdown>=3.5.1
-bibtexparser>=1.4.0
+# The project uses the bibtexparser 1.x API (bparser/bibdatabase/dumps).
+bibtexparser>=1.4.0,<2.0
 beautifulsoup4>=4.12.2
 requests>=2.31.0
 Pillow>=10.1.0

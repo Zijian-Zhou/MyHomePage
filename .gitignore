@@ -10,3 +10,4 @@ celerybeat.pid
 .env
 docker-data/
 staticfiles/
+.claude

@@ -65,7 +65,7 @@ services:
     ports:
       - "127.0.0.1:${WEB_PORT:-8000}:8000"
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/en/', timeout=5)"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:8000/en/', headers={'X-Forwarded-Proto': 'https'}), timeout=5)"]
       interval: 15s
       timeout: 6s
       retries: 10
