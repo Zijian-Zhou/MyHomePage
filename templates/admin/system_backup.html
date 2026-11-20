@@ -3,7 +3,7 @@
 
 {% block extrastyle %}
 {{ block.super }}
-<link rel="stylesheet" href="{% static 'css/admin/system_backup.css' %}?v={{ app_version }}">
+<link rel="stylesheet" href="{% static 'css/admin/system_backup.css' %}?v={{ app_version }}.2">
 {% endblock %}
 
 {% block content %}
@@ -96,17 +96,25 @@
             <td class="num">{{ item.media_files|default_if_none:"-" }}</td>
             <td class="num nowrap">{{ item.size|filesizeformat }}</td>
             <td class="backup-actions">
-              <a class="button" href="{% url 'admin:system-backup-download' item.name %}">{{ labels.download }}</a>
-              {% if not item.error %}
-              <form method="post" action="{% url 'admin:system-backup-restore' item.name %}" data-backup-confirm="restore" data-backup-name="{{ item.name }}" data-backup-busy>
-                {% csrf_token %}
-                <button type="submit" class="button backup-restore">{{ labels.restore }}</button>
-              </form>
-              {% endif %}
-              <form method="post" action="{% url 'admin:system-backup-delete' item.name %}" data-backup-confirm="delete" data-backup-name="{{ item.name }}">
-                {% csrf_token %}
-                <button type="submit" class="button backup-delete">{{ labels.delete }}</button>
-              </form>
+              <div class="backup-action-group">
+                <a class="backup-action-btn backup-download" href="{% url 'admin:system-backup-download' item.name %}">
+                  <i class="fas fa-download" aria-hidden="true"></i><span>{{ labels.download }}</span>
+                </a>
+                {% if not item.error %}
+                <form method="post" action="{% url 'admin:system-backup-restore' item.name %}" data-backup-confirm="restore" data-backup-name="{{ item.name }}" data-backup-busy>
+                  {% csrf_token %}
+                  <button type="submit" class="backup-action-btn backup-restore">
+                    <i class="fas fa-rotate-left" aria-hidden="true"></i><span>{{ labels.restore }}</span>
+                  </button>
+                </form>
+                {% endif %}
+                <form method="post" action="{% url 'admin:system-backup-delete' item.name %}" data-backup-confirm="delete" data-backup-name="{{ item.name }}">
+                  {% csrf_token %}
+                  <button type="submit" class="backup-action-btn backup-delete">
+                    <i class="fas fa-trash-can" aria-hidden="true"></i><span>{{ labels.delete }}</span>
+                  </button>
+                </form>
+              </div>
             </td>
           </tr>
           {% endfor %}
@@ -122,5 +130,5 @@
     <div class="backup-busy-box">{{ labels.processing }}</div>
   </div>
 </div>
-<script src="{% static 'js/admin/system_backup.js' %}?v={{ app_version }}"></script>
+<script src="{% static 'js/admin/system_backup.js' %}?v={{ app_version }}.2"></script>
 {% endblock %}

@@ -14,8 +14,8 @@
     {% if show_about %}
     <section id="about" class="section">
         <div class="container">
-            <h2 class="section-title">{% trans "About Me" %}</h2>
             <div class="about-content">
+                <h2 class="section-title about-title">{% trans "About Me" %}</h2>
                 <div class="about-left">
                     <div class="profile-photo">
                         {% if profile.profile_image %}
@@ -32,42 +32,7 @@
                             {% endfor %}
                         </div>
                     </div>
-                    <div class="profile-contact">
-                        {% if profile.get_display_address %}
-                        <p><i class="fas fa-map-marker-alt"></i> {{ profile.get_display_address }}</p>
-                        {% endif %}
-                        {% if profile.email %}
-                        <p><a href="mailto:{{ profile.email }}"><i class="fas fa-envelope"></i> {{ profile.email }}</a></p>
-                        {% endif %}
-                        {% if profile.phone %}
-                        <p><i class="fas fa-phone"></i> {{ profile.phone }}</p>
-                        {% endif %}
-                        {% if profile.orcid_id %}
-                        <a href="https://orcid.org/{{ profile.orcid_id }}" target="_blank" rel="noopener noreferrer">
-                            <i class="fab fa-orcid"></i> ORCID
-                        </a>
-                        {% endif %}
-                        {% if profile.google_scholar_id %}
-                        <a href="https://scholar.google.com/citations?user={{ profile.google_scholar_id }}" target="_blank" rel="noopener noreferrer">
-                            <i class="fas fa-graduation-cap"></i> Google Scholar
-                        </a>
-                        {% endif %}
-                        {% if profile.github_username %}
-                        <a href="https://github.com/{{ profile.github_username }}" target="_blank" rel="noopener noreferrer">
-                            <i class="fab fa-github"></i> GitHub
-                        </a>
-                        {% endif %}
-                        {% if profile.researchgate_url %}
-                        <a href="{{ profile.researchgate_url }}" target="_blank" rel="noopener noreferrer">
-                            <i class="fab fa-researchgate"></i> ResearchGate
-                        </a>
-                        {% endif %}
-                        {% if profile.linkedin_url %}
-                        <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener noreferrer">
-                            <i class="fab fa-linkedin"></i> LinkedIn
-                        </a>
-                        {% endif %}
-                    </div>
+                    {% include "includes/profile_contact.html" with variant="sidebar" %}
                 </div>
                 <div class="about-right">
                     {% if profile.bio %}
@@ -286,42 +251,7 @@
         <div class="container">
             <h2 class="section-title">{% trans "Contact" %}</h2>
             <div class="contact-content">
-                <div class="profile-contact">
-                    {% if profile.get_display_address %}
-                    <p><i class="fas fa-map-marker-alt"></i> {{ profile.get_display_address }}</p>
-                    {% endif %}
-                    {% if profile.email %}
-                    <p><a href="mailto:{{ profile.email }}"><i class="fas fa-envelope"></i> {{ profile.email }}</a></p>
-                    {% endif %}
-                    {% if profile.phone %}
-                    <p><i class="fas fa-phone"></i> {{ profile.phone }}</p>
-                    {% endif %}
-                    {% if profile.orcid_id %}
-                    <a href="https://orcid.org/{{ profile.orcid_id }}" target="_blank" rel="noopener noreferrer">
-                        <i class="fab fa-orcid"></i> ORCID
-                    </a>
-                    {% endif %}
-                    {% if profile.google_scholar_id %}
-                    <a href="https://scholar.google.com/citations?user={{ profile.google_scholar_id }}" target="_blank" rel="noopener noreferrer">
-                        <i class="fas fa-graduation-cap"></i> Google Scholar
-                    </a>
-                    {% endif %}
-                    {% if profile.github_username %}
-                    <a href="https://github.com/{{ profile.github_username }}" target="_blank" rel="noopener noreferrer">
-                        <i class="fab fa-github"></i> GitHub
-                    </a>
-                    {% endif %}
-                    {% if profile.researchgate_url %}
-                    <a href="{{ profile.researchgate_url }}" target="_blank" rel="noopener noreferrer">
-                        <i class="fab fa-researchgate"></i> ResearchGate
-                    </a>
-                    {% endif %}
-                    {% if profile.linkedin_url %}
-                    <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener noreferrer">
-                        <i class="fab fa-linkedin"></i> LinkedIn
-                    </a>
-                    {% endif %}
-                </div>
+                {% include "includes/profile_contact.html" with variant="section" %}
             </div>
         </div>
     </section>

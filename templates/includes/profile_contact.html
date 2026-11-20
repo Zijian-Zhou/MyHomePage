@@ -1,0 +1,55 @@
+{% comment %}
+Profile contact block shared by the About sidebar and the Contact section.
+The address is shown as one centred paragraph; email, phone and academic profiles
+are uniform pill links below it.
+Usage: {% include "includes/profile_contact.html" with variant="sidebar" %}
+{% endcomment %}
+{% with address=profile.get_display_address %}
+<div class="profile-contact profile-contact--{{ variant|default:'sidebar' }}">
+    {% if address %}
+    <p class="contact-address">
+        <i class="fas fa-location-dot" aria-hidden="true"></i>
+        {{ address }}
+    </p>
+    {% endif %}
+    {% if profile.email or profile.phone or profile.orcid_id or profile.google_scholar_id or profile.github_username or profile.researchgate_url or profile.linkedin_url %}
+    <div class="contact-links">
+        {% if profile.email %}
+        <a class="contact-link" href="mailto:{{ profile.email }}" title="{{ profile.email }}">
+            <i class="fas fa-envelope" aria-hidden="true"></i><span>Email</span>
+        </a>
+        {% endif %}
+        {% if profile.phone %}
+        <a class="contact-link contact-link--text" href="tel:{{ profile.phone }}">
+            <i class="fas fa-phone" aria-hidden="true"></i><span>{{ profile.phone }}</span>
+        </a>
+        {% endif %}
+        {% if profile.orcid_id %}
+        <a class="contact-link" href="https://orcid.org/{{ profile.orcid_id }}" target="_blank" rel="noopener noreferrer">
+            <i class="fab fa-orcid" aria-hidden="true"></i><span>ORCID</span>
+        </a>
+        {% endif %}
+        {% if profile.google_scholar_id %}
+        <a class="contact-link" href="https://scholar.google.com/citations?user={{ profile.google_scholar_id }}" target="_blank" rel="noopener noreferrer">
+            <i class="fas fa-graduation-cap" aria-hidden="true"></i><span>Google Scholar</span>
+        </a>
+        {% endif %}
+        {% if profile.github_username %}
+        <a class="contact-link" href="https://github.com/{{ profile.github_username }}" target="_blank" rel="noopener noreferrer">
+            <i class="fab fa-github" aria-hidden="true"></i><span>GitHub</span>
+        </a>
+        {% endif %}
+        {% if profile.researchgate_url %}
+        <a class="contact-link" href="{{ profile.researchgate_url }}" target="_blank" rel="noopener noreferrer">
+            <i class="fab fa-researchgate" aria-hidden="true"></i><span>ResearchGate</span>
+        </a>
+        {% endif %}
+        {% if profile.linkedin_url %}
+        <a class="contact-link" href="{{ profile.linkedin_url }}" target="_blank" rel="noopener noreferrer">
+            <i class="fab fa-linkedin" aria-hidden="true"></i><span>LinkedIn</span>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endwith %}

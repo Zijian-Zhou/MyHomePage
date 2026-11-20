@@ -1,37 +1,84 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Smooth scrolling for navigation links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    // Keep --header-height in sync with the fixed header (its menu wraps on small
+    // screens), so CSS scroll-padding-top stops anchor jumps right below it.
+    const header = document.querySelector('.header');
+    function headerHeight() {
+        return header ? header.offsetHeight : 0;
+    }
+    function updateHeaderHeight() {
+        document.documentElement.style.setProperty('--header-height', headerHeight() + 'px');
+    }
+    updateHeaderHeight();
+    if (header && 'ResizeObserver' in window) {
+        new ResizeObserver(updateHeaderHeight).observe(header);
+    } else {
+        window.addEventListener('resize', updateHeaderHeight);
+    }
+
+    function sectionFromHash(hash) {
+        if (!hash || hash.length < 2) return null;
+        try {
+            return document.getElementById(decodeURIComponent(hash.slice(1)));
+        } catch (err) {
+            return null;
+        }
+    }
+
+    // Smooth scrolling for in-page links, including nav links written as "/en/#news".
+    document.querySelectorAll('a[href*="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
+            const url = new URL(this.href, window.location.href);
+            if (url.origin !== window.location.origin
+                || url.pathname !== window.location.pathname
+                || url.search !== window.location.search) {
+                return; // a different page: let the browser navigate
+            }
+            const target = sectionFromHash(url.hash);
+            if (!target) return;
             e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (window.location.hash !== url.hash) {
+                history.pushState(null, '', url.hash);
             }
         });
     });
 
-    // Add active class to navigation items on scroll
-    window.addEventListener('scroll', () => {
+    // Opening a URL with a hash: the browser scrolled before --header-height was set
+    // and before images loaded, so re-align once layout is final (unless the user moved).
+    if (sectionFromHash(window.location.hash)) {
+        let alignedAt = null;
+        const align = () => {
+            const target = sectionFromHash(window.location.hash);
+            if (!target || (alignedAt !== null && Math.abs(window.scrollY - alignedAt) > 2)) return;
+            target.scrollIntoView({ block: 'start' });
+            alignedAt = window.scrollY;
+        };
+        requestAnimationFrame(align);
+        window.addEventListener('load', align, { once: true });
+    }
+
+    // Highlight the nav item of the section currently under the header.
+    function updateActiveNav() {
         let current = '';
-        const sections = document.querySelectorAll('section');
-        const navItems = document.querySelectorAll('.nav-item');
+        const offset = headerHeight() + 40;
+        const sections = document.querySelectorAll('section[id]');
         sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            if (pageYOffset >= sectionTop - 200) {
-                current = section.getAttribute('id');
+            if (section.getBoundingClientRect().top <= offset) {
+                current = section.id;
             }
         });
-
-        navItems.forEach(item => {
-            item.classList.remove('active');
-            if (item.getAttribute('href').substring(1) === current) {
-                item.classList.add('active');
-            }
+        // At the very bottom the last (often short) section can never reach the header.
+        const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+        if (atBottom && sections.length && window.scrollY > 0) {
+            current = sections[sections.length - 1].id;
+        }
+        document.querySelectorAll('.nav-item').forEach(item => {
+            const hash = new URL(item.href, window.location.href).hash.slice(1);
+            item.classList.toggle('active', !!current && hash === current);
         });
-    });
+    }
+    window.addEventListener('scroll', updateActiveNav, { passive: true });
+    updateActiveNav();
 
     function fallbackCopyText(text) {
         const helper = document.createElement('textarea');
@@ -172,4 +219,134 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.href = nextUrl.toString();
             });
     });
+
+    setupSectionImages();
 });
+
+/*
+ * Section images: avatar-style hover (CSS) + double-click / double-tap to enlarge.
+ * Card thumbnails (.news-image etc.) already have a frame; Markdown images inside
+ * section content are wrapped in .zoom-frame so the hover zoom is clipped like the
+ * avatar. Events are delegated, and a MutationObserver prepares images that arrive
+ * with AJAX pagination.
+ */
+function setupSectionImages() {
+    const root = document.querySelector('.main-content');
+    if (!root) return;
+
+    const isZh = (document.documentElement.lang || '').toLowerCase().indexOf('zh') === 0;
+    const hint = isZh ? '双击放大' : 'Double-click to enlarge';
+    const closeLabel = isZh ? '关闭' : 'Close';
+    const CARD_IMAGES = '.news-image img, .publication-image img, .research-image img';
+    const CONTENT_IMAGES = '.section .bio img, .section .content img, .section .description img, .section .section-content img';
+    const MIN_CONTENT_SIZE = 80; // skip badges and inline icons
+
+    function prepare(img) {
+        if (img.dataset.zoomable) return;
+        if (img.matches(CARD_IMAGES)) {
+            img.dataset.zoomable = '1';
+            img.title = img.title || hint;
+            return;
+        }
+        if (!img.matches(CONTENT_IMAGES) || img.closest('a')) return; // linked images keep their link
+        const wrap = () => {
+            if (img.dataset.zoomable) return;
+            if (Math.max(img.naturalWidth, img.width) < MIN_CONTENT_SIZE) return;
+            const frame = document.createElement('span');
+            frame.className = 'zoom-frame';
+            img.parentNode.insertBefore(frame, img);
+            frame.appendChild(img);
+            img.dataset.zoomable = '1';
+            img.title = img.title || hint;
+        };
+        if (img.complete && img.naturalWidth) wrap();
+        else img.addEventListener('load', wrap, { once: true });
+    }
+
+    function prepareAll(scope) {
+        scope.querySelectorAll(CARD_IMAGES + ', ' + CONTENT_IMAGES).forEach(prepare);
+    }
+    prepareAll(root);
+    if ('MutationObserver' in window) {
+        new MutationObserver(records => {
+            records.forEach(record => record.addedNodes.forEach(node => {
+                if (node.nodeType === 1) prepareAll(node);
+            }));
+        }).observe(root, { childList: true, subtree: true });
+    }
+
+    // ---- Viewer ----
+    let viewer = null;
+    let lastFocus = null;
+    function buildViewer() {
+        viewer = document.createElement('div');
+        viewer.className = 'image-viewer';
+        viewer.setAttribute('role', 'dialog');
+        viewer.setAttribute('aria-modal', 'true');
+        viewer.setAttribute('aria-hidden', 'true');
+        viewer.innerHTML = '<button type="button" class="image-viewer-close"></button>'
+            + '<img class="image-viewer-img" alt="">'
+            + '<div class="image-viewer-caption"></div>';
+        const closeBtn = viewer.querySelector('.image-viewer-close');
+        closeBtn.textContent = '×';
+        closeBtn.setAttribute('aria-label', closeLabel);
+        closeBtn.title = closeLabel;
+        viewer.addEventListener('click', event => {
+            if (!event.target.classList.contains('image-viewer-img')) closeViewer();
+        });
+        document.body.appendChild(viewer);
+    }
+
+    function openViewer(img) {
+        if (!viewer) buildViewer();
+        lastFocus = document.activeElement;
+        const big = viewer.querySelector('.image-viewer-img');
+        big.src = img.currentSrc || img.src;
+        big.alt = img.alt || '';
+        viewer.querySelector('.image-viewer-caption').textContent = img.alt || '';
+        viewer.setAttribute('aria-hidden', 'false');
+        viewer.classList.add('is-open');
+        document.body.classList.add('image-viewer-open');
+        viewer.querySelector('.image-viewer-close').focus();
+    }
+
+    function closeViewer() {
+        if (!viewer || !viewer.classList.contains('is-open')) return;
+        viewer.classList.remove('is-open');
+        viewer.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('image-viewer-open');
+        if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+    }
+
+    function zoomableFrom(target) {
+        const img = target && target.closest ? target.closest('img[data-zoomable]') : null;
+        return img && root.contains(img) ? img : null;
+    }
+
+    root.addEventListener('dblclick', event => {
+        const img = zoomableFrom(event.target);
+        if (!img) return;
+        event.preventDefault();
+        if (window.getSelection) window.getSelection().removeAllRanges();
+        openViewer(img);
+    });
+
+    // Touch screens do not reliably fire dblclick: detect a double tap ourselves.
+    let lastTap = { img: null, time: 0 };
+    root.addEventListener('touchend', event => {
+        const img = zoomableFrom(event.target);
+        if (!img || event.touches.length) return;
+        const now = Date.now();
+        if (lastTap.img === img && now - lastTap.time < 350) {
+            event.preventDefault(); // suppresses the synthetic dblclick as well
+            lastTap = { img: null, time: 0 };
+            openViewer(img);
+        } else {
+            lastTap = { img: img, time: now };
+        }
+    }, { passive: false });
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') closeViewer();
+    });
+}

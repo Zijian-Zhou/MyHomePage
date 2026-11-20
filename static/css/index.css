@@ -103,6 +103,12 @@ body {
     color: var(--primary-color);
 }
 
+/* Section currently in view (set by index.js while scrolling). */
+.nav-item.active {
+    color: var(--primary-color);
+    box-shadow: inset 0 -2px 0 var(--primary-color);
+}
+
 /* Theme Toggle Button */
 .theme-toggle {
     background: none;
@@ -137,15 +143,25 @@ body {
 
 /* Main Content */
 .main-content {
-    margin-top: 80px;
+    /* Clear the fixed header, which grows when the menu wraps on small screens.
+       Desktop keeps the original 80px (header height minus the 2rem padding below). */
+    margin-top: max(80px, calc(var(--header-height, 80px) - 2rem));
     padding: 2rem 0;
     flex: 1 0 auto;
 }
 
 /* Section styles */
+/* Anchor jumps stop below the fixed header; --header-height is kept up to date by index.js. */
+html {
+    scroll-padding-top: var(--header-height, 110px);
+}
+
 .section {
-    padding: 4rem 0;
+    --section-padding: 4rem;
+    padding: var(--section-padding) 0;
     border-bottom: 1px solid var(--border-color);
+    /* Cancel most of the top padding so the title lands ~1.25rem below the header. */
+    scroll-margin-top: calc(1.25rem - var(--section-padding));
 }
 
 .section-title {
@@ -169,14 +185,41 @@ body {
 }
 
 /* About section styles */
+/*
+ * About layout (desktop): the profile column spans both rows, the title and the
+ * bio share the right column.
+ *   - the avatar starts 10px below the top of the "About Me" title;
+ *   - the bio row is a 1fr track, so when the profile column is taller the bio card
+ *     stretches until its bottom lines up with the bottom of the contact card;
+ *     when the bio is taller nothing is stretched.
+ */
 .about-content {
     display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 2rem;
+    grid-template-columns: 300px minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+        "profile title"
+        "profile bio";
+    column-gap: 2rem;
+    row-gap: 0;
     align-items: start;
 }
 
+.about-content .about-title {
+    grid-area: title;
+    text-align: left;
+    margin-bottom: 1.5rem;
+}
+
+.about-content .about-title::after {
+    left: 0;
+    transform: none;
+}
+
 .about-left {
+    grid-area: profile;
+    align-self: start;
+    padding-top: 10px;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -236,41 +279,120 @@ body {
     line-height: 1.4;
 }
 
+/* ---------- Profile contact (About sidebar + Contact section) ---------- */
 .profile-contact {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-content: stretch;
-    justify-content: space-around;
     background-color: var(--card-bg);
-    padding: 1rem;
+    padding: 1.1rem 1.25rem;
     border-radius: 8px;
     box-shadow: 0 2px 4px var(--shadow-color);
-}
-
-.profile-contact p,
-.profile-contact a {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-    color: var(--text-color);
-    text-decoration: none;
-}
-
-.profile-contact i {
-    color: var(--primary-color);
-    width: 1.5rem;
     text-align: center;
 }
 
-.profile-contact a:hover {
+/* The address reads as one centred paragraph; wrapped lines are not indented. */
+.contact-address {
+    margin: 0;
+    color: var(--text-color);
+    line-height: 1.6;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+/* Font Awesome's JS swaps <i> for <svg>, so style both forms. */
+.contact-address i,
+.contact-address svg {
     color: var(--primary-color);
+    margin-right: 0.4rem;
+}
+
+.contact-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.contact-address + .contact-links {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    max-width: 100%;
+    padding: 0.35rem 0.85rem;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background-color: var(--bg-secondary);
+    color: var(--text-color);
+    font-size: 0.9rem;
+    line-height: 1.3;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+/* Email/phone pills carry user data: let a very long value wrap instead of overflowing. */
+.contact-link--text span {
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.contact-link i,
+.contact-link svg {
+    flex: 0 0 auto;
+    color: var(--primary-color);
+    transition: color 0.2s ease;
+}
+
+.contact-link:hover,
+.contact-link:focus-visible {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #fff;
+}
+
+.contact-link:hover i,
+.contact-link:hover svg,
+.contact-link:focus-visible i,
+.contact-link:focus-visible svg {
+    color: #fff;
+}
+
+/* Contact section: the outer .contact-content is the only card. */
+.profile-contact--section {
+    background: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+.profile-contact--section .contact-address {
+    font-size: 1.05rem;
+}
+
+.profile-contact--section .contact-address + .contact-links {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+}
+
+.profile-contact--section .contact-link {
+    padding: 0.45rem 1rem;
+    font-size: 0.95rem;
 }
 
 .about-right {
-    flex: 1;
+    grid-area: bio;
+    align-self: stretch;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.about-right .bio {
+    flex: 1 0 auto;
 }
 
 .bio {
@@ -325,9 +447,9 @@ body {
 
 /* Contact section styles */
 .contact-content {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 2rem;
+    /* Full container width, like every other card on the homepage. */
+    margin: 0;
+    padding: 2rem 2.25rem;
     background-color: var(--card-bg);
     border-radius: 8px;
     box-shadow: 0 2px 4px var(--shadow-color);
@@ -626,12 +748,29 @@ button.publication-action {
 /* Responsive Design */
 @media (max-width: 768px) {
     .about-content {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto;
+        grid-template-areas:
+            "title"
+            "profile"
+            "bio";
+        row-gap: 2rem;
+    }
+
+    .about-content .about-title {
+        text-align: center;
+        margin-bottom: 0;
+    }
+
+    .about-content .about-title::after {
+        left: 50%;
+        transform: translateX(-50%);
     }
 
     .about-left {
         max-width: 300px;
         margin: 0 auto;
+        padding-top: 0;
     }
 
     .navbar-menu {
@@ -660,6 +799,14 @@ button.publication-action {
         margin: 1rem 0;
     }
 
+    .contact-content {
+        padding: 1.25rem;
+    }
+
+    .profile-contact--section .contact-address {
+        font-size: 1rem;
+    }
+
     .academic-profiles {
         justify-content: center;
     }
@@ -680,7 +827,7 @@ button.publication-action {
     }
 
     .section {
-        padding: 2rem 0;
+        --section-padding: 2rem;
     }
 
     .section-title {
