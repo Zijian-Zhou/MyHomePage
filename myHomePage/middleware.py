@@ -14,9 +14,14 @@ from .security import decrypt_identity, decrypt_login_field, identity_digest, si
 
 def get_client_ip(request):
     if getattr(settings, 'TRUST_X_FORWARDED_FOR', False):
+        # Nginx sets X-Real-IP itself. X-Forwarded-For is appended to by the proxy, so
+        # only its *last* entry is trustworthy; earlier ones may be client-supplied.
+        real_ip = (request.META.get('HTTP_X_REAL_IP') or '').strip()
+        if real_ip:
+            return real_ip
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
-            return x_forwarded_for.split(',')[0].strip()
+            return x_forwarded_for.split(',')[-1].strip()
     return (request.META.get('REMOTE_ADDR', '') or '').strip()
 
 
@@ -181,7 +186,7 @@ class AdminLoginRateLimitMiddleware:
         if self._is_login_success(response):
             self._clear_attempts(identifier)
         else:
-            self._register_failure(identifier)
+            self._register_failure(identifier, username=request.POST.get('username', ''))
             lock_remaining = self._lock_remaining_seconds(identifier)
             if lock_remaining > 0:
                 return self._locked_response(request, lock_remaining)
@@ -229,7 +234,7 @@ class AdminLoginRateLimitMiddleware:
         cache.delete(self._attempt_key(identifier))
         cache.delete(self._lock_key(identifier))
 
-    def _register_failure(self, identifier):
+    def _register_failure(self, identifier, username=''):
         attempt_key = self._attempt_key(identifier)
         attempts = cache.get(attempt_key, 0)
         attempts = int(attempts) + 1
@@ -240,6 +245,13 @@ class AdminLoginRateLimitMiddleware:
                 self._lock_key(identifier),
                 {'until': int(time.time()) + lockout_seconds},
                 timeout=lockout_seconds + 5
+            )
+            from . import audit
+            audit.record(
+                'login_locked', status='failure',
+                username=username or '',
+                message='Locked for {} seconds after {} failed attempts from {}.'.format(
+                    lockout_seconds, attempts, identifier),
             )
 
     def _is_login_success(self, response):

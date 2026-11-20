@@ -1,0 +1,116 @@
+/* Custom-section item editor (see static/js/admin/section_items_admin.js). */
+
+#items-group.si-enhanced .si-item {
+    margin-bottom: 10px;
+    border: 1px solid var(--hairline-color, #e2e8f0);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#items-group.si-enhanced .si-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 10px 14px;
+    cursor: pointer;
+    user-select: none;
+    background: var(--darkened-bg, #f8fafc);
+    color: var(--body-fg, #1e293b);
+    font-size: 13px;
+    text-transform: none;
+}
+
+#items-group.si-enhanced .si-header:hover,
+#items-group.si-enhanced .si-header:focus-visible {
+    background: var(--selected-bg, #eef2f8);
+    outline: none;
+}
+
+/* Django's own label and delete checkbox are replaced by the title / item buttons. */
+#items-group.si-enhanced .si-header > b,
+#items-group.si-enhanced .si-header .si-original-label,
+#items-group.si-enhanced .si-header span.delete,
+#items-group.si-enhanced .si-header .inline-deletelink {
+    display: none;
+}
+
+.si-chevron {
+    flex: 0 0 auto;
+    width: 8px;
+    height: 8px;
+    margin: 0 4px 0 2px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform 0.15s ease;
+    opacity: 0.7;
+}
+
+.si-collapsed .si-chevron {
+    transform: rotate(-45deg);
+}
+
+.si-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.si-badges {
+    display: inline-flex;
+    flex: 0 0 auto;
+    gap: 6px;
+}
+
+.si-badge {
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.6;
+}
+
+.si-badge-detail { background: #e0ecfb; color: #1d4f8c; }
+.si-badge-draft { background: #fef3c7; color: #92400e; }
+.si-badge-inactive { background: #e2e8f0; color: #475569; }
+
+html[data-theme="dark"] .si-badge-detail { background: #1e3a5f; color: #bfdbfe; }
+html[data-theme="dark"] .si-badge-draft { background: #713f12; color: #fde68a; }
+html[data-theme="dark"] .si-badge-inactive { background: #334155; color: #cbd5e1; }
+
+/* Collapsed: only the header remains. */
+.si-item.si-collapsed > fieldset,
+.si-item.si-collapsed > .si-actions,
+.si-item.si-collapsed > .errorlist {
+    display: none;
+}
+
+.si-item .form-row.si-hidden {
+    display: none;
+}
+
+.si-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 10px 14px;
+    border-top: 1px solid var(--hairline-color, #e2e8f0);
+    background: var(--darkened-bg, #f8fafc);
+}
+
+body:not(.login) #container .si-actions .button {
+    min-height: 32px;
+    padding: 0 18px;
+}
+
+body:not(.login) #container .si-actions .si-delete {
+    background: var(--delete-button-bg, #d64545);
+}
+
+body:not(.login) #container .si-actions .si-delete:hover {
+    background: var(--delete-button-hover-bg, #b83232);
+}

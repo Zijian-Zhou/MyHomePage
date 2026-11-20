@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{{ item.get_card_title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="section news-detail-section">
+        <div class="container">
+            <article class="news-item news-detail section-item-detail">
+                <div class="news-content">
+                    <h2 class="section-title news-detail-title">{{ item.get_card_title }}</h2>
+                    <div class="news-detail-divider"></div>
+                    <p class="date news-detail-date">{{ section_obj.get_display_title }} · {{ item.display_time|date:"Y-m-d" }}</p>
+                    <div class="content news-detail-content section-content">
+                        {{ item.get_formatted_detail_content|safe }}
+                    </div>
+                    <hr class="detail-content-end">
+                    <div class="publication-actions news-actions">
+                        <a href="{% url 'index' %}#section-{{ section_obj.pk }}" class="paper-link publication-action">
+                            {% if is_chinese_page %}&#36820;&#22238;{% else %}{% trans "Back to" %} {% endif %}{{ section_obj.get_display_title }}
+                        </a>
+                    </div>
+                    {% if previous_item or next_item %}
+                    <nav class="news-detail-nav" aria-label="{{ section_obj.get_display_title }}">
+                        {% if previous_item %}
+                        <a href="{% url 'section_item_detail' previous_item.pk %}" class="paper-link publication-action news-nav-link">
+                            {% if is_chinese_page %}&#19978;&#19968;&#31687;&#65306;{% else %}{% trans "Previous" %}: {% endif %}{{ previous_item.get_card_title }}
+                        </a>
+                        {% endif %}
+                        {% if next_item %}
+                        <a href="{% url 'section_item_detail' next_item.pk %}" class="paper-link publication-action news-nav-link">
+                            {% if is_chinese_page %}&#19979;&#19968;&#31687;&#65306;{% else %}{% trans "Next" %}: {% endif %}{{ next_item.get_card_title }}
+                        </a>
+                        {% endif %}
+                    </nav>
+                    {% endif %}
+                </div>
+            </article>
+        </div>
+    </section>
+</div>
+{% endblock %}

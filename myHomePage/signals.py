@@ -112,3 +112,52 @@ def delete_news_image_file(sender, instance, **kwargs):
 @receiver(pre_save, sender=News)
 def delete_replaced_news_image_file(sender, instance, **kwargs):
     _delete_replaced_file(sender, instance, 'image')
+
+
+# ---------------------------------------------------------------------------
+# Audit trail
+# ---------------------------------------------------------------------------
+from django.contrib.admin.models import ADDITION, CHANGE, DELETION, LogEntry  # noqa: E402
+from django.contrib.auth.signals import user_logged_out, user_login_failed  # noqa: E402
+from django.db.models.signals import post_save  # noqa: E402
+
+from . import audit  # noqa: E402
+
+
+@receiver(user_logged_in)
+def audit_login_success(sender, request, user, **kwargs):
+    audit.record('login_success', user=user, request=request)
+
+
+@receiver(user_login_failed)
+def audit_login_failed(sender, credentials, request=None, **kwargs):
+    username = (credentials or {}).get('username', '') if isinstance(credentials, dict) else ''
+    audit.record('login_failed', status='failure', username=username, request=request,
+                 message='Invalid username or password.')
+
+
+@receiver(user_logged_out)
+def audit_logout(sender, request, user, **kwargs):
+    if user is not None:
+        audit.record('logout', user=user, request=request)
+
+
+_LOGENTRY_ACTIONS = {ADDITION: 'object_add', CHANGE: 'object_change', DELETION: 'object_delete'}
+
+
+@receiver(post_save, sender=LogEntry)
+def audit_admin_change(sender, instance, created, **kwargs):
+    """Mirror every Django admin add/change/delete into the audit trail."""
+    # raw=True means fixture loading (e.g. a backup restore re-inserting old LogEntry
+    # rows): those are history, not new actions.
+    if not created or kwargs.get('raw'):
+        return
+    action = _LOGENTRY_ACTIONS.get(instance.action_flag)
+    if not action:
+        return
+    model = instance.content_type.model_class() if instance.content_type_id else None
+    model_name = str(model._meta.verbose_name) if model is not None else (
+        instance.content_type.model if instance.content_type_id else '')
+    target = '{}: {}'.format(model_name, instance.object_repr) if model_name else instance.object_repr
+    audit.record(action, user=instance.user, object_repr=target,
+                 message=instance.get_change_message() or '')

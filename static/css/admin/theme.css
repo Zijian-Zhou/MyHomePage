@@ -989,3 +989,100 @@ html {
     color: var(--body-quiet-color);
     border-color: var(--hairline-color);
 }
+
+/* ---------- Audit log ---------- */
+.audit-summary {
+    margin: 0 0 16px;
+}
+
+.audit-summary-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+    margin-bottom: 8px;
+    color: var(--body-quiet-color);
+    font-size: 12px;
+}
+
+.audit-summary-head strong {
+    color: var(--body-fg);
+    font-size: 13px;
+}
+
+.audit-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.audit-summary-card {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 14px;
+    border: 1px solid var(--hairline-color);
+    border-left: 4px solid var(--primary);
+    border-radius: var(--admin-radius, 10px);
+    background: var(--body-bg);
+    box-shadow: var(--admin-module-shadow);
+}
+
+.audit-summary-value {
+    color: var(--body-loud-color);
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.audit-summary-label {
+    color: var(--body-quiet-color);
+    font-size: 12px;
+}
+
+.audit-summary-login-ok { border-left-color: #16a34a; }
+.audit-summary-login-failed { border-left-color: #d97706; }
+.audit-summary-locked { border-left-color: #dc2626; }
+
+.audit-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
+.audit-cat-login { background: #e0ecfb; color: #1d4f8c; }
+.audit-cat-operation { background: #ede9fe; color: #5b21b6; }
+.audit-cat-system { background: #e2e8f0; color: #334155; }
+.audit-status-success { background: #dcfce7; color: #166534; }
+.audit-status-failure { background: #fee2e2; color: #991b1b; }
+
+html[data-theme="dark"] .audit-cat-login { background: #1e3a5f; color: #bfdbfe; }
+html[data-theme="dark"] .audit-cat-operation { background: #3b2a63; color: #ddd6fe; }
+html[data-theme="dark"] .audit-cat-system { background: #334155; color: #e2e8f0; }
+html[data-theme="dark"] .audit-status-success { background: #14532d; color: #bbf7d0; }
+html[data-theme="dark"] .audit-status-failure { background: #7f1d1d; color: #fecaca; }
+
+.audit-message {
+    display: inline-block;
+    max-width: 360px;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 767px) {
+    .audit-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Several checkboxes on one fieldset row (e.g. section items): keep each label clear
+   of its box. */
+#container .form-row .fieldBox input[type="checkbox"] + label.vCheckboxLabel,
+#container .form-row .fieldBox input[type="checkbox"] + label {
+    margin-left: 6px;
+    display: inline;
+}

@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views import View
-from .models import Profile, Publication, PublicationFile, Research, News, Section, SystemConfig, MediaFile
+from .models import Profile, Publication, PublicationFile, Research, News, Section, SectionItem, SystemConfig, MediaFile
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
@@ -202,6 +202,26 @@ def news_detail(request, pk):
     context['previous_news'] = detail_news[current_index - 1] if current_index and current_index > 0 else None
     context['next_news'] = detail_news[current_index + 1] if current_index is not None and current_index + 1 < len(detail_news) else None
     return render(request, 'news_detail.html', context)
+
+
+def section_item_detail(request, pk):
+    """Detail page of a custom-section item (only when its detail page is enabled)."""
+    item = get_object_or_404(
+        SectionItem.objects.select_related('section'),
+        pk=pk, enable_detail=True, is_active=True, is_draft=False,
+        section__is_active=True, section__is_draft=False,
+    )
+    context = _build_home_context(request)
+    siblings = [
+        sibling for sibling in item.section.items.all()  # same order as on the homepage
+        if sibling.enable_detail and sibling.is_active and not sibling.is_draft
+    ]
+    index = next((i for i, sibling in enumerate(siblings) if sibling.pk == item.pk), None)
+    context['item'] = item
+    context['section_obj'] = item.section
+    context['previous_item'] = siblings[index - 1] if index else None
+    context['next_item'] = siblings[index + 1] if index is not None and index + 1 < len(siblings) else None
+    return render(request, 'section_item_detail.html', context)
 
 
 def research_detail(request, pk):

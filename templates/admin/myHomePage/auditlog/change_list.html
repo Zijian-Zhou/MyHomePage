@@ -1,0 +1,21 @@
+{% extends "admin/change_list.html" %}
+
+{% block content %}
+{% if audit_summary %}
+<section class="audit-summary" aria-label="{{ audit_summary_title }}">
+  <div class="audit-summary-head">
+    <strong>{{ audit_summary_title }}</strong>
+    <span>{{ audit_retention_note }}</span>
+  </div>
+  <div class="audit-summary-grid">
+    {% for item in audit_summary %}
+    <div class="audit-summary-card audit-summary-{{ item.key }}">
+      <span class="audit-summary-value">{{ item.value }}</span>
+      <span class="audit-summary-label">{{ item.label }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{{ block.super }}
+{% endblock %}

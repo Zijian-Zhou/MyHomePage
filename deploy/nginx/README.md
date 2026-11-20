@@ -50,6 +50,7 @@ SECRET_KEY=replace-with-a-long-random-secret
 ALLOWED_HOSTS=example.com,www.example.com,127.0.0.1,localhost
 CSRF_TRUSTED_ORIGINS=https://example.com,https://www.example.com
 WEB_PORT=5000
+TRUST_X_FORWARDED_FOR=True
 ```
 
 Generate a secret key:
@@ -60,6 +61,7 @@ python3 -c "import secrets; print(secrets.token_urlsafe(64))"
 
 - Keep `127.0.0.1,localhost` in `ALLOWED_HOSTS`. The container health check requests `http://127.0.0.1:8000/en/` inside the container; without these hosts Django returns `400` and the `web` container stays `unhealthy`.
 - `WEB_PORT` is the host port. It must match the `upstream` / `proxy_pass` port in both Nginx files.
+- `TRUST_X_FORWARDED_FOR=True` makes Django read the client address from Nginx's `X-Real-IP` header. Without it every request appears to come from the Docker gateway: the audit log shows one IP for everybody, and the login lockout (5 failures) locks out all users at once. Enable it only when Nginx is in front of Django.
 
 Build and start the stack. The `init` service runs migrations and `collectstatic` (output: `./staticfiles` on the host):
 
@@ -242,6 +244,7 @@ SECRET_KEY=replace-with-a-long-random-secret
 ALLOWED_HOSTS=example.com,www.example.com,127.0.0.1,localhost
 CSRF_TRUSTED_ORIGINS=https://example.com,https://www.example.com
 WEB_PORT=5000
+TRUST_X_FORWARDED_FOR=True
 ```
 
 生成密钥：
@@ -252,6 +255,7 @@ python3 -c "import secrets; print(secrets.token_urlsafe(64))"
 
 - `ALLOWED_HOSTS` 中必须保留 `127.0.0.1,localhost`。容器健康检查在容器内访问 `http://127.0.0.1:8000/en/`，缺少这两项时 Django 返回 `400`，`web` 容器会一直显示 `unhealthy`。
 - `WEB_PORT` 是宿主机端口，必须与两个 Nginx 文件中 `upstream` / `proxy_pass` 的端口一致。
+- `TRUST_X_FORWARDED_FOR=True` 让 Django 从 Nginx 设置的 `X-Real-IP` 头读取真实客户端 IP。不开启时所有请求都显示为 Docker 网关地址：审计日志里所有人的 IP 都一样，而且登录失败锁定（5 次）会把所有用户一起锁住。只在前面有 Nginx 时开启。
 
 构建并启动。`init` 服务会自动执行数据库迁移和 `collectstatic`（输出到宿主机的 `./staticfiles`）：
 

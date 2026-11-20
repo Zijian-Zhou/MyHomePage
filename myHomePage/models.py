@@ -433,6 +433,7 @@ class SystemConfig(models.Model):
         ('highlighted_authors', _('Highlighted Authors')),
         ('footer_items', _('Footer Items')),
         ('resource_log_retention_hours', _('Resource Log Retention Hours')),
+        ('audit_log_retention_days', _('Audit Log Retention Days')),
     ]
     
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, verbose_name=_('Category'))
@@ -464,6 +465,7 @@ class SystemConfig(models.Model):
                 'highlighted_authors': '高亮作者',
                 'footer_items': '页脚显示项',
                 'resource_log_retention_hours': '\u8d44\u6e90\u76d1\u63a7\u65e5\u5fd7\u4fdd\u7559\u65f6\u957f',
+                'audit_log_retention_days': '审计日志保留天数',
             }
             return zh_labels.get(self.category, self.category)
         return self.get_category_display()
@@ -622,6 +624,79 @@ class SystemConfig(models.Model):
             return max(1.0, value)
         except (ValueError, TypeError):
             return 168.0
+
+    @classmethod
+    def get_audit_log_retention_days(cls):
+        try:
+            return max(1, int(float(cls.get_value('audit_log_retention_days', 180))))
+        except (ValueError, TypeError):
+            return 180
+
+
+def _bilingual(en, zh):
+    """Label that follows the active language (used where .po entries do not exist)."""
+    from django.utils.functional import lazy
+    return lazy(lambda: zh if (get_language() or '').lower().startswith('zh') else en, str)()
+
+
+class AuditLog(models.Model):
+    """Unified audit trail: logins, admin data changes and system operations."""
+
+    CATEGORY_LOGIN = 'login'
+    CATEGORY_OPERATION = 'operation'
+    CATEGORY_SYSTEM = 'system'
+    CATEGORY_CHOICES = [
+        (CATEGORY_LOGIN, _bilingual('Login', '登录')),
+        (CATEGORY_OPERATION, _bilingual('Operation', '操作')),
+        (CATEGORY_SYSTEM, _bilingual('System', '系统')),
+    ]
+
+    STATUS_SUCCESS = 'success'
+    STATUS_FAILURE = 'failure'
+    STATUS_CHOICES = [
+        (STATUS_SUCCESS, _bilingual('Success', '成功')),
+        (STATUS_FAILURE, _bilingual('Failure', '失败')),
+    ]
+
+    ACTION_CHOICES = [
+        ('login_success', _bilingual('Login succeeded', '登录成功')),
+        ('login_failed', _bilingual('Login failed', '登录失败')),
+        ('login_locked', _bilingual('Login locked out', '登录被锁定')),
+        ('logout', _bilingual('Logout', '登出')),
+        ('object_add', _bilingual('Created', '新增')),
+        ('object_change', _bilingual('Changed', '修改')),
+        ('object_delete', _bilingual('Deleted', '删除')),
+        ('sync', _bilingual('Publication sync', '出版物同步')),
+        ('backup_create', _bilingual('Backup created', '新建备份')),
+        ('backup_import', _bilingual('Backup imported', '导入备份')),
+        ('backup_restore', _bilingual('Backup restored', '恢复备份')),
+        ('backup_delete', _bilingual('Backup deleted', '删除备份')),
+        ('audit_export', _bilingual('Audit log exported', '导出审计日志')),
+        ('audit_prune', _bilingual('Audit log pruned', '清理审计日志')),
+    ]
+
+    created_at = models.DateTimeField(_bilingual('Time', '时间'), auto_now_add=True, db_index=True)
+    category = models.CharField(_bilingual('Category', '分类'), max_length=20, choices=CATEGORY_CHOICES, db_index=True)
+    action = models.CharField(_bilingual('Action', '动作'), max_length=40, choices=ACTION_CHOICES, db_index=True)
+    status = models.CharField(_bilingual('Result', '结果'), max_length=10, choices=STATUS_CHOICES,
+                              default=STATUS_SUCCESS, db_index=True)
+    user = models.ForeignKey(User, verbose_name=_bilingual('User', '用户'), null=True, blank=True,
+                             on_delete=models.SET_NULL, related_name='+')
+    username = models.CharField(_bilingual('Username', '用户名'), max_length=150, blank=True, db_index=True)
+    ip_address = models.GenericIPAddressField(_bilingual('IP address', 'IP 地址'), null=True, blank=True)
+    user_agent = models.CharField(_bilingual('User agent', '浏览器'), max_length=300, blank=True)
+    path = models.CharField(_bilingual('Request path', '请求路径'), max_length=300, blank=True)
+    object_repr = models.CharField(_bilingual('Object', '对象'), max_length=200, blank=True)
+    message = models.TextField(_bilingual('Details', '详情'), blank=True)
+
+    class Meta:
+        verbose_name = _bilingual('Audit Log', '审计日志')
+        verbose_name_plural = _bilingual('Audit Logs', '日志审计')
+        ordering = ['-created_at']
+        indexes = [models.Index(fields=['category', '-created_at'])]
+
+    def __str__(self):
+        return '{} {} {}'.format(self.created_at, self.action, self.username)
 
 
 class ResourceMetricLog(models.Model):
@@ -848,8 +923,6 @@ class News(models.Model):
 class Section(models.Model):
     title = models.CharField(_('Title'), max_length=200)
     title_zh = models.CharField(_('Title (Chinese)'), max_length=200, blank=True, default='')
-    content = models.TextField(_('Content'), blank=True)
-    content_zh = models.TextField(_('Content (Chinese)'), blank=True, default='')
     order = models.IntegerField(_('Order'), default=0)
     is_active = models.BooleanField(_('Active'), default=True)
     is_draft = models.BooleanField(_('Draft'), default=False)
@@ -870,17 +943,6 @@ class Section(models.Model):
             return self.title_zh
         return self.title
 
-    def get_display_content(self):
-        if _use_zh_content() and self.content_zh:
-            return self.content_zh
-        return self.content
-
-    def get_formatted_content(self):
-        """Convert markdown content to safe HTML (raw HTML is escaped)."""
-        content = self.get_display_content()
-        if not content:
-            return ''
-        return markdown.markdown(escape(content), extensions=['extra'])
 
 
 class SectionItem(models.Model):
@@ -892,6 +954,9 @@ class SectionItem(models.Model):
     is_active = models.BooleanField(_('Active'), default=True)
     is_draft = models.BooleanField(_('Draft'), default=False)
     order = models.IntegerField(_('Order'), default=0)
+    enable_detail = models.BooleanField(_('Enable Detail Page'), default=False)
+    detail_content = models.TextField(_('Detail Content'), blank=True, default='')
+    detail_content_zh = models.TextField(_('Detail Content (Chinese)'), blank=True, default='')
     display_time = models.DateTimeField(_('Display Time'), default=timezone.now)
     created_at = models.DateTimeField(_('Created at'), auto_now_add=True)
     updated_at = models.DateTimeField(_('Updated at'), auto_now=True)
@@ -920,6 +985,22 @@ class SectionItem(models.Model):
         if not content:
             return ''
         return markdown.markdown(escape(content), extensions=['extra'])
+
+    def get_display_detail_content(self):
+        """Detail-page text; falls back to the card content when left empty."""
+        if _use_zh_content() and self.detail_content_zh:
+            return self.detail_content_zh
+        return self.detail_content or self.get_display_content()
+
+    def get_formatted_detail_content(self):
+        content = self.get_display_detail_content()
+        if not content:
+            return ''
+        return markdown.markdown(escape(content), extensions=['extra'])
+
+    def get_card_title(self):
+        """Title shown on the card and detail page; falls back to the section title."""
+        return self.get_display_title() or self.section.get_display_title()
 
 
 class MediaFile(models.Model):

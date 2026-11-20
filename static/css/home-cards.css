@@ -421,3 +421,106 @@ body.image-viewer-open {
         padding: 0 0.15rem;
     }
 }
+
+/* ---------- Shared Markdown typography for card bodies ----------
+   The homepage resets every margin/padding (index.css: * { margin: 0; padding: 0 }).
+   News bodies restore Markdown spacing in admin/publication.css; apply the same values to
+   custom-section items, their detail pages and research descriptions so lists are
+   indented and paragraphs spaced identically in every card. */
+.custom-section .section-item .section-content p,
+.section-item-detail .section-content p,
+.research-item .description p {
+    margin: 0 0 1rem;
+}
+
+.custom-section .section-item .section-content ul,
+.custom-section .section-item .section-content ol,
+.section-item-detail .section-content ul,
+.section-item-detail .section-content ol,
+.research-item .description ul,
+.research-item .description ol {
+    margin: 1rem 0;
+    padding-left: 2rem;
+}
+
+.custom-section .section-item .section-content li,
+.section-item-detail .section-content li,
+.research-item .description li {
+    margin-bottom: 0.5rem;
+}
+
+.custom-section .section-item .section-content :is(h1, h2, h3, h4, h5, h6),
+.section-item-detail .section-content :is(h1, h2, h3, h4, h5, h6) {
+    color: var(--primary-color);
+    margin: 1.5rem 0 1rem;
+}
+
+.custom-section .section-item .section-content pre,
+.section-item-detail .section-content pre {
+    margin: 1rem 0;
+    padding: 1rem;
+}
+
+.custom-section .section-item .section-content pre code,
+.section-item-detail .section-content pre code {
+    background-color: transparent;
+    padding: 0;
+}
+
+.custom-section .section-item .section-content :is(blockquote, img, table),
+.section-item-detail .section-content :is(blockquote, img, table) {
+    margin: 1rem 0;
+}
+
+.custom-section .section-item .section-content :is(th, td),
+.section-item-detail .section-content :is(th, td) {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+}
+
+/* No stray space at the top/bottom of a card body. */
+.custom-section .section-item .section-content > :first-child,
+.section-item-detail .section-content > :first-child,
+.research-item .description > :first-child {
+    margin-top: 0;
+}
+
+.custom-section .section-item .section-content > :last-child,
+.section-item-detail .section-content > :last-child,
+.research-item .description > :last-child {
+    margin-bottom: 0;
+}
+
+.section-item-actions {
+    margin-top: 0.75rem;
+}
+
+/* ---------- Detail pages (news / publication / research / section item) ----------
+   Same card as the homepage: full container width, same left/right edges and 24px
+   padding. The old 860px card / 760px text column (index.css) is overridden here
+   because these unified card rules load later and already reset its margins. */
+.news-detail-section .news-item.news-detail {
+    max-width: none;
+    width: 100%;
+    margin: 0;
+}
+
+.news-detail > .news-content > :is(
+    .news-detail-title,
+    .news-detail-divider,
+    .news-detail-date,
+    .publication-detail-meta,
+    .news-detail-image,
+    .news-detail-content,
+    .detail-content-end,
+    .news-actions,
+    .news-detail-nav
+) {
+    max-width: none;
+}
+
+.news-detail > .news-content > .news-actions,
+.news-detail > .news-content > .news-detail-nav {
+    margin-left: 0;
+    margin-right: 0;
+}

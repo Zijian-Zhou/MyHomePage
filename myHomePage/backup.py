@@ -37,7 +37,10 @@ MEDIA_PREFIX = 'media/'
 
 # Content types and permissions are recreated by migrations (records reference them
 # by natural key); sessions and resource-monitor samples are transient.
-DUMP_EXCLUDES = ['contenttypes', 'auth.permission', 'sessions', 'myHomePage.ResourceMetricLog']
+# The audit trail is not part of a backup: restoring must never roll it back (it is
+# preserved across a restore instead, see restore_backup()).
+DUMP_EXCLUDES = ['contenttypes', 'auth.permission', 'sessions', 'myHomePage.ResourceMetricLog',
+                 'myHomePage.AuditLog']
 
 BACKUP_NAME_RE = re.compile(r'^[A-Za-z0-9][A-Za-z0-9._-]{0,150}\.zip$')
 KIND_MANUAL = 'manual'
@@ -309,6 +312,27 @@ def _clear_children(directory):
             child.unlink()
 
 
+def _snapshot_audit_log():
+    from .models import AuditLog
+    return list(AuditLog.objects.values())
+
+
+def _restore_audit_log(rows):
+    """Put the pre-restore audit trail back; drop links to users that no longer exist."""
+    from django.contrib.auth.models import User
+    from .models import AuditLog
+    if not rows:
+        return
+    existing_users = set(User.objects.values_list('pk', flat=True))
+    objects = []
+    for row in rows:
+        row = dict(row)
+        if row.get('user_id') not in existing_users:
+            row['user_id'] = None
+        objects.append(AuditLog(**row))
+    AuditLog.objects.bulk_create(objects, batch_size=500)
+
+
 def restore_backup(name):
     """Replace the database and media with the archive's contents.
 
@@ -341,8 +365,10 @@ def restore_backup(name):
         try:
             _move_children(new_media, media_root)
             with transaction.atomic():
+                audit_rows = _snapshot_audit_log()
                 call_command('flush', interactive=False, verbosity=0)
                 call_command('loaddata', str(work / DATA_NAME), ignore=True, verbosity=0)
+                _restore_audit_log(audit_rows)
         except Exception:
             _clear_children(media_root)
             _move_children(old_media, media_root)

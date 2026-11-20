@@ -58,6 +58,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'myHomePage.audit.AuditContextMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'myHomePage.middleware.ChineseModeUrlMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -196,6 +197,10 @@ X_FRAME_OPTIONS = os.getenv('X_FRAME_OPTIONS', 'DENY')
 SECURE_REFERRER_POLICY = os.getenv('SECURE_REFERRER_POLICY', 'same-origin')
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
+# Behind a reverse proxy (Nginx) the real client address is in X-Forwarded-For.
+# Enable only when such a proxy is in front of Django: otherwise clients could spoof it.
+# Used by audit logs and by the login rate limiter.
+TRUST_X_FORWARDED_FOR = os.getenv('TRUST_X_FORWARDED_FOR', 'False').lower() in {'1', 'true', 'yes', 'on'}
 ENABLE_IP_GEO_LANGUAGE = os.getenv('ENABLE_IP_GEO_LANGUAGE', 'False').lower() in {'1', 'true', 'yes', 'on'}
 CSRF_TRUSTED_ORIGINS = _get_env_list('CSRF_TRUSTED_ORIGINS', '')
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

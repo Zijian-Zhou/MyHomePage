@@ -216,15 +216,19 @@
     <section class="section custom-section" id="section-{{ section.id }}">
         <div class="container">
             <h2 class="section-title">{{ section.get_display_title }}</h2>
-            {% if section.get_display_content %}
-            <div class="section-content section-intro">{{ section.get_formatted_content|safe }}</div>
-            {% endif %}
             {% if section.visible_items %}
             <div class="section-items">
                 {% for item in section.visible_items %}
                 <article class="section-item">
                     {% if item.get_display_title %}<h4>{{ item.get_display_title }}</h4>{% endif %}
                     <div class="section-content">{{ item.get_formatted_content|safe }}</div>
+                    {% if item.enable_detail %}
+                    <div class="publication-actions section-item-actions">
+                        <a href="{% url 'section_item_detail' item.pk %}" class="paper-link publication-action">
+                            [{% if is_chinese_page %}&#26597;&#30475;&#35814;&#24773;{% else %}{% trans "View Details" %}{% endif %}]
+                        </a>
+                    </div>
+                    {% endif %}
                 </article>
                 {% endfor %}
             </div>

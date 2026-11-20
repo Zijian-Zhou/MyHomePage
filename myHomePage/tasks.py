@@ -6,6 +6,8 @@ from .models import Profile, SystemConfig
 from .services import sync_publications
 from django.db import models
 
+from . import audit
+
 @shared_task
 def sync_publications_task():
     """定期同步出版物的Celery任务"""
@@ -27,8 +29,12 @@ def sync_publications_task():
         try:
             imported = sync_publications(profile)
             total_imported += imported
+            audit.record('sync', category='system', username='system', request=False, object_repr=str(profile),
+                         message='Scheduled sync. Imported: {}.'.format(imported))
         except Exception as e:
             print(f"Error syncing publications for {profile}: {str(e)}")
+            audit.record('sync', category='system', status='failure', username='system', request=False,
+                         object_repr=str(profile), message='Scheduled sync failed: {}'.format(e))
             continue
     
     return total_imported
@@ -41,4 +47,6 @@ def get_sync_interval():
 @shared_task
 def clear_expired_sessions_task():
     deleted, _ = Session.objects.filter(expire_date__lt=timezone.now()).delete()
+    # Hourly housekeeping also enforces the audit-log retention period.
+    audit.prune()
     return deleted

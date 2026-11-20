@@ -42,7 +42,7 @@ The application supports English and Simplified Chinese, Markdown content, ORCID
 - Publication attachments can be uploaded files or external URLs, with labels such as PDF, Slides, Code, Data, and Supplement.
 - News and research cards support summaries, optional Markdown detail pages, images, and previous/next navigation.
 - When a news or research summary is empty, it is generated from the first 300 words/characters of the content.
-- Custom homepage sections and ordered section items with Markdown rendering.
+- Custom homepage sections and ordered section items with Markdown rendering; an item can enable its own detail page with separate detail content (the card adds a View Details link); items collapse in the admin and have their own Save / Delete buttons, and the admin offers a Markdown preview for item content.
 - Independent asynchronous pagination for each homepage section; changing one section does not reset the others or reload the whole page.
 - Empty sections are omitted from both navigation and page content.
 - Configurable footer items (display name, optional icon and link; the icon can be a Font Awesome class, an image URL, or an uploaded image) and styled 4xx/5xx/access-denied pages.
@@ -74,7 +74,8 @@ The application supports English and Simplified Chinese, Markdown content, ORCID
 - System Configuration and AI Configuration are independent top-level administration entries.
 - Footer items are edited in a table with live icon preview and icon upload (PNG/JPG/GIF/WEBP/ICO, stored as Media Files).
 - User/group management and localized configuration forms.
-- System resource monitor with live and historical CPU, memory, disk, and network throughput charts.
+- System resource monitor with live and historical CPU, memory, disk, and network throughput charts, plus database / media / backup storage usage.
+- Audit log (superusers only): logins, failed logins, lockouts, logouts, every admin add/change/delete, publication syncs, and backup operations, with user, IP, and user agent; filters, search, 24-hour summary, CSV export, and configurable retention (`audit_log_retention_days`, default 180). The audit trail is not part of backups and survives a restore.
 - System backup (superusers only): create full backups of the database and media, download, delete, import external backups, and restore with an automatic pre-restore safety backup.
 
 #### Publication synchronization
@@ -118,7 +119,7 @@ The application supports English and Simplified Chinese, Markdown content, ORCID
 | `PublicationFile` | Ordered uploaded files or external URLs attached to a publication |
 | `Research` | Bilingual project title, summary, description, dates, image, and optional detail page |
 | `News` | Bilingual title, summary, content, image, and optional detail page |
-| `Section` / `SectionItem` | Custom homepage sections and their ordered Markdown entries |
+| `Section` / `SectionItem` | Custom homepage sections and their ordered Markdown entries (with optional detail pages) |
 | `MediaFile` | Managed Markdown assets with opaque access keys and activation control |
 | `SystemConfig` | Language, pagination, synchronization, footer, integration, and monitoring settings |
 | `AIConfig` | LLM provider endpoint, model, credentials, parameters, and health state |
@@ -387,6 +388,7 @@ Google Scholar may rate-limit or block automated requests. Use synchronization c
 | `CELERY_BROKER_URL` | Local AMQP guest URL | Celery broker connection |
 | `ENABLE_RESOURCE_MONITOR` | `True` | Starts the background resource sampler |
 | `ENABLE_IP_GEO_LANGUAGE` | `False` | Enables IP-based language selection |
+| `TRUST_X_FORWARDED_FOR` | `False` | Read the client IP from the reverse proxy (`X-Real-IP`); set `True` behind Nginx so audit logs and login lockout see real client addresses |
 | `LOGIN_MAX_ATTEMPTS` | `5` | Failed-login threshold |
 | `LOGIN_ATTEMPT_WINDOW_SECONDS` | `600` | Login-attempt window |
 | `LOGIN_LOCKOUT_SECONDS` | `900` | Lockout duration |
@@ -492,7 +494,7 @@ MyHomePage 是一个面向研究人员、学生、实验室和专业人士的自
 - 论文附件既可以上传本地文件，也可以填写外部 URL；内置 PDF、Slides、Code、Data、Supplement 等显示文字。
 - 新闻和研究项目支持摘要、图片、可选 Markdown 详情页，以及上一篇/下一篇导航。
 - 新闻或研究摘要为空时，自动截取正文前 300 个字词作为摘要。
-- 支持自定义主页栏目和有序栏目条目，内容可使用 Markdown。
+- 支持自定义主页栏目和有序栏目条目，内容可使用 Markdown；条目可启用独立详情页并单独填写详情内容（卡片显示“查看详情”链接）；后台条目可折叠，并带独立的保存 / 删除按钮，后台可对条目内容进行 Markdown 预览。
 - 每个栏目独立异步分页；切换某个栏目页码不会重置其他栏目，也不会刷新整个页面。
 - 数据数量为 0 的栏目不会出现在主页导航和内容区域。
 - 支持配置页脚项（显示名称、可选图标和链接；图标可以是 Font Awesome 类名、图片地址或上传的图片），并提供统一美化的 4xx、5xx 和禁止访问页面。
@@ -524,7 +526,8 @@ MyHomePage 是一个面向研究人员、学生、实验室和专业人士的自
 - “系统配置”和“AI 配置”是后台同级入口。
 - 页脚项以表格方式编辑，支持图标实时预览和图标上传（PNG/JPG/GIF/WEBP/ICO，保存到媒体文件）。
 - 支持用户、用户组及本地化配置管理。
-- 系统资源监控展示实时和历史 CPU、内存、磁盘、网络上下行速度。
+- 系统资源监控展示实时和历史 CPU、内存、磁盘、网络上下行速度，以及数据库、媒体文件和备份文件的存储占用。
+- 日志审计（仅超级管理员）：记录登录成功/失败、锁定、登出、后台所有新增/修改/删除、出版物同步和备份操作，包含用户、IP 和浏览器信息；支持筛选、搜索、近 24 小时统计、导出 CSV，保留天数可配置（`audit_log_retention_days`，默认 180 天）。审计日志不包含在备份中，恢复备份时会完整保留。
 - 系统备份（仅超级管理员）：一键备份数据库和 media 文件，支持下载、删除、导入外部备份，以及恢复（恢复前自动创建安全备份）。
 
 #### 出版物同步
@@ -568,7 +571,7 @@ MyHomePage 是一个面向研究人员、学生、实验室和专业人士的自
 | `PublicationFile` | 论文下有序排列的上传文件或外部 URL |
 | `Research` | 双语研究标题、摘要、描述、日期、图片和可选详情页 |
 | `News` | 双语新闻标题、摘要、正文、图片和可选详情页 |
-| `Section` / `SectionItem` | 自定义主页栏目及其中的有序 Markdown 条目 |
+| `Section` / `SectionItem` | 自定义主页栏目及其中的有序 Markdown 条目（条目可启用详情页） |
 | `MediaFile` | 带访问键和激活控制的 Markdown 媒体资源 |
 | `SystemConfig` | 语言、分页、同步、页脚、外部服务和监控设置 |
 | `AIConfig` | LLM 地址、模型、凭据、参数和健康状态 |
@@ -799,6 +802,7 @@ Google Scholar 可能限制或阻止自动请求，请控制同步频率并遵�
 | `CELERY_BROKER_URL` | 本地 AMQP guest 地址 | Celery Broker 连接地址 |
 | `ENABLE_RESOURCE_MONITOR` | `True` | 是否启动后台资源采样线程 |
 | `ENABLE_IP_GEO_LANGUAGE` | `False` | 是否根据 IP 自动选择语言 |
+| `TRUST_X_FORWARDED_FOR` | `False` | 从反向代理（`X-Real-IP`）读取真实客户端 IP；部署在 Nginx 后面时设为 `True`，审计日志和登录锁定才能识别真实 IP |
 | `LOGIN_MAX_ATTEMPTS` | `5` | 登录失败次数阈值 |
 | `LOGIN_ATTEMPT_WINDOW_SECONDS` | `600` | 登录失败统计窗口 |
 | `LOGIN_LOCKOUT_SECONDS` | `900` | 锁定时长 |

@@ -12,6 +12,8 @@ from django.utils import timezone
 from datetime import timedelta, datetime
 from .models import Profile, Publication, PublicationFile, Research, SystemConfig, ResourceMetricLog, News, Section, SectionItem, MediaFile, AIConfig
 from .models import footer_icon_type, is_safe_footer_href
+from .models import AuditLog
+from . import audit
 from .services import sync_publications, ORCIDService, GoogleScholarService, ORCIDOAuth, deduplicate_publications
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.admin.sites import AdminSite
@@ -73,6 +75,11 @@ def _is_zh_mode():
     return (get_language() or '').lower().startswith('zh')
 
 
+def _bilingual_label(en, zh):
+    from django.utils.functional import lazy
+    return lazy(lambda: zh if _is_zh_mode() else en, str)()
+
+
 def _category_label_map():
     if _is_zh_mode():
         return {
@@ -89,6 +96,7 @@ def _category_label_map():
             'highlighted_authors': '高亮作者',
             'footer_items': '页脚显示项',
             'resource_log_retention_hours': '\u8d44\u6e90\u76d1\u63a7\u65e5\u5fd7\u4fdd\u7559\u65f6\u957f',
+            'audit_log_retention_days': '审计日志保留天数',
         }
     return {
         'enable_chinese': _('Enable Chinese'),
@@ -104,6 +112,7 @@ def _category_label_map():
         'highlighted_authors': _('Highlighted Authors'),
         'footer_items': _('Footer Items'),
         'resource_log_retention_hours': _('Resource Log Retention Hours'),
+        'audit_log_retention_days': _('Audit Log Retention Days'),
     }
 
 
@@ -316,6 +325,17 @@ class SystemConfigAdminForm(forms.ModelForm):
             return str(parsed)
         if category == 'footer_items':
             return _validate_footer_items_json(value)
+        if category == 'audit_log_retention_days':
+            try:
+                parsed = int(float(str(value).strip() or '180'))
+            except (ValueError, TypeError):
+                parsed = 0
+            if parsed < 1:
+                raise forms.ValidationError(
+                    '审计日志保留天数必须是正整数。' if _is_zh_mode()
+                    else 'Audit Log Retention Days must be a positive integer.'
+                )
+            return str(parsed)
         return (value or '').strip()
 
     def __init__(self, *args, **kwargs):
@@ -359,6 +379,7 @@ class CustomAdminSite(AdminSite):
             path('auto-translate-field/', self.admin_view(self.auto_translate_field), name='auto-translate-field'),
             path('system-resources/', self.admin_view(self.system_resources), name='system-resources'),
             path('system-resources/data/', self.admin_view(self.system_resources_data), name='system-resources-data'),
+            path('markdown-preview/', self.admin_view(self.markdown_preview), name='markdown-preview'),
             path('system-backup/', self.admin_view(self.system_backup), name='system-backup'),
             path('system-backup/<str:name>/download/', self.admin_view(self.system_backup_download), name='system-backup-download'),
             path('system-backup/<str:name>/restore/', self.admin_view(self.system_backup_restore), name='system-backup-restore'),
@@ -495,6 +516,14 @@ class CustomAdminSite(AdminSite):
         except (KeyError, IndexError):
             return template
 
+    def markdown_preview(self, request):
+        """Render Markdown exactly like the public site does (raw HTML escaped)."""
+        if request.method != 'POST':
+            return JsonResponse({'error': 'Method not allowed.'}, status=405)
+        content = request.POST.get('content', '')
+        rendered = markdown.markdown(escape(content), extensions=['extra']) if content else ''
+        return JsonResponse({'html': rendered})
+
     def _require_superuser(self, request):
         if not request.user.is_superuser:
             raise PermissionDenied
@@ -510,6 +539,8 @@ class CustomAdminSite(AdminSite):
                 if action == 'create':
                     info = backup_service.create_backup(note=request.POST.get('note', ''))
                     messages.success(request, labels['created'].format(name=info['name']))
+                    audit.record('backup_create', object_repr=info['name'],
+                                 message=request.POST.get('note', '')[:500])
                 elif action == 'import':
                     uploaded = request.FILES.get('backup_file')
                     if not uploaded:
@@ -517,11 +548,16 @@ class CustomAdminSite(AdminSite):
                     else:
                         info = backup_service.import_backup(uploaded)
                         messages.success(request, labels['imported'].format(name=info['name']))
+                        audit.record('backup_import', object_repr=info['name'],
+                                     message='Uploaded file: {}'.format(uploaded.name))
             except backup_service.BackupError as exc:
-                messages.error(request, labels['failed'].format(error=self._backup_error_text(labels, exc)))
+                error = self._backup_error_text(labels, exc)
+                messages.error(request, labels['failed'].format(error=error))
+                audit.record('backup_import' if action == 'import' else 'backup_create', status='failure', message=error)
             except Exception as exc:
                 logger.exception('System backup action %s failed.', action)
                 messages.error(request, labels['failed'].format(error=exc))
+                audit.record('backup_import' if action == 'import' else 'backup_create', status='failure', message=str(exc))
             return redirect('admin:system-backup')
 
         backups = []
@@ -584,10 +620,14 @@ class CustomAdminSite(AdminSite):
         try:
             backup_service.delete_backup(name)
             messages.success(request, labels['deleted'].format(name=name))
+            audit.record('backup_delete', object_repr=name)
         except backup_service.BackupError as exc:
-            messages.error(request, labels['failed'].format(error=self._backup_error_text(labels, exc)))
+            error = self._backup_error_text(labels, exc)
+            messages.error(request, labels['failed'].format(error=error))
+            audit.record('backup_delete', status='failure', object_repr=name, message=error)
         except OSError as exc:
             messages.error(request, labels['failed'].format(error=exc))
+            audit.record('backup_delete', status='failure', object_repr=name, message=str(exc))
         return redirect('admin:system-backup')
 
     def system_backup_restore(self, request, name):
@@ -598,15 +638,24 @@ class CustomAdminSite(AdminSite):
         if request.method != 'POST':
             return redirect('admin:system-backup')
         labels = self._backup_labels()
+        actor = request.user.get_username()
         try:
             result = backup_service.restore_backup(name)
         except backup_service.BackupError as exc:
-            messages.error(request, labels['failed'].format(error=self._backup_error_text(labels, exc)))
+            error = self._backup_error_text(labels, exc)
+            messages.error(request, labels['failed'].format(error=error))
+            audit.record('backup_restore', status='failure', object_repr=name, message=error)
             return redirect('admin:system-backup')
         except Exception as exc:
             logger.exception('Restoring backup %s failed.', name)
             messages.error(request, labels['failed'].format(error=exc))
+            audit.record('backup_restore', status='failure', object_repr=name, message=str(exc))
             return redirect('admin:system-backup')
+
+        # Written after the restore so it lands in the restored database. The acting
+        # user may not exist there any more, so keep only the username.
+        audit.record('backup_restore', user=False, username=actor, object_repr=name,
+                     message='Safety backup of the previous state: {}'.format(result['safety_backup']['name']))
 
         # The sessions table was flushed and the user table replaced: end this session
         # cleanly (a new empty session is created) and send the user to the login page.
@@ -1232,6 +1281,7 @@ class CustomAdminSite(AdminSite):
             'news': _('News'),
             'section': _('Custom Sections'),
             'mediafile': _('Media Files'),
+            'auditlog': '日志审计' if _is_zh_mode() else 'Audit Logs',
         }
 
         app_list = super().get_app_list(request)
@@ -1470,11 +1520,18 @@ class ProfileAdmin(DraftSaveMixin, BaseAdmin):
                     )
             elif not errors:
                 messages.info(request, _('No new publications to sync'))
-                
+
+            audit.record(
+                'sync', status='failure' if errors else 'success', object_repr=str(profile),
+                message='New publications: {}. Duplicates merged: {}.{}'.format(
+                    net_new, dedupe_stats.get('removed', 0),
+                    (' Errors: ' + ' | '.join(str(e) for e in errors)) if errors else ''),
+            )
         except Exception as e:
             logger.error(f"Sync failed: {str(e)}")
             messages.error(request, _('Sync failed: %(error)s') % {'error': str(e)})
-        
+            audit.record('sync', status='failure', object_repr='Profile #{}'.format(profile_id), message=str(e))
+
         return HttpResponseRedirect(reverse('admin:myHomePage_profile_changelist'))
     
     def sync_status(self, obj):
@@ -1539,6 +1596,7 @@ class ProfileAdmin(DraftSaveMixin, BaseAdmin):
     
     def sync_selected(self, request, queryset):
         total_imported = 0
+        batch_errors = []
         before_count = Publication.objects.count()
         sync_interval = SystemConfig.objects.filter(
             category='sync_interval',
@@ -1573,6 +1631,7 @@ class ProfileAdmin(DraftSaveMixin, BaseAdmin):
             except Exception as e:
                 logger.error(f"Sync failed (Profile {profile.id}): {str(e)}")
                 messages.error(request, _('Sync failed (Profile %(id)d): %(error)s') % {'id': profile.id, 'error': str(e)})
+                batch_errors.append('{}: {}'.format(profile, e))
         
         # Ensure duplicates are merged after batch sync
         dedupe_stats = deduplicate_publications()
@@ -1589,7 +1648,14 @@ class ProfileAdmin(DraftSaveMixin, BaseAdmin):
                     request,
                     _('Deduplicated %(count)d entries') % {'count': dedupe_stats.get("removed", 0)}
                 )
-    
+        audit.record(
+            'sync', status='failure' if batch_errors else 'success',
+            object_repr=', '.join(str(p) for p in queryset)[:200],
+            message='Batch sync. New publications: {}. Duplicates merged: {}.{}'.format(
+                net_new, dedupe_stats.get('removed', 0),
+                (' Errors: ' + ' | '.join(batch_errors)) if batch_errors else ''),
+        )
+
     sync_selected.short_description = _('Sync selected profiles')
 
     def orcid_link(self, obj):
@@ -2219,6 +2285,8 @@ class SystemConfigAdmin(admin.ModelAdmin):
                 default_value = '6'
             elif category == 'resource_log_retention_hours':
                 default_value = '168'
+            elif category == 'audit_log_retention_days':
+                default_value = '180'
             else:
                 default_value = ''
             SystemConfig.objects.create(
@@ -2262,6 +2330,12 @@ class SystemConfigAdmin(admin.ModelAdmin):
                 '\u8d44\u6e90\u76d1\u63a7\u5386\u53f2\u65e5\u5fd7\u4fdd\u7559\u65f6\u957f\uff08\u5c0f\u65f6\uff09\uff0c\u9ed8\u8ba4 168 \u5c0f\u65f6\u3002'
                 if _is_zh_mode()
                 else _('How long resource monitor logs are retained, in hours. Default is 168 hours.')
+            )
+        if obj and obj.category == 'audit_log_retention_days':
+            form.base_fields['value'].help_text = (
+                '登录日志和操作日志的保留天数，默认 180 天；超过期限的日志每小时自动清理一次。'
+                if _is_zh_mode()
+                else 'How many days login and operation logs are kept (default 180). Older entries are removed hourly.'
             )
         if obj and obj.category == 'scholar_proxy':
             form.base_fields['value'].help_text = _('Format: http://username:password@host:port or http://host:port')
@@ -2308,6 +2382,8 @@ class SystemConfigAdmin(admin.ModelAdmin):
             obj.value = '6'
         elif obj.category == 'resource_log_retention_hours' and not value:
             obj.value = '168'
+        elif obj.category == 'audit_log_retention_days' and not value:
+            obj.value = '180'
         else:
             obj.value = value
         super().save_model(request, obj, form, change)
@@ -2608,29 +2684,56 @@ class NewsAdmin(DraftSaveMixin, BaseAdmin):
 
 
 
-class SectionItemInline(admin.TabularInline):
+class SectionItemInline(admin.StackedInline):
+    # Stacked (not tabular): each item gets room for Markdown content, the
+    # Translate / Preview actions and the detail-page switch.
     model = SectionItem
-    extra = 1
-    fields = ('title', 'title_zh', 'content', 'content_zh', 'is_active', 'is_draft', 'order', 'display_time')
+    extra = 0
     ordering = ('order', 'id')
+    fieldsets = (
+        (None, {'fields': (('title', 'title_zh'), 'content', 'content_zh',
+                           ('enable_detail', 'is_active', 'is_draft'),
+                           'detail_content', 'detail_content_zh',  # shown only when enable_detail is ticked
+                           ('order', 'display_time'))}),
+    )
 
-    def get_fields(self, request, obj=None):
-        fields = super().get_fields(request, obj)
-        if not SystemConfig.is_chinese_enabled():
-            return tuple(f for f in fields if not str(f).endswith('_zh'))
-        return fields
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super().get_fieldsets(request, obj)
+        if SystemConfig.is_chinese_enabled():
+            return fieldsets
+        cleaned = []
+        for name, opts in fieldsets:
+            rows = []
+            for row in opts['fields']:
+                if isinstance(row, (tuple, list)):
+                    row = tuple(f for f in row if not f.endswith('_zh'))
+                    if row:
+                        rows.append(row if len(row) > 1 else row[0])
+                elif not row.endswith('_zh'):
+                    rows.append(row)
+            cleaned.append((name, dict(opts, fields=tuple(rows))))
+        return tuple(cleaned)
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         formfield = super().formfield_for_dbfield(db_field, request, **kwargs)
+        if db_field.name in ('detail_content', 'detail_content_zh'):
+            formfield.help_text = (
+                '详情页显示的内容，支持 Markdown；留空时显示上面的内容。' if _is_zh_mode()
+                else 'Shown on the detail page (Markdown). Falls back to the content above when empty.'
+            )
         if _is_zh_mode():
             label_map = {
                 'title': '标题',
                 'title_zh': '标题（中文）',
                 'content': '内容',
                 'content_zh': '内容（中文）',
+                'enable_detail': '启用详情页',
+                'detail_content': '详情页内容',
+                'detail_content_zh': '详情页内容（中文）',
                 'is_active': '启用',
                 'is_draft': '草稿',
                 'order': '排序',
+                'display_time': '显示时间',
             }
             if db_field.name in label_map:
                 formfield.label = label_map[db_field.name]
@@ -2639,14 +2742,18 @@ class SectionItemInline(admin.TabularInline):
 
 @admin.register(Section)
 class SectionAdmin(DraftSaveMixin, BaseAdmin):
+    class Media:
+        js = (_static_v('js/admin/markdown_preview.js'), _static_v('js/admin/section_items_admin.js'))
+        css = {'all': (_static_v('css/admin/section_items_admin.css'),)}
+
     list_display = ('title', 'order', 'display_time', 'is_active', 'is_draft', 'created_at', 'updated_at')
     inlines = (SectionItemInline,)
     list_filter = ('is_active', 'is_draft')
-    search_fields = ('title', 'title_zh', 'content', 'content_zh')
+    search_fields = ('title', 'title_zh', 'items__title', 'items__content')
     ordering = ('order', '-created_at')
     fieldsets = (
         (_('Basic Information'), {
-            'fields': ('title', 'title_zh', 'content', 'content_zh', 'is_active', 'is_draft', 'order')
+            'fields': ('title', 'title_zh', 'is_active', 'is_draft', 'order')
         }),
         (_('Timestamps'), {
             'fields': ('display_time', 'created_at', 'updated_at'),
@@ -2660,8 +2767,6 @@ class SectionAdmin(DraftSaveMixin, BaseAdmin):
         return _apply_zh_field_labels(form, {
             'title': '栏目标题',
             'title_zh': '栏目标题（中文）',
-            'content': '栏目描述',
-            'content_zh': '栏目描述（中文）',
             'is_active': '启用',
             'is_draft': '草稿',
             'order': '排序',
@@ -2743,3 +2848,137 @@ admin_site.register(AIConfig, AIConfigAdmin)
 admin_site.register(News, NewsAdmin)
 admin_site.register(Section, SectionAdmin)
 admin_site.register(MediaFile, MediaFileAdmin)
+
+
+class AuditLogAdmin(admin.ModelAdmin):
+    """Read-only audit trail (superusers only): logins, admin changes, operations."""
+
+    change_list_template = 'admin/myHomePage/auditlog/change_list.html'
+    list_display = ('time_display', 'category_badge', 'action_display', 'status_badge',
+                    'user_display', 'ip_address', 'object_display', 'message_display')
+    list_display_links = ('time_display',)
+    list_filter = ('category', 'action', 'status', 'created_at')
+    search_fields = ('username', 'ip_address', 'object_repr', 'message', 'path')
+    date_hierarchy = 'created_at'
+    list_per_page = 50
+    ordering = ('-created_at',)
+    actions = ['export_csv']
+    readonly_fields = ('created_at', 'category', 'action', 'status', 'user', 'username', 'ip_address',
+                       'user_agent', 'path', 'object_repr', 'message')
+    fields = readonly_fields
+
+    PRUNE_CACHE_KEY = 'audit-log-last-prune'
+
+    # ---- permissions: superusers may read; nobody may add, edit or delete ----
+    def has_module_permission(self, request):
+        return request.user.is_active and request.user.is_superuser
+
+    def has_view_permission(self, request, obj=None):
+        return request.user.is_active and request.user.is_superuser
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    # ---- columns ----
+    def time_display(self, obj):
+        return timezone.localtime(obj.created_at).strftime('%Y-%m-%d %H:%M:%S')
+    time_display.short_description = AuditLog._meta.get_field('created_at').verbose_name
+    time_display.admin_order_field = 'created_at'
+
+    def category_badge(self, obj):
+        return format_html('<span class="audit-badge audit-cat-{}">{}</span>', obj.category, obj.get_category_display())
+    category_badge.short_description = AuditLog._meta.get_field('category').verbose_name
+    category_badge.admin_order_field = 'category'
+
+    def action_display(self, obj):
+        return obj.get_action_display()
+    action_display.short_description = AuditLog._meta.get_field('action').verbose_name
+    action_display.admin_order_field = 'action'
+
+    def status_badge(self, obj):
+        return format_html('<span class="audit-badge audit-status-{}">{}</span>', obj.status, obj.get_status_display())
+    status_badge.short_description = AuditLog._meta.get_field('status').verbose_name
+    status_badge.admin_order_field = 'status'
+
+    def user_display(self, obj):
+        return obj.username or (obj.user.get_username() if obj.user_id else '-')
+    user_display.short_description = AuditLog._meta.get_field('username').verbose_name
+    user_display.admin_order_field = 'username'
+
+    def object_display(self, obj):
+        return obj.object_repr or '-'
+    object_display.short_description = AuditLog._meta.get_field('object_repr').verbose_name
+
+    def message_display(self, obj):
+        text = (obj.message or '').strip()
+        if not text:
+            return '-'
+        short = text if len(text) <= 120 else text[:117] + '...'
+        return format_html('<span class="audit-message" title="{}">{}</span>', text, short)
+    message_display.short_description = AuditLog._meta.get_field('message').verbose_name
+
+    # ---- export ----
+    def export_csv(self, request, queryset):
+        import csv
+        from django.http import HttpResponse
+
+        response = HttpResponse(content_type='text/csv; charset=utf-8')
+        stamp = timezone.localtime().strftime('%Y%m%d-%H%M%S')
+        response['Content-Disposition'] = 'attachment; filename="audit-log-{}.csv"'.format(stamp)
+        response.write('\ufeff')  # BOM so Excel opens UTF-8 (Chinese) correctly
+        writer = csv.writer(response)
+        writer.writerow(['time', 'category', 'action', 'status', 'username', 'ip_address',
+                         'object', 'message', 'path', 'user_agent'])
+        count = 0
+        for row in queryset.order_by('-created_at').iterator():
+            writer.writerow([
+                timezone.localtime(row.created_at).strftime('%Y-%m-%d %H:%M:%S'),
+                row.category, row.action, row.status, row.username or '', row.ip_address or '',
+                row.object_repr, row.message, row.path, row.user_agent,
+            ])
+            count += 1
+        audit.record('audit_export', message='Exported {} entries as CSV.'.format(count))
+        return response
+    export_csv.short_description = _bilingual_label('Export selected as CSV', '导出所选为 CSV')
+
+    # ---- changelist: 24-hour summary and lazy retention cleanup ----
+    def changelist_view(self, request, extra_context=None):
+        from datetime import timedelta
+        from django.core.cache import cache
+
+        if not cache.get(self.PRUNE_CACHE_KEY):
+            cache.set(self.PRUNE_CACHE_KEY, 1, 3600)
+            audit.prune()
+
+        since = timezone.now() - timedelta(hours=24)
+        recent = AuditLog.objects.filter(created_at__gte=since)
+        zh = _is_zh_mode()
+        summary = [
+            {'key': 'login-ok', 'label': '登录成功' if zh else 'Successful logins',
+             'value': recent.filter(action='login_success').count()},
+            {'key': 'login-failed', 'label': '登录失败' if zh else 'Failed logins',
+             'value': recent.filter(action='login_failed').count()},
+            {'key': 'locked', 'label': '锁定次数' if zh else 'Lockouts',
+             'value': recent.filter(action='login_locked').count()},
+            {'key': 'operations', 'label': '操作数' if zh else 'Operations',
+             'value': recent.filter(category=AuditLog.CATEGORY_OPERATION).count()},
+        ]
+        extra_context = extra_context or {}
+        extra_context['audit_summary'] = summary
+        extra_context['audit_summary_title'] = '近 24 小时' if zh else 'Last 24 hours'
+        extra_context['audit_retention_note'] = (
+            '日志保留 {} 天（可在系统配置中修改）'.format(SystemConfig.get_audit_log_retention_days()) if zh
+            else 'Entries are kept for {} days (configurable in System Configuration).'.format(
+                SystemConfig.get_audit_log_retention_days())
+        )
+        return super().changelist_view(request, extra_context=extra_context)
+
+
+admin_site.register(AuditLog, AuditLogAdmin)
+

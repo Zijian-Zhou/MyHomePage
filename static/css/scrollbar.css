@@ -51,3 +51,9 @@ html {
         background-color: var(--scrollbar-thumb-hover);
     }
 }
+
+/* Reserve the scrollbar's space on every page so cards keep the same left/right
+   edges whether or not the page is tall enough to scroll. */
+html {
+    scrollbar-gutter: stable;
+}
