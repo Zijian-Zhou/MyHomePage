@@ -727,6 +727,18 @@ class CustomAdminSite(AdminSite):
                 'history_data': '\u5386\u53f2\u6570\u636e',
                 'unavailable': '\u4e0d\u53ef\u7528',
                 'error': '\u8d44\u6e90\u6570\u636e\u83b7\u53d6\u5931\u8d25',
+                'storage': '存储占用',
+                'storage_hint': '数据库、媒体文件和备份文件占用的磁盘空间（每分钟统计一次），进度条表示占整个磁盘的比例。',
+                'database': '数据库',
+                'media_files': '媒体文件',
+                'backups': '备份文件',
+                'engine': '类型',
+                'files': '文件数',
+                'location': '位置',
+                'last_modified': '最后修改',
+                'latest_backup': '最新备份',
+                'largest_folders': '最大目录',
+                'none': '无',
             }
         return {
             'title': 'System Resource Monitor',
@@ -762,6 +774,18 @@ class CustomAdminSite(AdminSite):
             'history_data': 'History data',
             'unavailable': 'Unavailable',
             'error': 'Failed to load resource data',
+            'storage': 'Storage usage',
+            'storage_hint': 'Disk space used by the database, media files, and backups (refreshed every minute); bars show the share of the whole disk.',
+            'database': 'Database',
+            'media_files': 'Media files',
+            'backups': 'Backups',
+            'engine': 'Engine',
+            'files': 'Files',
+            'location': 'Location',
+            'last_modified': 'Last modified',
+            'latest_backup': 'Latest backup',
+            'largest_folders': 'Largest folders',
+            'none': 'None',
         }
 
     def _format_bytes(self, value):
@@ -955,9 +979,145 @@ class CustomAdminSite(AdminSite):
                 return JsonResponse(self._collect_resource_data())
 
         payload = self._metric_log_to_resource_payload(latest)
+        payload['storage'] = self._storage_stats(payload.get('disk', {}).get('total'))
         payload['history_minutes'] = history_minutes
         payload['history'] = self._resource_history(history_minutes)
         return JsonResponse(payload)
+
+    STORAGE_CACHE_KEY = 'admin-resource-storage-stats'
+    STORAGE_CACHE_SECONDS = 60
+
+    @staticmethod
+    def _dir_usage(root):
+        """Total bytes and file count under ``root`` (symlinks are not followed)."""
+        total = count = 0
+        stack = [root]
+        while stack:
+            current = stack.pop()
+            try:
+                entries = list(os.scandir(current))
+            except OSError:
+                continue
+            for entry in entries:
+                try:
+                    if entry.is_symlink():
+                        continue
+                    if entry.is_dir(follow_symlinks=False):
+                        stack.append(entry.path)
+                    elif entry.is_file(follow_symlinks=False):
+                        total += entry.stat(follow_symlinks=False).st_size
+                        count += 1
+                except OSError:
+                    continue
+        return total, count
+
+    def _database_usage(self):
+        from django.db import connection
+        vendor = connection.vendor
+        info = {'engine': vendor, 'size': None, 'location': '', 'last_modified': ''}
+        try:
+            if vendor == 'sqlite':
+                path = str(connection.settings_dict['NAME'])
+                size = 0
+                for candidate in (path, path + '-wal', path + '-shm'):
+                    if os.path.exists(candidate):
+                        size += os.path.getsize(candidate)
+                info['size'] = size
+                info['location'] = path
+                if os.path.exists(path):
+                    info['last_modified'] = timezone.localtime(
+                        datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.get_current_timezone())
+                    ).strftime('%Y-%m-%d %H:%M:%S')
+            elif vendor == 'postgresql':
+                with connection.cursor() as cursor:
+                    cursor.execute('SELECT pg_database_size(current_database())')
+                    info['size'] = int(cursor.fetchone()[0])
+                info['location'] = connection.settings_dict.get('NAME', '')
+            elif vendor == 'mysql':
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        'SELECT COALESCE(SUM(data_length + index_length), 0) FROM information_schema.tables '
+                        'WHERE table_schema = DATABASE()'
+                    )
+                    info['size'] = int(cursor.fetchone()[0])
+                info['location'] = connection.settings_dict.get('NAME', '')
+        except Exception:
+            logger.exception('Failed to measure database size.')
+        return info
+
+    def _storage_stats(self, disk_total=None):
+        """Database / media / backup sizes for the monitor. Cached briefly because
+        walking the media tree on every 5-second refresh would be wasteful."""
+        from django.core.cache import cache
+        stats = cache.get(self.STORAGE_CACHE_KEY)
+        if stats is None:
+            labels = self._resource_labels()
+            media_root = str(settings.MEDIA_ROOT)
+            media_size, media_count = self._dir_usage(media_root)
+            folders = []
+            try:
+                for entry in os.scandir(media_root):
+                    if entry.is_dir(follow_symlinks=False):
+                        size, _count = self._dir_usage(entry.path)
+                        folders.append((size, entry.name))
+            except OSError:
+                pass
+            folders.sort(reverse=True)
+
+            backup_root = str(getattr(settings, 'BACKUP_ROOT', ''))
+            backup_size = backup_count = 0
+            latest = None
+            if backup_root and os.path.isdir(backup_root):
+                for entry in os.scandir(backup_root):
+                    if entry.is_file(follow_symlinks=False) and entry.name.lower().endswith('.zip'):
+                        st = entry.stat(follow_symlinks=False)
+                        backup_size += st.st_size
+                        backup_count += 1
+                        latest = st.st_mtime if latest is None else max(latest, st.st_mtime)
+
+            database = self._database_usage()
+            stats = {
+                'database': database,
+                'media': {
+                    'size': media_size,
+                    'files': media_count,
+                    'location': media_root,
+                    'largest': ', '.join(
+                        '{} ({})'.format(name, self._format_bytes(size)) for size, name in folders[:3] if size
+                    ) or labels['none'],
+                },
+                'backups': {
+                    'size': backup_size,
+                    'files': backup_count,
+                    'location': backup_root,
+                    'latest': timezone.localtime(
+                        datetime.fromtimestamp(latest, tz=timezone.get_current_timezone())
+                    ).strftime('%Y-%m-%d %H:%M:%S') if latest else labels['none'],
+                },
+            }
+            cache.set(self.STORAGE_CACHE_KEY, stats, self.STORAGE_CACHE_SECONDS)
+
+        result = {}
+        unavailable = self._resource_labels()['unavailable']
+        for key, item in stats.items():
+            item = dict(item)
+            size = item.get('size')
+            item['size_display'] = self._format_bytes(size) if size is not None else unavailable
+            try:
+                share = float(size) / float(disk_total) * 100 if size is not None and disk_total else None
+            except (TypeError, ValueError, ZeroDivisionError):
+                share = None
+            item['disk_share'] = round(share, 4) if share is not None else None
+            if share is None:
+                item['disk_share_display'] = '--'
+            elif 0 < share < 0.01:
+                item['disk_share_display'] = '<0.01%'
+            else:
+                item['disk_share_display'] = '{:.2f}%'.format(share)
+            if 'files' in item:
+                item['files_display'] = '{:,}'.format(item['files'])
+            result[key] = item
+        return result
 
     def _metric_log_to_resource_payload(self, log):
         now = timezone.localtime(log.created_at)

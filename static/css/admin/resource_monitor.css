@@ -270,3 +270,38 @@ body.dark-mode .resource-monitor {
     grid-template-columns: 1fr;
   }
 }
+
+/* ---------- Storage usage cards (database / media / backups) ---------- */
+.resource-storage-hint {
+  margin: -4px 0 10px;
+  color: var(--resource-muted);
+  font-size: 12px;
+}
+
+.resource-storage-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Follow the header text colour: the light-theme header bar is itself blue. */
+.resource-storage-grid .resource-card-head span i,
+.resource-storage-grid .resource-card-head span svg {
+  margin-right: 4px;
+  color: inherit;
+  opacity: 0.9;
+}
+
+/* Shares of the whole disk are often tiny: keep a visible sliver. */
+.resource-storage-meter span {
+  min-width: 4px;
+}
+
+.resource-card dd.resource-path {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+
+@media (max-width: 980px) {
+  .resource-storage-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

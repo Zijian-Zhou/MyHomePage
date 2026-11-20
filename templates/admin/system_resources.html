@@ -3,7 +3,7 @@
 
 {% block extrastyle %}
 {{ block.super }}
-<link rel="stylesheet" href="{% static 'css/admin/resource_monitor.css' %}?v=20260720-5">
+<link rel="stylesheet" href="{% static 'css/admin/resource_monitor.css' %}?v={{ app_version }}.2">
 {% endblock %}
 
 {% block content %}
@@ -85,6 +85,52 @@
         <dt>{{ labels.download_speed }}</dt><dd data-resource-text="network.download_speed_display">--</dd>
         <dt>{{ labels.sent }}</dt><dd data-resource-text="network.sent_display">--</dd>
         <dt>{{ labels.received }}</dt><dd data-resource-text="network.received_display">--</dd>
+      </dl>
+    </section>
+  </div>
+
+  <h2 class="resource-section-title">{{ labels.storage }}</h2>
+  <p class="resource-storage-hint">{{ labels.storage_hint }}</p>
+  <div class="resource-grid resource-storage-grid">
+    <section class="resource-card" data-metric-card="storage-database">
+      <div class="resource-card-head">
+        <span><i class="fas fa-database" aria-hidden="true"></i> {{ labels.database }}</span>
+        <strong data-resource-text="storage.database.size_display">--</strong>
+      </div>
+      <div class="resource-meter resource-storage-meter" title="{{ labels.disk }}"><span data-resource-meter="storage.database.disk_share"></span></div>
+      <dl>
+        <dt>{{ labels.disk }}</dt><dd data-resource-text="storage.database.disk_share_display">--</dd>
+        <dt>{{ labels.engine }}</dt><dd data-resource-text="storage.database.engine">--</dd>
+        <dt>{{ labels.last_modified }}</dt><dd data-resource-text="storage.database.last_modified">--</dd>
+        <dt>{{ labels.location }}</dt><dd class="resource-path" data-resource-text="storage.database.location">--</dd>
+      </dl>
+    </section>
+
+    <section class="resource-card" data-metric-card="storage-media">
+      <div class="resource-card-head">
+        <span><i class="fas fa-photo-film" aria-hidden="true"></i> {{ labels.media_files }}</span>
+        <strong data-resource-text="storage.media.size_display">--</strong>
+      </div>
+      <div class="resource-meter resource-storage-meter" title="{{ labels.disk }}"><span data-resource-meter="storage.media.disk_share"></span></div>
+      <dl>
+        <dt>{{ labels.disk }}</dt><dd data-resource-text="storage.media.disk_share_display">--</dd>
+        <dt>{{ labels.files }}</dt><dd data-resource-text="storage.media.files_display">--</dd>
+        <dt>{{ labels.largest_folders }}</dt><dd class="resource-path" data-resource-text="storage.media.largest">--</dd>
+        <dt>{{ labels.location }}</dt><dd class="resource-path" data-resource-text="storage.media.location">--</dd>
+      </dl>
+    </section>
+
+    <section class="resource-card" data-metric-card="storage-backups">
+      <div class="resource-card-head">
+        <span><i class="fas fa-box-archive" aria-hidden="true"></i> {{ labels.backups }}</span>
+        <strong data-resource-text="storage.backups.size_display">--</strong>
+      </div>
+      <div class="resource-meter resource-storage-meter" title="{{ labels.disk }}"><span data-resource-meter="storage.backups.disk_share"></span></div>
+      <dl>
+        <dt>{{ labels.disk }}</dt><dd data-resource-text="storage.backups.disk_share_display">--</dd>
+        <dt>{{ labels.files }}</dt><dd data-resource-text="storage.backups.files_display">--</dd>
+        <dt>{{ labels.latest_backup }}</dt><dd data-resource-text="storage.backups.latest">--</dd>
+        <dt>{{ labels.location }}</dt><dd class="resource-path" data-resource-text="storage.backups.location">--</dd>
       </dl>
     </section>
   </div>
