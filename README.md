@@ -27,7 +27,15 @@ The application supports English and Simplified Chinese, Markdown content, ORCID
 
 #### Public website
 
-- Responsive light and dark themes for desktop and mobile.
+- Light ("Mist") and dark ("Slate") themes shared with the administration portal; the saved theme is applied before the first paint, so reloads never flash white.
+- Phone and tablet layouts: a compact two-line header with a swipeable navigation row and finger-sized tap targets.
+- One card design across About, News, Publications, Research, Contact, and custom sections.
+- About layout: the portrait lines up with the "About Me" title, and the biography card stretches to the bottom of the contact card when the profile column is taller.
+- Contact block with a centred address and pill links for email, phone, ORCID, Google Scholar, GitHub, ResearchGate, and LinkedIn.
+- Section images zoom on hover and open in a full-screen viewer on double-click or double-tap; PNG images (often transparent logos) are shown without a drop shadow.
+- Navigation scrolls smoothly to each section just below the fixed header and highlights the section in view.
+- Page transitions and long operations use a soft overlay with a chomping loading animation instead of a white flash.
+- Thin, theme-aware scrollbars across the site.
 - Profile information, portrait, contact details, academic identity links, and a Markdown biography.
 - Publication cards with highlighted/corresponding authors, venue, date, DOI, keywords, images, BibTeX, detail pages, and ordered file links.
 - One-click BibTeX copy with localized feedback.
@@ -37,7 +45,7 @@ The application supports English and Simplified Chinese, Markdown content, ORCID
 - Custom homepage sections and ordered section items with Markdown rendering.
 - Independent asynchronous pagination for each homepage section; changing one section does not reset the others or reload the whole page.
 - Empty sections are omitted from both navigation and page content.
-- Configurable footer items (display name, optional icon and link) and styled 4xx/5xx/access-denied pages.
+- Configurable footer items (display name, optional icon and link; the icon can be a Font Awesome class, an image URL, or an uploaded image) and styled 4xx/5xx/access-denied pages.
 - The footer shows the running version (`Powered By MyHomePage v1.1.0`); the version is defined once in `HomePage/version.py`.
 
 #### Bilingual content
@@ -48,10 +56,15 @@ The application supports English and Simplified Chinese, Markdown content, ORCID
 - Requests to Chinese URLs are redirected to English when Chinese mode is disabled.
 - Administration labels, validation messages, overlays, detail navigation, and public controls are localized.
 - Optional automatic field translation using the configured translation library.
+- Synchronization error messages follow the active interface language.
 
 #### Administration portal
 
 - Customized dashboard, navigation, dark mode, responsive forms, and collapsible left/right sidebars.
+- Theme aligned with the public site in light and dark mode, a sticky header and breadcrumb bar, and a footer pinned to the bottom of the window.
+- Consistent buttons, upload areas, checkboxes, and focus states; the Translate / Preview / AI Generate actions sit in one row under their field.
+- Tablet and phone layouts: the outline panel collapses (tablets) or hides (phones), change-list tables scroll horizontally, and filters move below the results.
+- Loading overlay for navigation, saving, synchronization, and backup operations.
 - A right-side form outline links directly to configuration fieldsets.
 - Save and Save as Draft workflows for managed content.
 - Markdown preview for profile Bio and publication detail content.
@@ -59,6 +72,7 @@ The application supports English and Simplified Chinese, Markdown content, ORCID
 - AI-assisted publication detail generation with provider selection, progress states, PDF/file context, preview, feedback-based revision, manual editing, and save actions.
 - Media library with generated access keys and ready-to-use Markdown snippets.
 - System Configuration and AI Configuration are independent top-level administration entries.
+- Footer items are edited in a table with live icon preview and icon upload (PNG/JPG/GIF/WEBP/ICO, stored as Media Files).
 - User/group management and localized configuration forms.
 - System resource monitor with live and historical CPU, memory, disk, and network throughput charts.
 - System backup (superusers only): create full backups of the database and media, download, delete, import external backups, and restore with an automatic pre-restore safety backup.
@@ -127,12 +141,13 @@ The application supports English and Simplified Chinese, Markdown content, ORCID
 
 ```text
 MyHomePage/
-|-- HomePage/                  # Django settings and root URLs
+|-- HomePage/                  # Django settings, root URLs, and version.py
 |-- myHomePage/                # Main application
 |   |-- management/commands/   # Sync, diagnostics, and Docker initialization commands
 |   |-- migrations/            # Database migrations
 |   |-- admin.py               # Customized administration portal
 |   |-- ai_services.py         # LLM provider adapters
+|   |-- backup.py              # System backup: create, import, restore
 |   |-- middleware.py          # Language, login, session, and file-access controls
 |   |-- models.py              # Content and configuration models
 |   |-- resource_monitor.py    # Resource sampling and retention
@@ -141,10 +156,11 @@ MyHomePage/
 |   |-- tasks.py               # Celery tasks
 |   |-- urls.py                # Application routes
 |   `-- views.py               # Public views and protected downloads
-|-- templates/                 # Public, detail, error, and admin templates
+|-- templates/                 # Public, detail, error, admin, and shared include templates
 |-- static/                    # CSS, JavaScript, icons, and fonts
 |-- locale/                    # English and Simplified Chinese catalogs
-|-- media/                     # User-uploaded files
+|-- media/                     # User uploads (ignored by Git except media/.gitkeep)
+|-- deploy/nginx/              # Production Nginx examples and bilingual guide
 |-- Dockerfile
 |-- compose.yaml
 |-- docker-up.ps1             # Windows startup helper
@@ -221,7 +237,7 @@ Runtime data:
 
 Compose bind-mounts the host directory `./docker-data` at `/data` in every Django/Celery container. Django uses `/data/db.sqlite3`, so database changes made inside a container are written directly to `docker-data/db.sqlite3` on the host. The repository-root `db.sqlite3` is **not** mounted or used by the containers.
 
-The host `./media` directory is mounted at `/app/media`, so uploaded files are also shared with and retained on the host. The generated `./staticfiles` directory is mounted at `/app/staticfiles` for `collectstatic` and Nginx. RabbitMQ uses the Docker-managed `homepage_rabbitmq-data` named volume instead of a bind mount.
+The host `./media` directory is mounted at `/app/media`, so uploaded files are also shared with and retained on the host. Its contents are ignored by Git (only `media/.gitkeep` is tracked), so uploads never end up in the repository. System backups are written to `docker-data/backups/` (`BACKUP_ROOT=/data/backups`). The generated `./staticfiles` directory is mounted at `/app/staticfiles` for `collectstatic` and Nginx. RabbitMQ uses the Docker-managed `homepage_rabbitmq-data` named volume instead of a bind mount.
 
 To initialize Docker from the existing repository-root database, stop the stack before copying it:
 
@@ -411,6 +427,8 @@ Common pitfalls when deploying to a cloud server:
 - Install the HTTP-only site and issue the certificate (`certbot --webroot`) before installing the HTTPS site, because `nginx -t` fails when certificate files are missing.
 - Run `chmod 711 /home/<user>` so Nginx can read `staticfiles` and `media`.
 - Keep `127.0.0.1,localhost` in `ALLOWED_HOSTS` so the container health check passes.
+- Raise Nginx `client_max_body_size` (100 MB in the example) if backup archives to import are larger, and `proxy_read_timeout` (300 s) for very long backup/restore operations.
+- Static files are cached by browsers for 7 days; the application's CSS/JS URLs carry version query strings, so users receive updates without clearing their cache.
 
 Before production deployment:
 
@@ -437,6 +455,7 @@ python manage.py compilemessages
 - The automated test suite is still limited and needs broader regression coverage.
 - The Docker resource monitor reports container-level resources, not complete host metrics.
 - Docker Compose uses the development server unless replaced for production.
+- Static asset URLs carry version query strings (`APP_VERSION`, plus the file modification time for ModelAdmin `Media`); keep them when adding new assets so deployments bypass stale caches.
 
 ### License
 
@@ -458,7 +477,15 @@ MyHomePage 是一个面向研究人员、学生、实验室和专业人士的自
 
 #### 公开主页
 
-- 支持桌面端和移动端的响应式亮色/暗色主题。
+- 浅色（雾蓝 Mist）和深色（石板 Slate）主题，与管理后台保持一致；已保存的主题会在页面首次绘制前生效，刷新时不会闪白。
+- 适配手机和平板：顶栏压缩为两行，导航栏可左右滑动，所有可点击区域都适合手指操作。
+- 关于、新闻、出版物、研究、联系方式和自定义栏目使用统一的卡片样式。
+- “关于我”布局：头像与 “About Me” 标题对齐；左侧资料栏较高时，简介卡片会自动拉伸到与联系卡片底部对齐。
+- 联系信息区：地址居中显示，邮箱、电话、ORCID、Google Scholar、GitHub、ResearchGate、LinkedIn 以胶囊按钮展示。
+- 栏目中的图片悬停时有缩放动画，双击（触屏双击）可全屏查看；PNG 图片（通常是透明 Logo）不加阴影。
+- 点击导航会平滑滚动到对应栏目标题，停在固定顶栏下方，并高亮当前所在栏目。
+- 页面切换和长时间操作使用柔和的遮罩和“吃豆豆”加载动画，避免刷新时闪白。
+- 全站统一的细滚动条，随主题变色。
 - 展示个人资料、头像、联系方式、学术平台链接和 Markdown 个人简介。
 - 出版物卡片支持高亮作者、通讯作者、期刊、日期、DOI、关键词、图片、BibTeX、详情页和有序附件。
 - 支持一键复制 BibTeX，并提供中英文复制状态反馈。
@@ -468,7 +495,7 @@ MyHomePage 是一个面向研究人员、学生、实验室和专业人士的自
 - 支持自定义主页栏目和有序栏目条目，内容可使用 Markdown。
 - 每个栏目独立异步分页；切换某个栏目页码不会重置其他栏目，也不会刷新整个页面。
 - 数据数量为 0 的栏目不会出现在主页导航和内容区域。
-- 支持配置页脚项（显示名称、可选图标和链接），并提供统一美化的 4xx、5xx 和禁止访问页面。
+- 支持配置页脚项（显示名称、可选图标和链接；图标可以是 Font Awesome 类名、图片地址或上传的图片），并提供统一美化的 4xx、5xx 和禁止访问页面。
 - 页脚显示当前运行版本（`Powered By MyHomePage v1.1.0`），版本号统一定义在 `HomePage/version.py`。
 
 #### 中英文内容
@@ -479,10 +506,15 @@ MyHomePage 是一个面向研究人员、学生、实验室和专业人士的自
 - 禁用中文模式时，中文 URL 会自动纠正到英文 URL。
 - 后台字段、验证提示、加载遮罩、详情导航和前台按钮均支持中英文显示。
 - 支持使用已配置的翻译库自动翻译字段。
+- 同步失败等提示信息跟随当前界面语言显示。
 
 #### 管理后台
 
 - 定制后台首页、导航、暗黑模式、响应式表单，以及可收缩的左右侧栏。
+- 后台主题与前台一致（浅色/深色），页头和面包屑在滚动时固定在顶部，页脚始终贴在窗口底部。
+- 按钮、上传区域、复选框和输入框聚焦样式统一；“翻译 / 预览 / AI 生成”按钮在字段下方排成一行。
+- 适配平板和手机：大纲面板在平板上默认折叠、在手机上隐藏；列表表格可横向滑动，筛选面板移到表格下方。
+- 页面跳转、保存、同步和备份等操作显示加载遮罩。
 - 右侧大纲会列出当前配置页的字段分组，并支持点击跳转。
 - 主要内容类型支持“保存”和“保存为草稿”。
 - Profile 的 Bio 和论文详情正文支持 Markdown 预览。
@@ -490,6 +522,7 @@ MyHomePage 是一个面向研究人员、学生、实验室和专业人士的自
 - 论文详情支持 AI 生成：选择模型、显示处理进度、读取论文元数据和 PDF 等附件、预览结果、提交修改意见、手动编辑并保存中英文内容。
 - 媒体文件系统会生成不可预测的访问键和可直接粘贴的 Markdown 片段。
 - “系统配置”和“AI 配置”是后台同级入口。
+- 页脚项以表格方式编辑，支持图标实时预览和图标上传（PNG/JPG/GIF/WEBP/ICO，保存到媒体文件）。
 - 支持用户、用户组及本地化配置管理。
 - 系统资源监控展示实时和历史 CPU、内存、磁盘、网络上下行速度。
 - 系统备份（仅超级管理员）：一键备份数据库和 media 文件，支持下载、删除、导入外部备份，以及恢复（恢复前自动创建安全备份）。
@@ -556,12 +589,13 @@ MyHomePage 是一个面向研究人员、学生、实验室和专业人士的自
 
 ```text
 MyHomePage/
-|-- HomePage/                  # Django 配置和根路由
-|-- myHomePage/                # 模型、视图、后台、服务、任务和迁移
-|-- templates/                 # 主页、详情、错误和后台模板
+|-- HomePage/                  # Django 配置、根路由和版本号 version.py
+|-- myHomePage/                # 模型、视图、后台、服务、任务、系统备份和迁移
+|-- templates/                 # 主页、详情、错误、后台模板和公共片段
 |-- static/                    # CSS、JavaScript、图标和字体
 |-- locale/                    # 英文和简体中文翻译目录
-|-- media/                     # 用户上传文件
+|-- media/                     # 用户上传文件（除 media/.gitkeep 外不纳入 Git）
+|-- deploy/nginx/              # 生产环境 Nginx 示例和中英双语部署指南
 |-- Dockerfile
 |-- compose.yaml
 |-- docker-up.ps1             # Windows 启动脚本
@@ -632,7 +666,7 @@ docker compose down
 
 Compose 会把宿主机的 `./docker-data` 目录绑定挂载到所有 Django/Celery 容器中的 `/data`。Django 实际使用 `/data/db.sqlite3`，因此容器内产生的数据库修改会直接写入宿主机的 `docker-data/db.sqlite3`。项目根目录下原有的 `db.sqlite3` **不会**被容器挂载或使用。
 
-宿主机的 `./media` 会绑定挂载到容器的 `/app/media`，因此上传文件同样保留并共享在宿主机。自动生成的 `./staticfiles` 会挂载到 `/app/staticfiles`，供 `collectstatic` 和 Nginx 使用。RabbitMQ 不使用目录绑定，而是使用 Docker 管理的 `homepage_rabbitmq-data` 命名卷。
+宿主机的 `./media` 会绑定挂载到容器的 `/app/media`，因此上传文件同样保留并共享在宿主机。该目录的内容不纳入 Git（只跟踪 `media/.gitkeep`），上传的文件不会进入代码仓库。系统备份文件保存在 `docker-data/backups/`（`BACKUP_ROOT=/data/backups`）。自动生成的 `./staticfiles` 会挂载到 `/app/staticfiles`，供 `collectstatic` 和 Nginx 使用。RabbitMQ 不使用目录绑定，而是使用 Docker 管理的 `homepage_rabbitmq-data` 命名卷。
 
 如果需要让 Docker 使用项目根目录已有的数据库，必须先关闭服务再复制：
 
@@ -805,6 +839,8 @@ Google Scholar 可能限制或阻止自动请求，请控制同步频率并遵�
 - 先启用临时 HTTP 配置并申请证书（`certbot --webroot`），再安装 HTTPS 配置，否则证书文件不存在会导致 `nginx -t` 失败。
 - 执行 `chmod 711 /home/<用户名>`，使 Nginx 能读取 `staticfiles` 和 `media`。
 - `ALLOWED_HOSTS` 中保留 `127.0.0.1,localhost`，否则容器健康检查失败。
+- 需要导入的备份文件超过 100 MB 时，调大 Nginx 的 `client_max_body_size`；备份/恢复耗时很长时，调大 `proxy_read_timeout`（示例为 300 秒）。
+- 静态文件在浏览器中缓存 7 天；系统的 CSS/JS 地址带有版本参数，更新部署后用户无需手动清缓存。
 
 上线前至少需要：
 
@@ -831,6 +867,7 @@ python manage.py compilemessages
 - 当前自动化测试覆盖仍有限，需要继续补充回归测试。
 - Docker 中的资源监控反映容器资源，而不是宿主机完整资源。
 - Docker Compose 默认仍使用开发服务器，生产环境需要替换。
+- 静态资源地址带有版本参数（`APP_VERSION`，后台 ModelAdmin `Media` 还会附加文件修改时间）；新增资源时请沿用这一做法，避免部署后用户读到旧缓存。
 
 ### 开源协议
 
