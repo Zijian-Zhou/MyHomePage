@@ -1,0 +1,764 @@
+/*
+ * Admin theme aligned with the public site.
+ *   Light: "Mist"  - soft blue-grey canvas, white modules, blue accents.
+ *   Dark:  "Slate" - deep blue-grey canvas, slate modules.
+ * Loaded after Django's admin CSS, custom.css and dark_mode.css so it wins.
+ * --body-bg stays the module/field surface; the page canvas is --admin-canvas.
+ */
+:root,
+html[data-theme="light"] {
+    --admin-canvas: #f3f6fb;
+    --admin-header-bg: rgba(255, 255, 255, 0.72);
+    --admin-module-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.06);
+    --admin-radius: 10px;
+
+    --primary: #4a90e2;
+    --secondary: #2f6fb8;
+    --accent: #4a90e2;
+    --primary-fg: #ffffff;
+
+    --body-fg: #1e293b;
+    --body-bg: #ffffff;
+    --body-quiet-color: #64748b;
+    --body-loud-color: #0f172a;
+
+    --header-color: #334155;
+    --header-branding-color: #4a90e2;
+    --header-bg: #ffffff;
+    --header-fg: #1e293b;
+    --header-link-color: #334155;
+    --header-link-hover-color: #4a90e2;
+
+    --breadcrumbs-fg: #64748b;
+    --breadcrumbs-link-fg: #2f6fb8;
+    --breadcrumbs-bg: transparent;
+
+    --link-fg: #2f6fb8;
+    --link-hover-color: #1d4f8c;
+    --link-selected-fg: #4a90e2;
+
+    --hairline-color: #e2e8f0;
+    --border-color: #d5dde8;
+    --darkened-bg: #f8fafc;
+    --selected-bg: #eef2f8;
+    --selected-row: #eef4fd;
+
+    --message-success-bg: #e8f7ee;
+    --message-warning-bg: #fff7e0;
+    --message-error-bg: #fdecec;
+    --error-fg: #c0392b;
+
+    --button-fg: #ffffff;
+    --button-bg: #3478cc;
+    --button-hover-bg: #2a66b3;
+    --default-button-bg: #2f6fb8;
+    --default-button-hover-bg: #255a96;
+    --button-outline: #94a3b8;
+    --close-button-bg: #94a3b8;
+    --close-button-hover-bg: #64748b;
+    --delete-button-bg: #d64545;
+    --delete-button-hover-bg: #b83232;
+    --object-tools-fg: #ffffff;
+    --object-tools-bg: #64748b;
+    --object-tools-hover-bg: #475569;
+
+    --table-cell-bg: #ffffff;
+    --table-cell-fg: #1e293b;
+    --table-header-bg: #f8fafc;
+    --table-header-fg: #334155;
+}
+
+html[data-theme="dark"] {
+    --admin-canvas: #0f172a;
+    --admin-header-bg: rgba(15, 23, 42, 0.72);
+    --admin-module-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+
+    --primary: #60a5fa;
+    --secondary: #3b82f6;
+    --accent: #60a5fa;
+    --primary-fg: #ffffff;
+
+    --body-fg: #e2e8f0;
+    --body-bg: #1e293b;
+    --body-quiet-color: #94a3b8;
+    --body-loud-color: #f8fafc;
+
+    --header-color: #cbd5e1;
+    --header-branding-color: #60a5fa;
+    --header-bg: #1e293b;
+    --header-fg: #e2e8f0;
+    --header-link-color: #cbd5e1;
+    --header-link-hover-color: #60a5fa;
+
+    --breadcrumbs-fg: #94a3b8;
+    --breadcrumbs-link-fg: #93c5fd;
+    --breadcrumbs-bg: transparent;
+
+    --link-fg: #93c5fd;
+    --link-hover-color: #bfdbfe;
+    --link-selected-fg: #60a5fa;
+
+    --hairline-color: #334155;
+    --border-color: #3b4a61;
+    --darkened-bg: #172033;
+    --selected-bg: #273449;
+    --selected-row: #1e3a5f;
+
+    --message-success-bg: #14532d;
+    --message-warning-bg: #713f12;
+    --message-error-bg: #7f1d1d;
+    --error-fg: #f87171;
+
+    --button-fg: #ffffff;
+    --button-bg: #2563eb;
+    --button-hover-bg: #1d4ed8;
+    --default-button-bg: #2563eb;
+    --default-button-hover-bg: #1d4ed8;
+    --button-outline: #64748b;
+    --close-button-bg: #475569;
+    --close-button-hover-bg: #64748b;
+    --delete-button-bg: #dc2626;
+    --delete-button-hover-bg: #b91c1c;
+    --object-tools-fg: #ffffff;
+    --object-tools-bg: #475569;
+    --object-tools-hover-bg: #64748b;
+
+    --table-cell-bg: #1e293b;
+    --table-cell-fg: #e2e8f0;
+    --table-header-bg: #172033;
+    --table-header-fg: #cbd5e1;
+    --form-field-bg: #0f172a;
+    --form-field-border: #3b4a61;
+}
+
+/* ---------- Canvas + footer pinned to the bottom of the window ---------- */
+html,
+body {
+    min-height: 100%;
+}
+
+body {
+    background-color: var(--admin-canvas);
+    color: var(--body-fg);
+}
+
+#container {
+    display: flex;
+    flex-direction: column;
+    /* Django sets height: 100%; the container must grow with the content, otherwise
+       it ends after one viewport and the sticky header scrolls away with it. */
+    height: auto;
+    min-height: 100vh;
+    background: transparent;
+}
+
+/* Django 4.2 nests the footer inside main.content (#content-start):
+   #container (column) > .main (row, grows) > .content (column) > #content + #footer */
+#container > .main {
+    flex: 1 0 auto;
+}
+
+#container > .main > .content {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+#content {
+    flex: 1 0 auto;
+    background: transparent;
+}
+
+#footer,
+#footer.admin-footer {
+    flex-shrink: 0;
+    margin-top: auto;
+    border-top: 1px solid var(--hairline-color);
+    color: var(--body-quiet-color);
+}
+
+#footer.admin-footer a {
+    color: var(--body-quiet-color);
+}
+
+#footer.admin-footer a:hover {
+    color: var(--primary);
+}
+
+/* ---------- Header: frosted bar, readable links ---------- */
+#header {
+    background: var(--admin-header-bg);
+    -webkit-backdrop-filter: saturate(180%) blur(16px);
+    backdrop-filter: saturate(180%) blur(16px);
+    color: var(--header-fg);
+    border-bottom: 1px solid var(--hairline-color);
+    box-shadow: none;
+}
+
+#branding h1,
+#branding h1 a:link,
+#branding h1 a:visited {
+    color: var(--header-branding-color);
+    font-weight: 600;
+}
+
+#user-tools,
+#user-tools a:link,
+#user-tools a:visited {
+    color: var(--header-link-color);
+}
+
+#user-tools a:hover,
+#user-tools a:focus {
+    color: var(--header-link-hover-color);
+    border-bottom-color: var(--header-link-hover-color);
+}
+
+/* ---------- Breadcrumbs: plain text trail on the canvas ---------- */
+div.breadcrumbs {
+    background: transparent;
+    color: var(--breadcrumbs-fg);
+    border-bottom: 1px solid var(--hairline-color);
+}
+
+div.breadcrumbs a {
+    color: var(--breadcrumbs-link-fg);
+}
+
+div.breadcrumbs a:hover {
+    color: var(--link-hover-color);
+}
+
+/* ---------- Modules as cards ---------- */
+.module,
+#content-related .module,
+.inline-group,
+#changelist,
+#changelist-filter,
+fieldset.module {
+    background: var(--body-bg);
+    border: 1px solid var(--hairline-color);
+    border-radius: var(--admin-radius);
+    box-shadow: var(--admin-module-shadow);
+}
+
+.module,
+.inline-group,
+#changelist-filter {
+    overflow: hidden;
+}
+
+.module h2,
+.module caption,
+.inline-group h2,
+#changelist-filter h2 {
+    background: var(--darkened-bg);
+    color: var(--header-color);
+    border-bottom: 1px solid var(--hairline-color);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.module h2 a,
+.module caption a,
+.module caption a.section:link,
+.module caption a.section:visited {
+    color: var(--header-color);
+}
+
+/* Changelist toolbars sit inside the card. */
+#changelist #toolbar,
+#changelist .actions {
+    background: var(--darkened-bg);
+    border-color: var(--hairline-color);
+}
+
+#changelist table thead th {
+    background: var(--table-header-bg);
+    color: var(--table-header-fg);
+}
+
+/* ---------- Left navigation ---------- */
+#nav-sidebar {
+    background: transparent;
+    border-right: 1px solid var(--hairline-color);
+}
+
+#nav-sidebar .module {
+    box-shadow: none;
+}
+
+#nav-sidebar .current-model {
+    background: var(--selected-row);
+}
+
+#nav-filter {
+    background: var(--body-bg);
+    color: var(--body-fg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+}
+
+.toggle-nav-sidebar {
+    background: transparent;
+    border-right: 1px solid var(--hairline-color);
+    color: var(--body-quiet-color);
+}
+
+/* ---------- Form fields ---------- */
+input[type=text],
+input[type=password],
+input[type=email],
+input[type=url],
+input[type=number],
+input[type=tel],
+input[type=search],
+textarea,
+select,
+.vTextField {
+    background-color: var(--form-field-bg, var(--body-bg));
+    color: var(--body-fg);
+    border: 1px solid var(--form-field-border, var(--border-color));
+    border-radius: 6px;
+}
+
+/* Focus keeps the field's own background in both themes; only the ring changes.
+   #container beats page-specific focus rules loaded later (ModelAdmin Media). */
+#container input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="submit"]):not([type="button"]):focus,
+#container textarea:focus,
+#container select:focus {
+    background-color: var(--form-field-bg, var(--body-bg));
+    color: var(--body-fg);
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.18);
+}
+
+/* ---------- Buttons ----------
+ * One system for every admin page (the login page keeps its own gradient button).
+ * #container raises specificity above page/ModelAdmin stylesheets loaded later.
+ *   primary   - solid blue, white text (>= 4.5:1)
+ *   default   - the main "Save" action, slightly deeper blue
+ *   outline   - secondary actions (search, "Go")
+ *   danger    - delete
+ */
+body:not(.login) #container .button,
+body:not(.login) #container a.button,
+body:not(.login) #container button.button,
+body:not(.login) #container input[type=submit],
+body:not(.login) #container input[type=button],
+body:not(.login) #container .submit-row input,
+body:not(.login) #container .file-upload-label {
+    background: var(--button-bg);
+    color: var(--button-fg);
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+body:not(.login) #container .button:hover,
+body:not(.login) #container a.button:hover,
+body:not(.login) #container button.button:hover,
+body:not(.login) #container input[type=submit]:hover,
+body:not(.login) #container input[type=button]:hover,
+body:not(.login) #container .submit-row input:hover,
+body:not(.login) #container .file-upload-label:hover {
+    background: var(--button-hover-bg);
+    color: var(--button-fg);
+}
+
+body:not(.login) #container .submit-row input.default,
+body:not(.login) #container input[name="_save"] {
+    background: var(--default-button-bg);
+}
+
+body:not(.login) #container .submit-row input.default:hover,
+body:not(.login) #container input[name="_save"]:hover {
+    background: var(--default-button-hover-bg);
+}
+
+body:not(.login) #container #changelist-search input[type=submit],
+body:not(.login) #container #changelist .actions button {
+    background: var(--body-bg);
+    color: var(--body-fg);
+    border: 1px solid var(--button-outline);
+}
+
+body:not(.login) #container #changelist-search input[type=submit]:hover,
+body:not(.login) #container #changelist .actions button:hover {
+    background: var(--body-bg);
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+body:not(.login) #container .submit-row a.deletelink,
+body:not(.login) #container a.deletelink.button {
+    background: var(--delete-button-bg);
+    color: #ffffff;
+}
+
+body:not(.login) #container .submit-row a.deletelink:hover {
+    background: var(--delete-button-hover-bg);
+}
+
+body:not(.login) #container .button:disabled,
+body:not(.login) #container input[type=submit]:disabled,
+body:not(.login) #container input[type=button]:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* Django's theme toggle in the header. Each icon symbol starts with a full-size
+   square painted with currentColor (meant to match the header background); the
+   glyph itself uses fill. Keep the square transparent and colour only the glyph. */
+#header .theme-toggle svg {
+    color: transparent;
+    fill: var(--header-link-color);
+}
+
+#header .theme-toggle:hover svg,
+#header .theme-toggle:focus-visible svg {
+    fill: var(--header-link-hover-color);
+}
+
+/* ---------- File uploads (model file/image fields, BibTeX, media library) ---------- */
+#container input[type="file"] {
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    max-width: 560px;
+    margin: 0;
+    padding: 8px;
+    border: 1px dashed var(--button-outline);
+    border-radius: 8px;
+    background: var(--darkened-bg);
+    color: var(--body-quiet-color);
+    font: inherit;
+    font-size: 0.8125rem;
+    line-height: 1.4; /* do not inherit the taller line of p.file-upload */
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+#container input[type="file"]:hover,
+#container input[type="file"]:focus-visible {
+    border-color: var(--primary);
+    background: var(--selected-bg);
+    outline: none;
+}
+
+#container input[type="file"]::file-selector-button {
+    margin-right: 12px;
+    padding: 6px 14px;
+    border: 0;
+    border-radius: 6px;
+    background: var(--button-bg);
+    color: var(--button-fg);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+#container input[type="file"]::file-selector-button:hover {
+    background: var(--button-hover-bg);
+}
+
+/* ClearableFileInput: "Currently: <file>  [ ] Clear  /  Change: <input>" */
+#container p.file-upload {
+    display: block;
+    max-width: 560px;
+    margin: 0;
+    line-height: 2;
+    color: var(--body-quiet-color);
+}
+
+#container p.file-upload > a {
+    display: inline-block;
+    max-width: 100%;
+    margin: 0 6px 0 4px;
+    padding: 1px 8px;
+    border: 1px solid var(--hairline-color);
+    border-radius: 6px;
+    background: var(--darkened-bg);
+    color: var(--link-fg);
+    line-height: 1.6;
+    vertical-align: middle;
+    overflow-wrap: anywhere;
+}
+
+#container p.file-upload .clearable-file-input {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    vertical-align: middle;
+}
+
+#container p.file-upload .clearable-file-input label {
+    display: inline-flex;
+    align-items: center;
+    width: auto;
+    height: auto;
+    min-height: 0;
+    padding: 0;
+    float: none;
+    line-height: 1.4;
+    color: var(--body-quiet-color);
+}
+
+#container p.file-upload input[type="file"] {
+    margin-top: 6px;
+}
+
+/* Custom "choose file" labels (BibTeX import pages) share the primary button look. */
+body:not(.login) #container .file-upload-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1.1rem;
+    transform: none;
+}
+
+/* Quick-action buttons: white text on the blue button in both themes. */
+.quick-entry-links .button,
+.quick-entry-links .button:hover {
+    color: var(--button-fg) !important;
+}
+
+/* Login and lockout pages have no navigation to show. */
+.login #nav-sidebar,
+.login .toggle-nav-sidebar {
+    display: none;
+}
+
+/* The right-hand column itself is not a card; only its modules are. */
+#content-related {
+    background: transparent;
+}
+
+/* ---------- Checkbox / radio rows: box centred on the first line of its label ---------- */
+#container .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#container .checkbox-row input[type="checkbox"],
+#container .checkbox-row input[type="radio"],
+#container .clearable-file-input input[type="checkbox"],
+#container ul.radiolist input[type="radio"],
+#container ul.checkboxlist input[type="checkbox"],
+#container label > input[type="checkbox"],
+#container label > input[type="radio"] {
+    flex: 0 0 auto;
+    margin: 0;
+    vertical-align: middle;
+}
+
+#container .checkbox-row label,
+#container label.vCheckboxLabel {
+    display: inline;
+    float: none;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    line-height: 1.4;
+}
+
+#container ul.radiolist li > label,
+#container ul.checkboxlist li > label,
+#container label:has(> input[type="checkbox"]),
+#container label:has(> input[type="radio"]) {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Auto-translate wrapper (.auto-translate-control) spacing lives in the style injected by
+   static/js/admin/auto_translate.js so there is a single source of truth. */
+
+/* ---------- Field action buttons (Translate / Preview / AI Generate) ----------
+   auto_translate.js injects smaller inline styles for its button; give every action
+   button under a field the same size so a row of them reads as one group. */
+body:not(.login) #container .auto-translate-button,
+body:not(.login) #container .publication-detail-action-row .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    margin: 0;
+    padding: 0 14px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+#container .publication-detail-action-row {
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* ---------- Tabular inlines (e.g. Publication "File List") ---------- */
+/* Rounded modules clip overflow; let a wide inline table scroll inside its card. */
+#container .inline-group .tabular fieldset.module,
+#container .inline-group .tabular .module {
+    overflow-x: auto;
+}
+
+#container .inline-group .tabular table {
+    width: 100%;
+}
+
+#container .inline-group .tabular td,
+#container .inline-group .tabular th {
+    vertical-align: middle;
+}
+
+/* Text-like inputs follow their column width instead of a fixed size. */
+#container .inline-group .tabular td input[type="text"],
+#container .inline-group .tabular td input[type="url"],
+#container .inline-group .tabular td input[type="email"],
+#container .inline-group .tabular td select {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 96px;
+    height: 30px;
+}
+
+#container .inline-group .tabular td input[type="number"] {
+    box-sizing: border-box;
+    width: 80px;
+    height: 30px;
+}
+
+/* Compact upload control inside table cells: same 30px height as the other inputs. */
+#container .inline-group .tabular td.field-file,
+#container .inline-group .tabular td[class*="field-file"] {
+    min-width: 200px;
+}
+
+#container .inline-group .tabular td input[type="file"] {
+    min-width: 190px;
+    max-width: 100%;
+    height: 30px;
+    padding: 2px 6px 2px 2px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+#container .inline-group .tabular td input[type="file"]::file-selector-button {
+    height: 24px;
+    margin-right: 8px;
+    padding: 0 10px;
+    font-size: 12px;
+}
+
+#container .inline-group .tabular td p.file-upload {
+    line-height: 1.6;
+}
+
+#container .inline-group .tabular td input[type="checkbox"] {
+    margin: 0;
+    vertical-align: middle;
+}
+
+/* ---------- Submit row: buttons and the Delete link share one height ---------- */
+body:not(.login) #container .submit-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+/* The Delete link is wrapped in <p class="deletelink-box"> (templates/admin/submit_line.html). */
+body:not(.login) #container .submit-row .deletelink-box {
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+body:not(.login) #container .submit-row input,
+body:not(.login) #container .submit-row a.deletelink,
+body:not(.login) #container .submit-row a.closelink {
+    box-sizing: border-box;
+    height: 36px;
+    margin: 0;
+    padding: 0 16px;
+    line-height: 34px;
+    font-size: 13px;
+}
+
+body:not(.login) #container .submit-row a.deletelink,
+body:not(.login) #container .submit-row a.closelink {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+    border-radius: 6px;
+}
+
+/* ---------- Sticky header + breadcrumbs ----------
+   Heights come from static/js/admin/sticky_header.js:
+   --admin-header-h (header) and --admin-sticky-h (header + breadcrumbs). */
+html {
+    scroll-padding-top: calc(var(--admin-sticky-h, 0px) + 12px);
+}
+
+#header {
+    position: sticky;
+    top: 0;
+    z-index: 1001;
+}
+
+#container > nav[aria-label="Breadcrumbs"] {
+    position: sticky;
+    top: var(--admin-header-h, 0px);
+    z-index: 1000;
+    background: var(--admin-header-bg);
+    -webkit-backdrop-filter: saturate(180%) blur(16px);
+    backdrop-filter: saturate(180%) blur(16px);
+}
+
+#container > nav[aria-label="Breadcrumbs"] div.breadcrumbs {
+    background: transparent;
+}
+
+/* The left navigation is itself sticky: start it below the pinned bars. */
+#nav-sidebar,
+.toggle-nav-sidebar {
+    top: var(--admin-sticky-h, 0px);
+    height: calc(100vh - var(--admin-sticky-h, 0px));
+    max-height: calc(100vh - var(--admin-sticky-h, 0px));
+}
+
+/* Right-hand form outline (fixed panel) sits below the pinned bars as well. */
+.admin-detail-outline {
+    top: calc(var(--admin-sticky-h, 100px) + 12px);
+    max-height: calc(100vh - var(--admin-sticky-h, 100px) - 24px);
+}
+
+/* Tabular inlines: boolean ("is_*") columns and the Delete? column hold a single small
+   control - centre both the header and the control. Django floats the remove icon right. */
+#container .inline-group .tabular th[class*="column-is_"],
+#container .inline-group .tabular td[class*="field-is_"],
+#container .inline-group .tabular table:has(td.delete) thead th:last-child,
+#container .inline-group .tabular td.delete {
+    text-align: center;
+}
+
+#container .inline-group .tabular td.delete > div {
+    display: flex;
+    justify-content: center;
+}
+
+#container .inline-group .tabular td.delete a.inline-deletelink {
+    float: none;
+    margin: 0;
+}
+
+#container .inline-group .tabular td[class*="field-is_"] input[type="checkbox"],
+#container .inline-group .tabular td.delete input[type="checkbox"] {
+    display: inline-block;
+    margin: 0 auto;
+}

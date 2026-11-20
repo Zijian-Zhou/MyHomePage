@@ -5,19 +5,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        /* Apply the saved theme before the first paint (no light flash in dark mode). */
+        (function () { try { var t = localStorage.getItem('theme'); if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); } catch (e) {} })();
+    </script>
     <title>{% if profile %}{{ profile.get_formatted_display_name }}{% else %}{% trans "MyHomePage" %}{% endif %}</title>
     {% if profile and profile.profile_image %}
     <link rel="icon" type="image/png" href="{% url 'site_icon' %}?v={{ profile.updated_at|date:'U' }}">
     <link rel="apple-touch-icon" href="{% url 'site_icon' %}?v={{ profile.updated_at|date:'U' }}">
     {% endif %}
     <link href="{% static 'css/all.min.css' %}" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/index.css' %}?v={{ app_version }}.9">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/index.css' %}?v={{ app_version }}.12">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/admin/publication.css' %}?v=20260720-2">
-    <link rel="stylesheet" href="{% static 'css/home-cards.css' %}?v={{ app_version }}.3">
+    <link rel="stylesheet" href="{% static 'css/home-cards.css' %}?v={{ app_version }}.7">
+    <link rel="stylesheet" href="{% static 'css/page-loader.css' %}?v={{ app_version }}.1">
+    <link rel="stylesheet" href="{% static 'css/scrollbar.css' %}?v={{ app_version }}.1">
     <script src="{% static 'js/all.min.js' %}"></script>
 </head>
 <body>
+    {% include "includes/page_loader.html" %}
     <header class="header">
         <nav class="navbar">
             <div class="container">
@@ -111,7 +118,8 @@
         </div>
     </footer>
 
-    <script src="{% static 'js/index.js' %}?v={{ app_version }}.6"></script>
+    <script src="{% static 'js/page-loader.js' %}?v={{ app_version }}.1"></script>
+    <script src="{% static 'js/index.js' %}?v={{ app_version }}.7"></script>
     <script>
         // Theme toggle functionality
         const themeToggle = document.getElementById('theme-toggle');

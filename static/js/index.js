@@ -241,11 +241,21 @@ function setupSectionImages() {
     const CONTENT_IMAGES = '.section .bio img, .section .content img, .section .description img, .section .section-content img';
     const MIN_CONTENT_SIZE = 80; // skip badges and inline icons
 
+    // PNGs are usually transparent logos: a drop shadow around their box looks odd.
+    function isPng(img) {
+        try {
+            return /\.png$/i.test(new URL(img.currentSrc || img.src, window.location.href).pathname);
+        } catch (err) {
+            return false;
+        }
+    }
+
     function prepare(img) {
         if (img.dataset.zoomable) return;
         if (img.matches(CARD_IMAGES)) {
             img.dataset.zoomable = '1';
             img.title = img.title || hint;
+            if (isPng(img) && img.parentElement) img.parentElement.classList.add('zoom-frame--flat');
             return;
         }
         if (!img.matches(CONTENT_IMAGES) || img.closest('a')) return; // linked images keep their link
@@ -253,7 +263,7 @@ function setupSectionImages() {
             if (img.dataset.zoomable) return;
             if (Math.max(img.naturalWidth, img.width) < MIN_CONTENT_SIZE) return;
             const frame = document.createElement('span');
-            frame.className = 'zoom-frame';
+            frame.className = isPng(img) ? 'zoom-frame zoom-frame--flat' : 'zoom-frame';
             img.parentNode.insertBefore(frame, img);
             frame.appendChild(img);
             img.dataset.zoomable = '1';

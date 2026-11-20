@@ -129,9 +129,10 @@
 .form-row input[type="text"]:focus,
 .form-row input[type="number"]:focus,
 .form-row textarea:focus {
-    border-color: #4caf50;
-    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
-    background-color: #fff;
+    /* Follow the admin theme (the old hard-coded #fff made dark-mode text unreadable). */
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.18);
+    background-color: var(--form-field-bg, var(--body-bg));
 }
 
 /* Modal styles */
@@ -281,8 +282,8 @@
 /* Dark mode support */
 [data-theme="dark"] .field-bibtex_input textarea,
 [data-theme="dark"] .field-bibtex_file input[type="file"] {
-    background-color: #2d2d2d;
-    border-color: #404040;
+    background-color: #1e293b;
+    border-color: #334155;
     color: #ffffff;
 }
 
@@ -313,7 +314,7 @@
 }
 
 [data-theme="dark"] .error-details {
-    background-color: #2d2d2d;
+    background-color: #1e293b;
 }
 
 [data-theme="dark"] .error-details h4 {

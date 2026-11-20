@@ -19,27 +19,10 @@ document.addEventListener('DOMContentLoaded', function () {
     return (dict[lang] && dict[lang][key]) || dict.en[key];
   }
 
-  function ensureOverlay() {
-    var overlay = document.getElementById('sync-progress-overlay');
-    if (overlay) return overlay;
-
-    overlay = document.createElement('div');
-    overlay.id = 'sync-progress-overlay';
-    overlay.className = 'sync-progress-overlay';
-    overlay.style.display = 'none';
-    overlay.innerHTML =
-      '<div class="sync-progress-card">' +
-      '<div class="sync-spinner" aria-hidden="true"></div>' +
-      '<div class="sync-progress-title">' + t('title') + '</div>' +
-      '<div class="sync-progress-text">' + t('text') + '</div>' +
-      '</div>';
-    document.body.appendChild(overlay);
-    return overlay;
-  }
-
   function showOverlay() {
-    var overlay = ensureOverlay();
-    overlay.style.display = 'flex';
+    if (window.PageLoader) {
+      window.PageLoader.show({ title: t('title'), text: t('text'), immediate: true, persist: true });
+    }
   }
 
   function disableSyncButtons() {

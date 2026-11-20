@@ -70,6 +70,13 @@
     wrapper.className = "auto-translate-control";
     wrapper.appendChild(button);
 
+    // If a preview/AI action row was already built under this field (scripts may run
+    // in either order), join it as the first item instead of sitting beside the field.
+    var next = field.nextElementSibling;
+    if (next && next.classList.contains("publication-detail-action-row")) {
+      next.insertBefore(wrapper, next.firstChild);
+      return;
+    }
     if (field.parentNode) {
       field.parentNode.insertBefore(wrapper, field.nextSibling);
     }
@@ -173,8 +180,17 @@
     var style = document.createElement("style");
     style.id = "auto-translate-style";
     style.textContent = [
-      ".auto-translate-control{margin:18px 0 12px;}",
-      ".flex-container>.auto-translate-control{flex:0 1 auto;margin:8px 0 0 0;}",
+      /* The wrapper owns all spacing of the translate button (single source of truth). */
+      /* Default: beside the field with a 10px gap. */
+      ".auto-translate-control{display:inline-flex;align-items:center;box-sizing:border-box;max-width:100%;margin:0 0 0 10px;}",
+      /* In a form row: centred on a one-line input, top-aligned next to a textarea. */
+      ".flex-container>.auto-translate-control{flex:0 0 auto;align-self:center;}",
+      ".flex-container>textarea+.auto-translate-control{align-self:flex-start;}",
+      /* Tabular inlines: stacked under the field, aligned with its left edge. */
+      "td>.auto-translate-control{display:flex;margin:8px 0 0 0;}",
+      /* Action rows (Translate / Preview / AI Generate): the row's gap handles spacing. */
+      ".publication-detail-action-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:10px;}",
+      ".publication-detail-action-row>.auto-translate-control{margin:0;}",
       ".auto-translate-button{box-sizing:border-box;max-width:100%;font-size:12px;line-height:1.4;padding:4px 10px;white-space:normal;}",
       ".auto-translate-button.auto-translate-error{border-color:#ba2121;color:#ba2121;}",
       "html[data-theme='dark'] .auto-translate-button.auto-translate-error,body.dark-mode .auto-translate-button.auto-translate-error{border-color:#ff8a8a;color:#ffb1b1;}"

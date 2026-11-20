@@ -42,6 +42,17 @@
     return mask;
   }
 
+  // Keep the action row in the same column as the field: when the label sits beside the
+    // field (wide screens), a row appended to the flex row would wrap back under the label.
+  function placeRowUnderField(textarea, row) {
+    var column = document.createElement('div');
+    column.className = 'field-with-actions';
+    column.style.cssText = 'display:flex;flex-direction:column;align-items:flex-start;min-width:0;max-width:100%;';
+    textarea.parentNode.insertBefore(column, textarea);
+    column.appendChild(textarea);
+    column.appendChild(row);
+  }
+
   function addPreview(textarea) {
     if (!textarea || textarea.dataset.bioPreviewReady === '1') return;
     textarea.dataset.bioPreviewReady = '1';
@@ -94,7 +105,7 @@
         });
     });
     row.appendChild(button);
-    textarea.insertAdjacentElement('afterend', row);
+    placeRowUnderField(textarea, row);
   }
 
   document.addEventListener('DOMContentLoaded', function () {

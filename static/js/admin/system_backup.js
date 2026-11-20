@@ -6,10 +6,10 @@
   } catch (e) {
     labels = {};
   }
-  var overlay = document.querySelector("[data-backup-overlay]");
-
   function showBusy() {
-    if (overlay) overlay.hidden = false;
+    if (window.PageLoader) {
+      window.PageLoader.show({ title: labels.processing || "Processing...", immediate: true, persist: true });
+    }
     document.querySelectorAll(".system-backup button[type=submit]").forEach(function (btn) {
       btn.disabled = true;
     });

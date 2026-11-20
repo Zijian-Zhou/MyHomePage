@@ -21,49 +21,23 @@
     };
   }
 
-  function getOverlay() {
-    var overlay = document.getElementById('admin-save-overlay');
-    if (overlay) return overlay;
-
-    var copy = labels();
-    overlay = document.createElement('div');
-    overlay.id = 'admin-save-overlay';
-    overlay.className = 'admin-save-overlay';
-    overlay.setAttribute('role', 'status');
-    overlay.setAttribute('aria-live', 'polite');
-    overlay.setAttribute('aria-hidden', 'true');
-    overlay.innerHTML =
-      '<div class="admin-save-overlay-card">' +
-        '<span class="admin-save-overlay-spinner" aria-hidden="true"></span>' +
-        '<strong class="admin-save-overlay-title"></strong>' +
-        '<span class="admin-save-overlay-text"></span>' +
-      '</div>';
-    overlay.querySelector('.admin-save-overlay-title').textContent = copy.title;
-    overlay.querySelector('.admin-save-overlay-text').textContent = copy.text;
-    document.body.appendChild(overlay);
-    return overlay;
-  }
-
   function showOverlay(form) {
-    var overlay = getOverlay();
+    var copy = labels();
     submittingForm = form;
     form.setAttribute('aria-busy', 'true');
     document.body.classList.add('admin-save-in-progress');
-    overlay.classList.add('is-visible');
-    overlay.setAttribute('aria-hidden', 'false');
+    if (window.PageLoader) {
+      window.PageLoader.show({ title: copy.title, text: copy.text, immediate: true, persist: true });
+    }
   }
 
   function hideOverlay() {
-    var overlay = document.getElementById('admin-save-overlay');
     if (submittingForm) {
       submittingForm.removeAttribute('aria-busy');
     }
     submittingForm = null;
     document.body.classList.remove('admin-save-in-progress');
-    if (overlay) {
-      overlay.classList.remove('is-visible');
-      overlay.setAttribute('aria-hidden', 'true');
-    }
+    if (window.PageLoader) window.PageLoader.hide();
   }
 
   function isAdminSaveForm(form) {

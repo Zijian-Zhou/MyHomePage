@@ -32,6 +32,21 @@ from django.shortcuts import redirect
 logger = logging.getLogger(__name__)
 
 
+def _static_v(path):
+    """Cache-busted URL for ModelAdmin Media assets.
+
+    Django passes absolute paths in Media through unchanged, so a query string can be
+    appended. The suffix changes with the app version and the file's mtime, so browsers
+    (and Nginx's 7-day static cache) pick up edited scripts without manual bumps.
+    """
+    source = os.path.join(settings.BASE_DIR, 'static', *path.split('/'))
+    try:
+        stamp = int(os.path.getmtime(source))
+    except OSError:
+        stamp = 0
+    return '{}{}?v={}-{}'.format(settings.STATIC_URL, path, settings.APP_VERSION, stamp)
+
+
 @contextmanager
 def _without_env_proxies():
     proxy_keys = (
@@ -1149,11 +1164,10 @@ class DraftSaveMixin:
 
 
 class BaseAdmin(admin.ModelAdmin):
-    class Media:
-        css = {
-            'all': ('css/admin/custom.css', 'css/admin/dark_mode.css')
-        }
-        js = ('js/admin/dark_mode.js',)
+    # custom.css, dark_mode.css and dark_mode.js are loaded once for every admin page
+    # by templates/admin/base_site.html. Re-adding them through Media loaded them a
+    # second time after theme.css (overriding it) and created a duplicate theme toggle.
+    pass
 
 @admin.register(Profile)
 class ProfileAdmin(DraftSaveMixin, BaseAdmin):
@@ -1164,9 +1178,9 @@ class ProfileAdmin(DraftSaveMixin, BaseAdmin):
     
     class Media:
         css = {
-            'all': ('css/admin.css',)
+            'all': (_static_v('css/admin.css'),)
         }
-        js = ('js/admin/sync_overlay.js', 'js/admin/profile_bio_preview.js')
+        js = (_static_v('js/admin/sync_overlay.js'), _static_v('js/admin/profile_bio_preview.js'))
 
     def get_fields(self, request, obj=None):
         fields = super().get_fields(request, obj)
@@ -1516,9 +1530,9 @@ class PublicationAdmin(DraftSaveMixin, BaseAdmin):
     readonly_fields = ('created_at', 'updated_at')
 
     class Media:
-        js = ('js/admin/publication_admin.js',)
+        js = (_static_v('js/admin/publication_admin.js'),)
         css = {
-            'all': ('css/admin/publication_admin.css',)
+            'all': (_static_v('css/admin/publication_admin.css'),)
         }
 
     def get_form(self, request, obj=None, **kwargs):
@@ -2140,11 +2154,11 @@ class SystemConfigAdmin(admin.ModelAdmin):
 
     class Media:
         js = (
-            'js/admin/systemconfig_json_validate.js',
-            'js/admin/systemconfig_switch_category.js',
-            'js/admin/footer_items_editor.js',
+            _static_v('js/admin/systemconfig_json_validate.js'),
+            _static_v('js/admin/systemconfig_switch_category.js'),
+            _static_v('js/admin/footer_items_editor.js'),
         )
-        css = {'all': ('css/admin/footer_items_editor.css',)}
+        css = {'all': (_static_v('css/admin/footer_items_editor.css'),)}
     
     def get_urls(self):
         urls = super().get_urls()
@@ -2384,7 +2398,7 @@ class AIConfigAdmin(admin.ModelAdmin):
     check_selected_availability.short_description = _('Run keep-alive test for selected AI configurations')
 
     class Media:
-        js = ('js/admin/ai_config_json_validate.js',)
+        js = (_static_v('js/admin/ai_config_json_validate.js'),)
 
 class NewsAdmin(DraftSaveMixin, BaseAdmin):
     list_display = ('title', 'enable_detail', 'is_active', 'is_draft', 'order', 'display_time', 'created_at', 'updated_at')
@@ -2557,8 +2571,8 @@ class MediaFileAdmin(DraftSaveMixin, BaseAdmin):
         })
 
     class Media:
-        css = {'all': ('css/admin/mediafile_admin.css',)}
-        js = ('js/admin/mediafile_admin.js',)
+        css = {'all': (_static_v('css/admin/mediafile_admin.css'),)}
+        js = (_static_v('js/admin/mediafile_admin.js'),)
 
 # Register models with the custom admin site
 admin_site.register(Profile, ProfileAdmin)

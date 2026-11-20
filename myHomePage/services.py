@@ -7,12 +7,18 @@ from bs4 import BeautifulSoup
 import re
 import logging
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import get_language
 import json
 from urllib.parse import urlencode
 import time
 import random
 
 logger = logging.getLogger(__name__)
+
+
+def _msg(en, zh):
+    """Pick a user-facing message in the active admin language (English by default)."""
+    return zh if (get_language() or '').lower().startswith('zh') else en
 
 
 def _request_without_env_proxy(method, url, **kwargs):
@@ -441,19 +447,22 @@ class GoogleScholarService:
                 logger.debug(f"Response content preview: {response.text[:1000]}")
                 
             except requests.exceptions.ProxyError as e:
-                error_msg = f"请求失败（代理/直连均不可用）: {str(e)}"
+                error_msg = _msg(f"Request failed (both proxy and direct connection are unavailable): {e}",
+                                 f"请求失败（代理/直连均不可用）: {e}")
                 logger.error(error_msg)
                 raise Exception(error_msg)
             except requests.exceptions.ConnectTimeout:
-                error_msg = "连接超时，直连和代理都未成功"
+                error_msg = _msg("Connection timed out: neither the direct connection nor the proxy succeeded.",
+                                 "连接超时，直连和代理都未成功")
                 logger.error(error_msg)
                 raise Exception(error_msg)
             except requests.exceptions.RequestException as e:
                 if '429' in str(e):
-                    error_msg = "Google Scholar 请求频率限制。请配置代理服务器或稍后再试。"
+                    error_msg = _msg("Google Scholar rate limit reached. Configure a proxy server or try again later.",
+                                     "Google Scholar 请求频率限制。请配置代理服务器或稍后再试。")
                     logger.error(error_msg)
                     raise Exception(error_msg)
-                error_msg = f"请求失败: {str(e)}"
+                error_msg = _msg(f"Request failed: {e}", f"请求失败: {e}")
                 logger.error(error_msg)
                 raise Exception(error_msg)
             
@@ -462,7 +471,8 @@ class GoogleScholarService:
             
             # 检查是否被阻止
             if 'Please show you&#39;re not a robot' in response.text or 'Too Many Requests' in response.text:
-                error_msg = "Google Scholar 检测到爬虫行为。请配置有效的代理服务器。"
+                error_msg = _msg("Google Scholar flagged the request as automated traffic. Configure a working proxy server.",
+                                 "Google Scholar 检测到爬虫行为。请配置有效的代理服务器。")
                 logger.error(error_msg)
                 raise Exception(error_msg)
             

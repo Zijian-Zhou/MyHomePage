@@ -1,0 +1,208 @@
+/*
+ * Page loader: a soft overlay used for page transitions and long-running actions,
+ * shared by the public site and the admin. The animation is a chomping circle
+ * eating a row of dots.
+ *
+ * Quick page loads only show a gentle fade of the backdrop; the card with the
+ * animation fades in after ~350 ms (immediately for explicit long operations).
+ */
+.page-loader {
+    --loader-backdrop: rgba(243, 246, 251, 0.94);
+    --loader-card-bg: #ffffff;
+    --loader-card-border: #e2e8f0;
+    --loader-accent: #4a90e2;
+    --loader-title: #1e293b;
+    --loader-text: #64748b;
+    --loader-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--loader-backdrop);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.22s ease, visibility 0s linear 0.22s;
+}
+
+html[data-theme="dark"] .page-loader {
+    --loader-backdrop: rgba(15, 23, 42, 0.94);
+    --loader-card-bg: #1e293b;
+    --loader-card-border: #334155;
+    --loader-accent: #60a5fa;
+    --loader-title: #e2e8f0;
+    --loader-text: #94a3b8;
+    --loader-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+.page-loader.is-visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 0.18s ease, visibility 0s;
+}
+
+/* The server-rendered overlay covers the first paint; JS fades it out. If JS never
+   runs, it removes itself after a few seconds. */
+.page-loader.is-initial {
+    transition: none;
+    animation: page-loader-failsafe 0s linear 6s forwards;
+}
+
+@keyframes page-loader-failsafe {
+    to {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+}
+
+.page-loader-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.9rem;
+    min-width: 220px;
+    max-width: min(90vw, 360px);
+    padding: 1.6rem 2rem 1.4rem;
+    border: 1px solid var(--loader-card-border);
+    border-radius: 14px;
+    background: var(--loader-card-bg);
+    box-shadow: var(--loader-shadow);
+    text-align: center;
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+}
+
+.page-loader.is-visible .page-loader-card {
+    animation: page-loader-card-in 0.25s ease 0.35s forwards;
+}
+
+.page-loader.is-visible.is-immediate .page-loader-card {
+    animation-delay: 0s;
+}
+
+@keyframes page-loader-card-in {
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.page-loader-title {
+    color: var(--loader-title);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.page-loader-text {
+    color: var(--loader-text);
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+.page-loader-text:empty {
+    display: none;
+}
+
+/* ---------- Chomping animation ---------- */
+.chomp {
+    position: relative;
+    width: 116px;
+    height: 40px;
+}
+
+/* Two half discs hinged at the centre open and close to the right. */
+.chomp-mouth {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    z-index: 1;
+}
+
+.chomp-mouth::before,
+.chomp-mouth::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 40px;
+    height: 20px;
+    background: var(--loader-accent);
+}
+
+.chomp-mouth::before {
+    top: 0;
+    border-radius: 40px 40px 0 0;
+    transform-origin: 50% 100%;
+    animation: chomp-upper 0.36s ease-in-out infinite alternate;
+}
+
+.chomp-mouth::after {
+    bottom: 0;
+    border-radius: 0 0 40px 40px;
+    transform-origin: 50% 0;
+    animation: chomp-lower 0.36s ease-in-out infinite alternate;
+}
+
+@keyframes chomp-upper {
+    from { transform: rotate(-38deg); }
+    to { transform: rotate(0deg); }
+}
+
+@keyframes chomp-lower {
+    from { transform: rotate(38deg); }
+    to { transform: rotate(0deg); }
+}
+
+/* Dots roll in from the right and disappear into the mouth, one per bite. */
+.chomp-dot {
+    position: absolute;
+    top: 50%;
+    left: 104px;
+    width: 9px;
+    height: 9px;
+    margin-top: -4.5px;
+    border-radius: 50%;
+    background: var(--loader-accent);
+    opacity: 0;
+    animation: chomp-dot 1.08s linear infinite;
+}
+
+.chomp-dot:nth-child(3) {
+    animation-delay: -0.36s;
+}
+
+.chomp-dot:nth-child(4) {
+    animation-delay: -0.72s;
+}
+
+@keyframes chomp-dot {
+    0% { transform: translateX(0); opacity: 0; }
+    12% { opacity: 0.85; }
+    82% { opacity: 0.85; }
+    100% { transform: translateX(-84px); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chomp-mouth::before,
+    .chomp-mouth::after {
+        animation-duration: 1.2s;
+    }
+
+    .chomp-dot {
+        animation-duration: 3.6s;
+    }
+
+    .page-loader,
+    .page-loader.is-visible {
+        transition: none;
+    }
+}

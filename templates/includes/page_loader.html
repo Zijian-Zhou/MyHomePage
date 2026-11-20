@@ -1,0 +1,10 @@
+{% load i18n %}{% get_current_language as loader_lang %}
+<div id="page-loader" class="page-loader is-visible is-initial" role="status" aria-live="polite" aria-hidden="false">
+    <div class="page-loader-card">
+        <div class="chomp" aria-hidden="true">
+            <span class="chomp-mouth"></span><span class="chomp-dot"></span><span class="chomp-dot"></span><span class="chomp-dot"></span>
+        </div>
+        <strong class="page-loader-title">{% if loader_lang|slice:":2" == "zh" %}加载中…{% else %}Loading…{% endif %}</strong>
+        <span class="page-loader-text"></span>
+    </div>
+</div>

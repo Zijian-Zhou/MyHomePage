@@ -3,7 +3,7 @@
 
 {% block extrastyle %}
 {{ block.super }}
-<link rel="stylesheet" href="{% static 'css/admin/system_backup.css' %}?v={{ app_version }}.2">
+<link rel="stylesheet" href="{% static 'css/admin/system_backup.css' %}?v={{ app_version }}.4">
 {% endblock %}
 
 {% block content %}
@@ -126,9 +126,6 @@
     {% endif %}
   </section>
 
-  <div class="backup-busy" data-backup-overlay hidden>
-    <div class="backup-busy-box">{{ labels.processing }}</div>
-  </div>
 </div>
-<script src="{% static 'js/admin/system_backup.js' %}?v={{ app_version }}.2"></script>
+<script src="{% static 'js/admin/system_backup.js' %}?v={{ app_version }}.4"></script>
 {% endblock %}

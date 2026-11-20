@@ -7,13 +7,22 @@
 {% block extrastyle %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'css/all.min.css' %}">
-<link rel="stylesheet" href="{% static 'css/admin/custom.css' %}?v=20261120-1">
-<link rel="stylesheet" href="{% static 'css/admin/dark_mode.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin/custom.css' %}?v=20261120-2">
+<link rel="stylesheet" href="{% static 'css/admin/dark_mode.css' %}?v={{ app_version }}.1">
 <link rel="stylesheet" href="{% static 'css/admin/publication.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin/theme.css' %}?v={{ app_version }}.16">
+<link rel="stylesheet" href="{% static 'css/page-loader.css' %}?v={{ app_version }}.1">
+<link rel="stylesheet" href="{% static 'css/scrollbar.css' %}?v={{ app_version }}.1">
 {% endblock %}
 
 {% block extrahead %}
 {{ block.super }}
+<script>
+/* Apply the saved theme before the first paint (no light flash in dark mode). */
+(function () { try { var t = localStorage.getItem('theme'); if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); } catch (e) {} })();
+    </script>
+<script src="{% static 'js/page-loader.js' %}?v={{ app_version }}.1"></script>
+<script src="{% static 'js/admin/sticky_header.js' %}?v={{ app_version }}.1"></script>
 <script src="{% static 'js/admin/dark_mode.js' %}"></script>
 {% if user.is_authenticated %}
 <script>
@@ -21,13 +30,15 @@
   window.HOMEPAGE_ADMIN_CHINESE_ENABLED = {% if show_language_switcher %}true{% else %}false{% endif %};
 </script>
 {% if show_language_switcher %}
-<script src="{% static 'js/admin/auto_translate.js' %}"></script>
+<script src="{% static 'js/admin/auto_translate.js' %}?v={{ app_version }}.3"></script>
 {% endif %}
 <script src="{% static 'js/admin/change_form_outline.js' %}?v=20261025-1"></script>
-<script src="{% static 'js/admin/publication_detail_preview.js' %}?v=20260720-6"></script>
-<script src="{% static 'js/admin/save_overlay.js' %}?v=20261030-1"></script>
+<script src="{% static 'js/admin/publication_detail_preview.js' %}?v={{ app_version }}.1"></script>
+<script src="{% static 'js/admin/save_overlay.js' %}?v={{ app_version }}.1"></script>
 {% endif %}
 {% endblock %}
+
+{% block header %}{% include "includes/page_loader.html" %}{{ block.super }}{% endblock %}
 
 {% block branding %}
 <h1 id="site-name">

@@ -1,10 +1,7 @@
 {% extends "admin/change_list.html" %}
 {% load i18n static %}
 
-{% block extrastyle %}
-{{ block.super }}
-<link rel="stylesheet" type="text/css" href="{% static 'css/admin/publication_admin.css' %}">
-{% endblock %}
+{# publication_admin.css comes from PublicationAdmin.Media #}
 
 {% block object-tools-items %}
 {{ block.super }}
