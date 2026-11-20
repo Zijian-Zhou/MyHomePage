@@ -85,13 +85,20 @@
     });
 
     const toggle = panel.querySelector('.admin-outline-toggle');
-    toggle.addEventListener('click', function () {
-      const collapsed = panel.classList.toggle('is-collapsed');
+    function setCollapsed(collapsed) {
+      panel.classList.toggle('is-collapsed', collapsed);
       toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
       toggle.innerHTML = collapsed
         ? (isZh ? '&#23637;&#24320;&#22823;&#32434;' : 'Expand outline')
         : (isZh ? '&#25910;&#36215;&#22823;&#32434;' : 'Collapse outline');
+    }
+    toggle.addEventListener('click', function () {
+      setCollapsed(!panel.classList.contains('is-collapsed'));
     });
+    // On narrower screens the panel floats over the form: start collapsed there.
+    if (window.matchMedia && window.matchMedia('(max-width: 1180px)').matches) {
+      setCollapsed(true);
+    }
     return panel;
   }
 

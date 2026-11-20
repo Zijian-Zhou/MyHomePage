@@ -762,3 +762,197 @@ html {
     display: inline-block;
     margin: 0 auto;
 }
+
+/* =====================================================================
+   Responsive admin (tablets and phones)
+   ===================================================================== */
+
+/* Changelists: let the results table scroll sideways instead of squeezing columns
+   (the rounded .module card would otherwise clip it). */
+#changelist.module {
+    overflow: visible;
+}
+
+#changelist .results {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Tablets and below: finger-sized targets. */
+@media (max-width: 1024px) {
+    #user-tools a,
+    #user-tools #logout-form button {
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px;
+        padding: 0 4px;
+    }
+
+    #header .theme-toggle {
+        min-width: 32px;
+        min-height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #nav-sidebar .module th a,
+    #nav-sidebar .module td a,
+    #nav-sidebar caption a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+    }
+
+    #nav-filter,
+    #changelist #toolbar input[type="text"],
+    #changelist .actions select,
+    body:not(.login) #container #changelist-search input[type=submit],
+    body:not(.login) #container #changelist .actions button {
+        min-height: 34px;
+    }
+}
+
+/* Phones */
+@media (max-width: 767px) {
+    /* Only the breadcrumbs stay pinned; the (taller, wrapping) header scrolls away. */
+    #header {
+        position: static;
+        padding: 10px 14px;
+        gap: 6px;
+    }
+
+    #branding h1,
+    #branding h1 a:link,
+    #branding h1 a:visited {
+        font-size: 1.1rem;
+    }
+
+    #container > nav[aria-label="Breadcrumbs"] {
+        top: 0;
+    }
+
+    html {
+        scroll-padding-top: calc(var(--admin-crumbs-h, 0px) + 12px);
+    }
+
+    div.breadcrumbs {
+        padding: 8px 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* The floating outline panel would cover the single-column form. */
+    .admin-detail-outline {
+        display: none;
+    }
+
+    body.has-admin-detail-outline #content {
+        padding-right: 0;
+    }
+
+    #changelist .results table#result_list {
+        min-width: 640px;
+    }
+
+    #changelist #result_list td,
+    #changelist #result_list th {
+        white-space: normal;
+    }
+
+    /* Inline sort priority numbers were 8.8px. */
+    #changelist table thead th .sortpriority {
+        font-size: 11px;
+    }
+}
+
+/* Changelist sort-priority digits (Django default 0.55rem is ~9px). */
+#changelist table thead th .sortpriority {
+    font-size: 11px;
+}
+
+@media (max-width: 1024px) {
+    #branding h1 a:link,
+    #branding h1 a:visited {
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px;
+    }
+
+    /* Checkbox rows: the label is the tap target for its box. */
+    #container .checkbox-row {
+        min-height: 34px;
+    }
+
+    #container .checkbox-row label {
+        padding: 6px 0;
+    }
+
+    .system-backup .backup-primary,
+    .system-backup .backup-action-btn,
+    body:not(.login) #container .system-backup .button {
+        min-height: 34px;
+    }
+}
+
+@media (max-width: 1024px) {
+    /* Changelist: filters move below the results so the table gets the full width;
+       the table keeps a readable minimum width and scrolls sideways if needed. */
+    #changelist.filtered {
+        flex-direction: column;
+    }
+
+    /* In a column flex box children default to min-width: auto (their content
+       width); pin both to the container width so only the table scrolls. */
+    #changelist.filtered > .changelist-form-container {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    #changelist #changelist-filter {
+        flex: 0 0 auto;
+        align-self: stretch;
+        width: 100%;
+        max-width: 100%;
+        margin: 16px 0 0;
+    }
+
+    #changelist .results table#result_list {
+        min-width: 900px;
+    }
+
+    /* Collapsed outline tab sits at the right edge: keep the form clear of it. */
+    body.has-admin-detail-outline #content {
+        padding-right: 64px;
+    }
+}
+
+@media (max-width: 767px) {
+    #changelist .results table#result_list {
+        min-width: 860px;
+    }
+
+    /* Header user tools: a tidy, centred, wrapping line. */
+    #user-tools {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        column-gap: 6px;
+        row-gap: 0;
+        margin: 0;
+        font-size: 11px;
+        line-height: 1.4;
+        text-align: center;
+    }
+
+    #user-tools #logout-form {
+        display: inline-flex;
+    }
+
+    body.has-admin-detail-outline #content {
+        padding-right: 0;
+    }
+}

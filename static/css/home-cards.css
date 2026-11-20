@@ -351,3 +351,73 @@
 body.image-viewer-open {
     overflow: hidden;
 }
+
+/* ---------- Mobile header (phones / small tablets) ----------
+   Brand on the first line; nav items, theme toggle, language and Admin share one
+   horizontally scrollable line instead of wrapping into three rows. */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0.6rem 0 0.4rem;
+    }
+
+    .navbar .container {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.35rem;
+    }
+
+    .navbar-brand {
+        justify-content: center;
+    }
+
+    .navbar-menu,
+    .navbar-menu[class] {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        gap: 0.25rem;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding: 0 0.25rem 0.2rem;
+        /* Soft fade on the right edge hints that the row scrolls. */
+        -webkit-mask-image: linear-gradient(to right, #000 88%, transparent);
+        mask-image: linear-gradient(to right, #000 88%, transparent);
+    }
+
+    .navbar-menu::-webkit-scrollbar {
+        display: none;
+    }
+
+    .navbar-menu > * {
+        flex: 0 0 auto;
+    }
+
+    .navbar-menu .nav-item {
+        padding: 0.45rem 0.75rem;
+        white-space: nowrap;
+    }
+
+    .navbar-menu .admin-link {
+        margin: 0;
+        padding: 0.4rem 0.75rem;
+    }
+
+    .theme-toggle {
+        min-width: 36px;
+        min-height: 36px;
+    }
+
+}
+
+/* Tablets and phones: card action links ([View Paper] [Cite] ...) get a finger-sized target. */
+@media (max-width: 1024px) {
+    .publication-actions .paper-link,
+    .publication-actions .publication-action {
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px;
+        padding: 0 0.15rem;
+    }
+}

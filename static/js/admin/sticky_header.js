@@ -3,6 +3,7 @@
  *   --admin-header-h  height of #header (breadcrumbs stick right below it)
  *   --admin-sticky-h  header + breadcrumbs (sidebar, outline panel and anchor
  *                     jumps start below this)
+ *   --admin-crumbs-h  breadcrumbs only (phones pin just the breadcrumbs)
  * The header wraps on narrow windows, so heights are observed, not hard-coded.
  */
 (function () {
@@ -16,6 +17,7 @@
     var root = document.documentElement.style;
     root.setProperty('--admin-header-h', headerH + 'px');
     root.setProperty('--admin-sticky-h', (headerH + crumbsH) + 'px');
+    root.setProperty('--admin-crumbs-h', crumbsH + 'px');
   }
 
   function init() {

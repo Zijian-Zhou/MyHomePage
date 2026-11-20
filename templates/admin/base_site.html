@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="{% static 'css/admin/custom.css' %}?v=20261120-2">
 <link rel="stylesheet" href="{% static 'css/admin/dark_mode.css' %}?v={{ app_version }}.1">
 <link rel="stylesheet" href="{% static 'css/admin/publication.css' %}">
-<link rel="stylesheet" href="{% static 'css/admin/theme.css' %}?v={{ app_version }}.16">
+<link rel="stylesheet" href="{% static 'css/admin/theme.css' %}?v={{ app_version }}.21">
 <link rel="stylesheet" href="{% static 'css/page-loader.css' %}?v={{ app_version }}.1">
 <link rel="stylesheet" href="{% static 'css/scrollbar.css' %}?v={{ app_version }}.1">
 {% endblock %}
@@ -22,7 +22,7 @@
 (function () { try { var t = localStorage.getItem('theme'); if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); } catch (e) {} })();
     </script>
 <script src="{% static 'js/page-loader.js' %}?v={{ app_version }}.1"></script>
-<script src="{% static 'js/admin/sticky_header.js' %}?v={{ app_version }}.1"></script>
+<script src="{% static 'js/admin/sticky_header.js' %}?v={{ app_version }}.2"></script>
 <script src="{% static 'js/admin/dark_mode.js' %}"></script>
 {% if user.is_authenticated %}
 <script>
@@ -32,7 +32,7 @@
 {% if show_language_switcher %}
 <script src="{% static 'js/admin/auto_translate.js' %}?v={{ app_version }}.3"></script>
 {% endif %}
-<script src="{% static 'js/admin/change_form_outline.js' %}?v=20261025-1"></script>
+<script src="{% static 'js/admin/change_form_outline.js' %}?v={{ app_version }}.1"></script>
 <script src="{% static 'js/admin/publication_detail_preview.js' %}?v={{ app_version }}.1"></script>
 <script src="{% static 'js/admin/save_overlay.js' %}?v={{ app_version }}.1"></script>
 {% endif %}
