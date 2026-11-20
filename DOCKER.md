@@ -16,7 +16,7 @@ cp .env.example .env
 sh ./docker-up.sh
 ```
 
-Open <http://127.0.0.1:8000/en/>. Database migrations run automatically before
+Open <http://127.0.0.1:5000/en/>. Database migrations run automatically before
 the web and Celery services start. On the first start, the script creates the
 `superadmin` account and prints its generated password. The password format is
 `MyPageAdmin@YYYYMMDDHHMM`. Existing accounts are never reset on later starts.

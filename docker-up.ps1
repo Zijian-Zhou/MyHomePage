@@ -26,7 +26,7 @@ try {
     }
 
     $portOutput = docker compose port web 8000 | Select-Object -First 1
-    $port = if ($portOutput) { ($portOutput -split ':')[-1] } else { '8000' }
+    $port = if ($portOutput) { ($portOutput -split ':')[-1] } else { '5000' }
     Write-Host ''
     Write-Host "Homepage: http://127.0.0.1:$port/en/"
     Write-Host "Administration: http://127.0.0.1:$port/en/admin/"

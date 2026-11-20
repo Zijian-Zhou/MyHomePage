@@ -16,6 +16,7 @@ from django.contrib.admin.sites import AdminSite
 from django.template.response import TemplateResponse
 from django import forms
 from django.contrib.auth.models import User, Group
+from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 import bibtexparser
 import json
 import logging
@@ -753,7 +754,10 @@ class CustomAdminSite(AdminSite):
 
 admin_site = CustomAdminSite(name='admin')
 
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(DjangoUserAdmin):
+    # Inherit Django's auth UserAdmin so passwords are hashed: the change form shows
+    # a read-only hash with a link to the dedicated password-change view, and the
+    # add form uses UserCreationForm. A plain ModelAdmin would store raw text.
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active', 'date_joined')
     list_filter = ('is_staff', 'is_active', 'groups')
     search_fields = ('username', 'first_name', 'last_name', 'email')

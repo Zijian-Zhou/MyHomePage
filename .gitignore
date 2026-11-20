@@ -11,3 +11,23 @@ celerybeat.pid
 docker-data/
 staticfiles/
 .claude
+deploy/SERVER_DEPLOY_*.md
+
+# Runtime uploads (files already tracked under media/ stay tracked)
+media/
+
+# Local tools / IDE
+.mcp.json
+.playwright-mcp/
+.venv/
+venv/
+
+# Environment files and certificates
+.env.*
+!.env.example
+*.pem
+*.key
+
+# OS files
+.DS_Store
+Thumbs.db

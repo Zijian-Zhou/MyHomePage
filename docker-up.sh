@@ -23,6 +23,6 @@ else
 fi
 
 PORT=$(docker compose port web 8000 2>/dev/null | head -n 1 | awk -F: '{print $NF}')
-PORT=${PORT:-8000}
+PORT=${PORT:-5000}
 printf '\nHomepage: http://127.0.0.1:%s/en/\n' "$PORT"
 printf 'Administration: http://127.0.0.1:%s/en/admin/\n' "$PORT"

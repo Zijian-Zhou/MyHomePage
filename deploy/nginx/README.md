@@ -4,13 +4,13 @@ The example configuration assumes:
 
 - Domain names: `example.com` and `www.example.com`
 - Project directory: `/home/homepage/MyHomePage`
-- Docker publishes Django only on `127.0.0.1:8000`
+- Docker publishes Django only on `127.0.0.1:5000`
 - Nginx runs directly on the Linux host (Ubuntu paths are used below)
 - A Let's Encrypt certificate covers both domain names
 
 示例配置假设域名为 `example.com` 和 `www.example.com`，项目位于
 `/home/homepage/MyHomePage`，Nginx 直接运行在 Linux 宿主机上（下文使用 Ubuntu
-路径），Django 仅监听宿主机的 `127.0.0.1:8000`，且 Let's Encrypt 证书同时包含
+路径），Django 仅监听宿主机的 `127.0.0.1:5000`，且 Let's Encrypt 证书同时包含
 两个域名。
 
 Files / 文件：
@@ -61,7 +61,7 @@ DEBUG=False
 SECRET_KEY=replace-with-a-long-random-secret
 ALLOWED_HOSTS=example.com,www.example.com,127.0.0.1,localhost
 CSRF_TRUSTED_ORIGINS=https://example.com,https://www.example.com
-WEB_PORT=8000
+WEB_PORT=5000
 ```
 
 Keep `127.0.0.1,localhost` in `ALLOWED_HOSTS`: the container health check
@@ -204,14 +204,14 @@ docker compose ps                          # web should become healthy
   Django so application permissions are not bypassed.
 - Direct `/media/publication_files/` access is denied; publication files must use
   their opaque `/publication-file/<access-key>/` route.
-- All other requests are proxied to Django at `127.0.0.1:8000`.
+- All other requests are proxied to Django at `127.0.0.1:5000`.
 
 - HTTP 和 `www` 域名会跳转到主域名 HTTPS。
 - `/static/` 和普通 `/media/` 资源由 Nginx 直接提供。
 - 需要权限认证的 Markdown 媒体、媒体访问键和论文附件继续转发给 Django，
   不会绕过系统权限检查。
 - 禁止直接访问 `/media/publication_files/`，论文文件必须使用带访问键的路由。
-- 其他请求反向代理到 `127.0.0.1:8000`。
+- 其他请求反向代理到 `127.0.0.1:5000`。
 
 After changing static files, rebuild/restart the initialization service or run:
 
@@ -236,7 +236,7 @@ sudo nginx -t && sudo systemctl reload nginx
 | `400 Bad Request` | Host missing from `ALLOWED_HOSTS` / 主机名未加入 | Update `.env`, then `docker compose up -d` |
 | `web` container `unhealthy` | `127.0.0.1` missing from `ALLOWED_HOSTS` / 缺少 `127.0.0.1` | Add `127.0.0.1,localhost`, then `docker compose up -d` |
 | `403 CSRF verification failed` on login/forms | Origin missing from `CSRF_TRUSTED_ORIGINS` / 未配置可信来源 | Add `https://` origins, then `docker compose up -d` |
-| `502 Bad Gateway` | Django container not running on `127.0.0.1:8000` / 后端未运行 | `docker compose ps`, `docker compose logs web` |
+| `502 Bad Gateway` | Django container not running on `127.0.0.1:5000` / 后端未运行 | `docker compose ps`, `docker compose logs web` |
 
 Nginx logs are readable only by root/`adm`: `sudo tail -50 /var/log/nginx/error.log`.
 

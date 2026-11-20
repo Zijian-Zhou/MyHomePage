@@ -195,9 +195,9 @@ docker compose exec web python manage.py changepassword superadmin
 
 Open:
 
-- Homepage: <http://127.0.0.1:8000/en/>
-- Chinese homepage: <http://127.0.0.1:8000/zh-hans/>
-- Administration: <http://127.0.0.1:8000/en/admin/>
+- Homepage: <http://127.0.0.1:5000/en/>
+- Chinese homepage: <http://127.0.0.1:5000/zh-hans/>
+- Administration: <http://127.0.0.1:5000/en/admin/>
 
 Useful commands:
 
@@ -585,9 +585,9 @@ docker compose exec web python manage.py changepassword superadmin
 
 访问地址：
 
-- 英文主页：<http://127.0.0.1:8000/en/>
-- 中文主页：<http://127.0.0.1:8000/zh-hans/>
-- 管理后台：<http://127.0.0.1:8000/en/admin/>
+- 英文主页：<http://127.0.0.1:5000/en/>
+- 中文主页：<http://127.0.0.1:5000/zh-hans/>
+- 管理后台：<http://127.0.0.1:5000/en/admin/>
 
 常用命令：
 
