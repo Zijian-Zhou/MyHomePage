@@ -13,8 +13,9 @@ staticfiles/
 .claude
 deploy/SERVER_DEPLOY_*.md
 
-# Runtime uploads (files already tracked under media/ stay tracked)
-media/
+# Runtime uploads: ignore everything under media/ but keep the directory itself
+media/*
+!media/.gitkeep
 
 # Local tools / IDE
 .mcp.json
