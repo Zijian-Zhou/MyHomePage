@@ -14,6 +14,8 @@ from pathlib import Path
 import os
 from django.core.exceptions import ImproperlyConfigured
 
+from .version import __version__ as APP_VERSION
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -85,6 +87,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'myHomePage.context_processors.app_info',
             ],
         },
     },
@@ -171,6 +174,9 @@ ADMIN_INDEX_TITLE = "Welcome to MyHomePage Admin Portal"
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.getenv('MEDIA_ROOT', os.path.join(BASE_DIR, 'media'))
+
+# System backups (database + media archives created in the admin portal)
+BACKUP_ROOT = os.getenv('BACKUP_ROOT', str(BASE_DIR / 'backups'))
 
 # Session security
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'

@@ -1,0 +1,338 @@
+.system-backup {
+  --backup-border: var(--hairline-color, #ddd);
+  --backup-bg: var(--body-bg, #fff);
+  --backup-muted: var(--body-quiet-color, #666);
+  --backup-danger: var(--delete-button-bg, #ba2121);
+  max-width: 1200px;
+}
+
+.backup-hero,
+.backup-card {
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border: 1px solid var(--backup-border);
+  border-radius: 4px;
+  background: var(--backup-bg);
+}
+
+.backup-hero h1 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.backup-hero p,
+.backup-hint {
+  margin: 0 0 6px;
+  color: var(--backup-muted);
+}
+
+.backup-meta code {
+  word-break: break-all;
+}
+
+.backup-warning {
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border-left: 4px solid #d4a017;
+  border-radius: 4px;
+  background: rgba(212, 160, 23, 0.12);
+  color: var(--body-fg, #333);
+  line-height: 1.5;
+}
+
+.backup-panels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 12px;
+}
+
+.backup-panels .backup-card {
+  margin-bottom: 12px;
+}
+
+.backup-card h2 {
+  margin: 0 0 10px;
+  padding: 0;
+  font-size: 15px;
+  font-weight: 600;
+  background: none;
+  color: var(--body-fg, #333);
+}
+
+.backup-card form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.backup-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 220px;
+}
+
+.backup-field input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.backup-primary,
+.backup-primary:link,
+.backup-primary:visited {
+  background: var(--button-bg, var(--primary, #417690)) !important;
+  color: var(--button-fg, #fff) !important;
+}
+
+.backup-table-scroll {
+  overflow-x: auto;
+}
+
+.backup-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.backup-table th,
+.backup-table td {
+  padding: 8px;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--backup-border);
+}
+
+.backup-table th {
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.backup-table .num {
+  text-align: right;
+}
+
+.backup-table .nowrap {
+  white-space: nowrap;
+}
+
+.backup-name code {
+  word-break: break-all;
+}
+
+.backup-note {
+  margin-top: 2px;
+  color: var(--backup-muted);
+  font-size: 12px;
+}
+
+.backup-error {
+  margin-top: 2px;
+  color: var(--backup-danger);
+  font-size: 12px;
+}
+
+.backup-invalid td {
+  opacity: 0.85;
+}
+
+.backup-actions {
+  white-space: nowrap;
+}
+
+.backup-actions form {
+  display: inline;
+}
+
+.backup-actions .button {
+  margin: 2px 4px 2px 0;
+}
+
+.backup-restore {
+  background: #d4a017 !important;
+  color: #fff !important;
+}
+
+.backup-delete {
+  background: var(--backup-danger) !important;
+  color: #fff !important;
+}
+
+.backup-busy {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.backup-busy[hidden] {
+  display: none;
+}
+
+.backup-busy-box {
+  padding: 16px 24px;
+  border-radius: 6px;
+  background: var(--backup-bg);
+  color: var(--body-fg, #333);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* ---------- Import drop zone ---------- */
+.backup-card form.backup-import-form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.backup-dropzone {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 150px;
+  padding: 22px 16px;
+  border: 2px dashed var(--hairline-color, #ccc);
+  border-radius: 10px;
+  background: var(--darkened-bg, #f8f8f8);
+  color: var(--body-quiet-color, #666);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+.backup-dropzone:hover,
+.backup-dropzone:focus-within {
+  border-color: var(--primary, #417690);
+  background: rgba(65, 118, 144, 0.06);
+}
+
+.backup-dropzone.is-dragover {
+  border-color: var(--primary, #417690);
+  border-style: solid;
+  background: rgba(65, 118, 144, 0.12);
+  transform: scale(1.01);
+}
+
+.backup-dropzone.is-invalid {
+  border-color: var(--backup-danger);
+}
+
+/* Visually hidden but still focusable and usable by assistive technology. */
+.backup-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.backup-dropzone-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(65, 118, 144, 0.12);
+  color: var(--primary, #417690);
+  font-size: 24px;
+  transition: transform 0.2s ease;
+}
+
+.backup-dropzone:hover .backup-dropzone-icon,
+.backup-dropzone.is-dragover .backup-dropzone-icon {
+  transform: translateY(-3px);
+}
+
+.backup-dropzone-title {
+  color: var(--body-fg, #333);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.backup-dropzone-sub {
+  font-size: 12px;
+}
+
+.backup-file-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--hairline-color, #ddd);
+  border-left: 4px solid var(--primary, #417690);
+  border-radius: 6px;
+  background: var(--body-bg, #fff);
+}
+
+.backup-file-chip[hidden],
+.backup-file-error[hidden] {
+  display: none;
+}
+
+.backup-file-chip-icon {
+  color: var(--primary, #417690);
+  font-size: 20px;
+}
+
+.backup-file-chip-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.backup-file-chip-name {
+  overflow: hidden;
+  color: var(--body-fg, #333);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.backup-file-chip-size {
+  color: var(--body-quiet-color, #666);
+  font-size: 12px;
+}
+
+.backup-file-chip-remove {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--body-quiet-color, #666);
+  font-size: 18px;
+  line-height: 28px;
+  cursor: pointer;
+}
+
+.backup-file-chip-remove:hover {
+  background: rgba(186, 33, 33, 0.1);
+  color: var(--backup-danger);
+}
+
+.backup-file-error {
+  margin: 0;
+  color: var(--backup-danger);
+  font-size: 13px;
+}
+
+.backup-import-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.backup-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

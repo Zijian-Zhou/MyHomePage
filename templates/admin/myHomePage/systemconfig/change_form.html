@@ -5,4 +5,5 @@
 {{ block.super }}
 {{ systemconfig_category_switch_map|json_script:"systemconfig-category-switch-map" }}
 {{ systemconfig_current_category|json_script:"systemconfig-current-category" }}
+{{ footer_editor_labels|json_script:"footer-editor-labels" }}
 {% endblock %}

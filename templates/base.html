@@ -98,14 +98,14 @@
                     {% for item in footer_items %}
                         &nbsp;|&nbsp;
                         {% if item.href %}
-                            <a href="{{ item.href }}" target="_blank" rel="noopener noreferrer">{{ item.content }}</a>
+                            <a href="{{ item.href }}" target="_blank" rel="noopener noreferrer">{% include "includes/footer_item_icon.html" %}{{ item.content }}</a>
                         {% else %}
-                            {{ item.content }}
+                            <span>{% include "includes/footer_item_icon.html" %}{{ item.content }}</span>
                         {% endif %}
                     {% endfor %}
                 {% endif %}
                 &nbsp;|&nbsp;
-                <a href="https://github.com/Zijian-Zhou/MyHomePage" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i> Powered By MyHomePage</a>
+                <a href="https://github.com/Zijian-Zhou/MyHomePage" target="_blank" rel="noopener noreferrer"><i class="fab fa-github" aria-hidden="true"></i> Powered By MyHomePage{% if app_version %} v{{ app_version }}{% endif %}</a>
             </p>
         </div>
     </footer>

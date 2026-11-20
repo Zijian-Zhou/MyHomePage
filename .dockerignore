@@ -10,3 +10,4 @@ media
 celerybeat-schedule*
 celerybeat.pid
 *.log
+backups

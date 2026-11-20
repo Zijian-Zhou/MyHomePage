@@ -14,6 +14,11 @@
     <a class="button" href="{% url 'admin:system-resources' %}">
       {% if is_zh_mode %}&#31995;&#32479;&#36164;&#28304;&#30417;&#25511;{% else %}{% trans "System Resource Monitor" %}{% endif %}
     </a>
+    {% if request.user.is_superuser %}
+    <a class="button" href="{% url 'admin:system-backup' %}">
+      {% if is_zh_mode %}系统备份{% else %}System Backup{% endif %}
+    </a>
+    {% endif %}
   </div>
 </div>
 {{ block.super }}

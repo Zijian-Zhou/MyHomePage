@@ -9,6 +9,7 @@ x-app: &app
     CSRF_TRUSTED_ORIGINS: "${CSRF_TRUSTED_ORIGINS:-}"
     DATABASE_PATH: /data/db.sqlite3
     MEDIA_ROOT: /app/media
+    BACKUP_ROOT: /data/backups
     STATIC_ROOT: /app/staticfiles
     CELERY_BROKER_URL: "amqp://${RABBITMQ_USER:-homepage}:${RABBITMQ_PASSWORD:-change-me}@broker:5672//"
     ENABLE_IP_GEO_LANGUAGE: "False"

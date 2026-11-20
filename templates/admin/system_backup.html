@@ -1,0 +1,126 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/admin/system_backup.css' %}?v={{ app_version }}">
+{% endblock %}
+
+{% block content %}
+{{ js_labels|json_script:"system-backup-labels" }}
+<div class="system-backup">
+  <div class="backup-hero">
+    <h1>{{ labels.title }}</h1>
+    <p>{{ labels.subtitle }}</p>
+    <p class="backup-meta">
+      {{ labels.current_version }}: <strong>v{{ app_version }}</strong>
+      &nbsp;·&nbsp; {{ labels.storage }}: <code>{{ backup_root }}</code>
+    </p>
+  </div>
+
+  <div class="backup-warning" role="note">{{ labels.warning }}</div>
+
+  <div class="backup-panels">
+    <section class="backup-card">
+      <h2>{{ labels.create_title }}</h2>
+      <form method="post" data-backup-busy>
+        {% csrf_token %}
+        <input type="hidden" name="action" value="create">
+        <label class="backup-field">
+          <span>{{ labels.note }}</span>
+          <input type="text" name="note" maxlength="500" placeholder="{{ labels.note_placeholder }}">
+        </label>
+        <button type="submit" class="button backup-primary">{{ labels.create }}</button>
+      </form>
+    </section>
+
+    <section class="backup-card">
+      <h2>{{ labels.import_title }}</h2>
+      <p class="backup-hint">{{ labels.import_hint }}</p>
+      <form method="post" enctype="multipart/form-data" class="backup-import-form" data-backup-busy data-backup-import>
+        {% csrf_token %}
+        <input type="hidden" name="action" value="import">
+        <label class="backup-dropzone" data-backup-dropzone>
+          <input type="file" name="backup_file" accept=".zip,application/zip" class="backup-file-input" data-backup-file>
+          <span class="backup-dropzone-icon" aria-hidden="true"><i class="fas fa-cloud-arrow-up"></i></span>
+          <span class="backup-dropzone-title" data-backup-drop-title>{{ labels.drop_title }}</span>
+          <span class="backup-dropzone-sub">{{ labels.drop_hint }}</span>
+        </label>
+        <div class="backup-file-chip" data-backup-file-info hidden>
+          <i class="fas fa-file-zipper backup-file-chip-icon" aria-hidden="true"></i>
+          <span class="backup-file-chip-text">
+            <span class="backup-file-chip-name" data-backup-file-name></span>
+            <span class="backup-file-chip-size" data-backup-file-size></span>
+          </span>
+          <button type="button" class="backup-file-chip-remove" data-backup-file-remove title="{{ labels.remove_file }}" aria-label="{{ labels.remove_file }}">&times;</button>
+        </div>
+        <p class="backup-file-error" data-backup-file-error role="alert" hidden></p>
+        <div class="backup-import-actions">
+          <button type="submit" class="button backup-primary" data-backup-import-submit disabled>
+            <i class="fas fa-file-import" aria-hidden="true"></i> {{ labels.import }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <section class="backup-card backup-list">
+    <h2>{{ labels.list_title }}</h2>
+    {% if backups %}
+    <div class="backup-table-scroll">
+      <table class="backup-table">
+        <thead>
+          <tr>
+            <th>{{ labels.name }}</th>
+            <th>{{ labels.kind }}</th>
+            <th>{{ labels.created_at }}</th>
+            <th>{{ labels.version }}</th>
+            <th class="num">{{ labels.records }}</th>
+            <th class="num">{{ labels.media_files }}</th>
+            <th class="num">{{ labels.size }}</th>
+            <th>{{ labels.actions }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in backups %}
+          <tr{% if item.error %} class="backup-invalid"{% endif %}>
+            <td class="backup-name">
+              <code>{{ item.name }}</code>
+              {% if item.note %}<div class="backup-note">{{ item.note }}</div>{% endif %}
+              {% if item.error %}<div class="backup-error">{{ labels.invalid }}: {{ item.error }}</div>{% endif %}
+            </td>
+            <td>{{ item.kind_label }}</td>
+            <td class="nowrap">{{ item.created_at|date:"Y-m-d H:i:s" }}</td>
+            <td>{% if item.version %}v{{ item.version }}{% else %}-{% endif %}</td>
+            <td class="num">{{ item.records|default_if_none:"-" }}</td>
+            <td class="num">{{ item.media_files|default_if_none:"-" }}</td>
+            <td class="num nowrap">{{ item.size|filesizeformat }}</td>
+            <td class="backup-actions">
+              <a class="button" href="{% url 'admin:system-backup-download' item.name %}">{{ labels.download }}</a>
+              {% if not item.error %}
+              <form method="post" action="{% url 'admin:system-backup-restore' item.name %}" data-backup-confirm="restore" data-backup-name="{{ item.name }}" data-backup-busy>
+                {% csrf_token %}
+                <button type="submit" class="button backup-restore">{{ labels.restore }}</button>
+              </form>
+              {% endif %}
+              <form method="post" action="{% url 'admin:system-backup-delete' item.name %}" data-backup-confirm="delete" data-backup-name="{{ item.name }}">
+                {% csrf_token %}
+                <button type="submit" class="button backup-delete">{{ labels.delete }}</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="backup-hint">{{ labels.empty }}</p>
+    {% endif %}
+  </section>
+
+  <div class="backup-busy" data-backup-overlay hidden>
+    <div class="backup-busy-box">{{ labels.processing }}</div>
+  </div>
+</div>
+<script src="{% static 'js/admin/system_backup.js' %}?v={{ app_version }}"></script>
+{% endblock %}

@@ -14,6 +14,32 @@ import re
 import json
 
 
+FOOTER_HREF_PREFIXES = ('http://', 'https://', 'mailto:', 'tel:', '/', '#')
+FOOTER_ICON_CLASS_RE = re.compile(r'^[a-z][a-z0-9-]*(?: [a-z][a-z0-9-]*){0,5}$')
+FOOTER_ICON_URL_PREFIXES = ('http://', 'https://', '/')
+
+
+def is_safe_footer_href(href):
+    """Footer links may be web, mail, phone, site-relative or anchor links (no javascript:)."""
+    if not href:
+        return True
+    if any(ch.isspace() for ch in href) or href.startswith('//'):
+        return False
+    return href.lower().startswith(FOOTER_HREF_PREFIXES)
+
+
+def footer_icon_type(icon):
+    """Return 'class' for Font Awesome classes, 'image' for an image URL, '' otherwise."""
+    if not icon:
+        return ''
+    if FOOTER_ICON_CLASS_RE.match(icon):
+        return 'class'
+    if (icon.lower().startswith(FOOTER_ICON_URL_PREFIXES) and not icon.startswith('//')
+            and not any(ch.isspace() or ch in '"\'<>' for ch in icon)):
+        return 'image'
+    return ''
+
+
 def _use_zh_content():
     lang = (get_language() or '').lower()
     try:
@@ -560,11 +586,19 @@ class SystemConfig(models.Model):
                 continue
             content = str(entry.get('content', '')).strip()
             href = str(entry.get('href', '')).strip()
+            icon = str(entry.get('icon', '')).strip()
             if not content:
                 continue
+            # Values are validated on save; re-check here so legacy or hand-edited
+            # rows can never render an unsafe link or icon.
+            if not is_safe_footer_href(href):
+                href = ''
+            icon_type = footer_icon_type(icon)
             items.append({
                 'content': content,
                 'href': href,
+                'icon': icon if icon_type else '',
+                'icon_type': icon_type,
             })
         return items
 

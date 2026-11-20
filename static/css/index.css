@@ -1007,3 +1007,12 @@ button.publication-action {
     pointer-events: none;
     transition: opacity 0.2s ease;
 }
+
+/* Footer item icons (Font Awesome class or image URL) */
+.footer-item-icon-img {
+    width: 1em;
+    height: 1em;
+    object-fit: contain;
+    vertical-align: -0.125em;
+    display: inline-block;
+}

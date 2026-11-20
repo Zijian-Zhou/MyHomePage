@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.conf import settings
 from django.urls import path
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import FileResponse, Http404, HttpResponseRedirect, JsonResponse
+from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import get_language
@@ -10,6 +11,7 @@ from django.urls import reverse
 from django.utils import timezone
 from datetime import timedelta, datetime
 from .models import Profile, Publication, PublicationFile, Research, SystemConfig, ResourceMetricLog, News, Section, SectionItem, MediaFile, AIConfig
+from .models import footer_icon_type, is_safe_footer_href
 from .services import sync_publications, ORCIDService, GoogleScholarService, ORCIDOAuth, deduplicate_publications
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.admin.sites import AdminSite
@@ -105,11 +107,79 @@ def _validate_footer_items_json(value):
     if not isinstance(item_data, list) or not item_data:
         raise forms.ValidationError(_('Footer Items must contain "item" as an object or list.'))
 
-    for entry in item_data:
+    zh = _is_zh_mode()
+    normalized = []
+    for index, entry in enumerate(item_data, start=1):
         if not isinstance(entry, dict) or not str(entry.get('content', '')).strip():
-            raise forms.ValidationError(_('Each footer item must include a non-empty "content".'))
-    return value
+            raise forms.ValidationError(
+                '第 {} 个页脚项缺少显示名称。'.format(index) if zh
+                else _('Each footer item must include a non-empty "content".')
+            )
+        content = str(entry.get('content', '')).strip()
+        href = str(entry.get('href', '') or '').strip()
+        icon = str(entry.get('icon', '') or '').strip()
+        if not is_safe_footer_href(href):
+            raise forms.ValidationError(
+                '页脚项“{}”的链接无效：仅支持 http(s)://、mailto:、tel:、以 / 开头的站内路径或 # 锚点。'.format(content) if zh
+                else 'Footer item "{}" has an invalid link: use http(s)://, mailto:, tel:, a site path starting with /, or a # anchor.'.format(content)
+            )
+        if icon and not footer_icon_type(icon):
+            raise forms.ValidationError(
+                '页脚项“{}”的图标无效：请填写 Font Awesome 类名（如 fab fa-github）或图片地址（http(s):// 或 / 开头）。'.format(content) if zh
+                else 'Footer item "{}" has an invalid icon: use Font Awesome classes (e.g. fab fa-github) or an image URL (http(s):// or starting with /).'.format(content)
+            )
+        item = {'content': content}
+        if icon:
+            item['icon'] = icon
+        if href:
+            item['href'] = href
+        normalized.append(item)
+    return json.dumps({'item': normalized}, ensure_ascii=False)
 
+
+
+def _footer_editor_labels():
+    if _is_zh_mode():
+        return {
+            'title': '页脚项',
+            'hint': '页脚项按顺序显示在版权信息之后。图标可填写 Font Awesome 类名（如 fab fa-github、fas fa-envelope）或图片地址（如媒体文件链接）。',
+            'name': '显示名称',
+            'icon': '图标',
+            'link': '链接',
+            'preview': '预览',
+            'actions': '操作',
+            'name_placeholder': '必填，如 研究组',
+            'icon_placeholder': '选填，如 fab fa-github',
+            'link_placeholder': '选填，如 https://example.com',
+            'add': '添加页脚项',
+            'up': '上移',
+            'down': '下移',
+            'remove': '删除',
+            'empty': '暂无页脚项，点击“添加页脚项”新增。',
+            'name_required': '请填写所有页脚项的显示名称。',
+            'raw_toggle': '编辑原始 JSON',
+            'invalid_json': 'JSON 格式无效，请修正后再切换回表格编辑。',
+        }
+    return {
+        'title': 'Footer items',
+        'hint': 'Items are shown in order after the copyright line. The icon accepts Font Awesome classes (e.g. fab fa-github, fas fa-envelope) or an image URL such as a media file link.',
+        'name': 'Display name',
+        'icon': 'Icon',
+        'link': 'Link',
+        'preview': 'Preview',
+        'actions': 'Actions',
+        'name_placeholder': 'Required, e.g. Research Group',
+        'icon_placeholder': 'Optional, e.g. fab fa-github',
+        'link_placeholder': 'Optional, e.g. https://example.com',
+        'add': 'Add footer item',
+        'up': 'Move up',
+        'down': 'Move down',
+        'remove': 'Remove',
+        'empty': 'No footer items yet. Click "Add footer item" to create one.',
+        'name_required': 'Please fill in the display name of every footer item.',
+        'raw_toggle': 'Edit raw JSON',
+        'invalid_json': 'The JSON is invalid. Fix it before switching back to the table editor.',
+    }
 
 
 def _validate_ai_config_json(value):
@@ -266,8 +336,261 @@ class CustomAdminSite(AdminSite):
             path('auto-translate-field/', self.admin_view(self.auto_translate_field), name='auto-translate-field'),
             path('system-resources/', self.admin_view(self.system_resources), name='system-resources'),
             path('system-resources/data/', self.admin_view(self.system_resources_data), name='system-resources-data'),
+            path('system-backup/', self.admin_view(self.system_backup), name='system-backup'),
+            path('system-backup/<str:name>/download/', self.admin_view(self.system_backup_download), name='system-backup-download'),
+            path('system-backup/<str:name>/restore/', self.admin_view(self.system_backup_restore), name='system-backup-restore'),
+            path('system-backup/<str:name>/delete/', self.admin_view(self.system_backup_delete), name='system-backup-delete'),
         ]
         return custom_urls + urls
+
+    # ------------------------------------------------------------------
+    # System backup (superusers only: archives contain password hashes and API keys)
+    # ------------------------------------------------------------------
+    def _backup_labels(self):
+        if _is_zh_mode():
+            return {
+                'title': '系统备份',
+                'subtitle': '备份内容包括全部数据库记录（内容、配置、用户、AI 配置等）和 media 目录下的所有上传文件。',
+                'create_title': '新建备份',
+                'note': '备注',
+                'note_placeholder': '选填，如 升级前备份',
+                'create': '立即备份',
+                'import_title': '导入外部备份',
+                'import_hint': '上传由 MyHomePage 系统备份功能生成的 .zip 文件。导入后会出现在下方列表中，可再选择恢复。',
+                'import': '导入',
+                'drop_title': '点击选择或将备份文件拖到此处',
+                'drop_active': '松开鼠标以选择该文件',
+                'drop_hint': '仅支持 .zip 格式的 MyHomePage 备份文件',
+                'remove_file': '移除',
+                'invalid_type': '请选择 .zip 格式的备份文件。',
+                'list_title': '已有备份',
+                'empty': '暂无备份。',
+                'name': '文件名',
+                'kind': '来源',
+                'created_at': '创建时间',
+                'version': '版本',
+                'records': '数据记录',
+                'media_files': '媒体文件',
+                'size': '大小',
+                'actions': '操作',
+                'download': '下载',
+                'restore': '恢复',
+                'delete': '删除',
+                'invalid': '无效备份',
+                'kind_manual': '手动',
+                'kind_pre-restore': '恢复前自动备份',
+                'kind_imported': '外部导入',
+                'storage': '备份存储目录',
+                'current_version': '当前版本',
+                'processing': '处理中，请勿关闭页面……',
+                'warning': '恢复会用备份内容整体替换当前的数据库和 media 文件，所有用户需要使用备份中的账号重新登录。恢复前系统会自动创建一份“恢复前自动备份”。备份文件包含密码哈希和 API 密钥，请妥善保管。',
+                'confirm_restore': '确定要从备份“{name}”恢复吗？\n\n当前数据库和 media 文件将被整体替换（系统会先自动备份当前状态），恢复完成后需要重新登录。',
+                'confirm_delete': '确定要删除备份“{name}”吗？此操作无法撤销。',
+                'created': '备份已创建：{name}',
+                'imported': '备份已导入：{name}',
+                'deleted': '备份已删除：{name}',
+                'restored': '已从备份“{name}”恢复（恢复前的状态已保存为“{safety}”）。请使用备份中的账号重新登录。',
+                'no_file': '请选择要导入的备份文件。',
+                'failed': '操作失败：{error}',
+                'errors': {
+                    'not_found': '备份文件不存在。',
+                    'not_a_zip': '文件不是有效的 zip 压缩包。',
+                    'missing_manifest': '压缩包中缺少 manifest.json，不是 MyHomePage 备份文件。',
+                    'invalid_manifest': 'manifest.json 无效，不是 MyHomePage 备份文件。',
+                    'unsupported_format': '不支持的备份格式版本：{version}。',
+                    'missing_data': '压缩包中缺少 data.json。',
+                    'unsafe_path': '压缩包包含不安全的路径：{name}。',
+                    'unexpected_member': '压缩包包含无法识别的文件：{name}。',
+                    'corrupt_archive': '压缩包已损坏（校验失败）。',
+                    'newer_schema': '该备份来自更新的版本（v{version}），包含当前系统没有的数据库迁移：{migrations}。请先升级系统再恢复。',
+                    'disk_full': '磁盘空间不足，无法完成恢复。',
+                },
+            }
+        return {
+            'title': 'System Backup',
+            'subtitle': 'A backup contains every database record (content, configuration, users, AI settings, ...) and all uploaded files under media.',
+            'create_title': 'Create backup',
+            'note': 'Note',
+            'note_placeholder': 'Optional, e.g. before upgrade',
+            'create': 'Back up now',
+            'import_title': 'Import external backup',
+            'import_hint': 'Upload a .zip file produced by the MyHomePage system backup. It is added to the list below, from which it can be restored.',
+            'import': 'Import',
+            'drop_title': 'Click to choose or drag a backup file here',
+            'drop_active': 'Release to select this file',
+            'drop_hint': 'Only .zip archives created by MyHomePage System Backup',
+            'remove_file': 'Remove',
+            'invalid_type': 'Please choose a .zip backup file.',
+            'list_title': 'Backups',
+            'empty': 'No backups yet.',
+            'name': 'File name',
+            'kind': 'Source',
+            'created_at': 'Created',
+            'version': 'Version',
+            'records': 'Records',
+            'media_files': 'Media files',
+            'size': 'Size',
+            'actions': 'Actions',
+            'download': 'Download',
+            'restore': 'Restore',
+            'delete': 'Delete',
+            'invalid': 'Invalid backup',
+            'kind_manual': 'Manual',
+            'kind_pre-restore': 'Automatic (before restore)',
+            'kind_imported': 'Imported',
+            'storage': 'Backup directory',
+            'current_version': 'Current version',
+            'processing': 'Processing, please keep this page open...',
+            'warning': 'Restoring replaces the whole database and media directory with the backup contents, and everyone has to sign in again with the accounts stored in the backup. An automatic "before restore" backup of the current state is created first. Backups contain password hashes and API keys, so keep them safe.',
+            'confirm_restore': 'Restore from backup "{name}"?\n\nThe current database and media files will be replaced (the current state is backed up automatically first) and you will need to sign in again.',
+            'confirm_delete': 'Delete backup "{name}"? This cannot be undone.',
+            'created': 'Backup created: {name}',
+            'imported': 'Backup imported: {name}',
+            'deleted': 'Backup deleted: {name}',
+            'restored': 'Restored from backup "{name}" (the previous state was saved as "{safety}"). Please sign in again with an account from the backup.',
+            'no_file': 'Please choose a backup file to import.',
+            'failed': 'Operation failed: {error}',
+            'errors': {
+                'not_found': 'Backup file not found.',
+                'not_a_zip': 'The file is not a valid zip archive.',
+                'missing_manifest': 'manifest.json is missing; this is not a MyHomePage backup.',
+                'invalid_manifest': 'manifest.json is invalid; this is not a MyHomePage backup.',
+                'unsupported_format': 'Unsupported backup format version: {version}.',
+                'missing_data': 'data.json is missing from the archive.',
+                'unsafe_path': 'The archive contains an unsafe path: {name}.',
+                'unexpected_member': 'The archive contains an unexpected file: {name}.',
+                'corrupt_archive': 'The archive is corrupted (CRC check failed).',
+                'newer_schema': 'This backup comes from a newer version (v{version}) with database migrations this installation does not have: {migrations}. Upgrade first, then restore.',
+                'disk_full': 'Not enough free disk space to restore.',
+            },
+        }
+
+    def _backup_error_text(self, labels, exc):
+        template = labels['errors'].get(exc.code, exc.code)
+        try:
+            return template.format(**exc.params)
+        except (KeyError, IndexError):
+            return template
+
+    def _require_superuser(self, request):
+        if not request.user.is_superuser:
+            raise PermissionDenied
+
+    def system_backup(self, request):
+        from . import backup as backup_service
+
+        self._require_superuser(request)
+        labels = self._backup_labels()
+        if request.method == 'POST':
+            action = request.POST.get('action')
+            try:
+                if action == 'create':
+                    info = backup_service.create_backup(note=request.POST.get('note', ''))
+                    messages.success(request, labels['created'].format(name=info['name']))
+                elif action == 'import':
+                    uploaded = request.FILES.get('backup_file')
+                    if not uploaded:
+                        messages.error(request, labels['no_file'])
+                    else:
+                        info = backup_service.import_backup(uploaded)
+                        messages.success(request, labels['imported'].format(name=info['name']))
+            except backup_service.BackupError as exc:
+                messages.error(request, labels['failed'].format(error=self._backup_error_text(labels, exc)))
+            except Exception as exc:
+                logger.exception('System backup action %s failed.', action)
+                messages.error(request, labels['failed'].format(error=exc))
+            return redirect('admin:system-backup')
+
+        backups = []
+        for item in backup_service.list_backups():
+            manifest = item['manifest'] or {}
+            created_at = manifest.get('created_at')
+            created_dt = None
+            if created_at:
+                try:
+                    created_dt = timezone.localtime(datetime.fromisoformat(created_at))
+                except (TypeError, ValueError):
+                    created_dt = None
+            backups.append({
+                'name': item['name'],
+                'size': item['size'],
+                'kind_label': labels.get('kind_' + item['kind'], item['kind']),
+                'created_at': created_dt or item['modified'],
+                'version': manifest.get('app_version', ''),
+                'note': manifest.get('note', ''),
+                'records': (manifest.get('database') or {}).get('record_count'),
+                'media_files': (manifest.get('media') or {}).get('file_count'),
+                'error': self._backup_error_text(labels, item['error']) if item['error'] else '',
+            })
+
+        context = {
+            **self.each_context(request),
+            'title': labels['title'],
+            'labels': labels,
+            'backups': backups,
+            'backup_root': str(backup_service.backup_root()),
+            'js_labels': {
+                'confirm_restore': labels['confirm_restore'],
+                'confirm_delete': labels['confirm_delete'],
+                'processing': labels['processing'],
+                'drop_title': labels['drop_title'],
+                'drop_active': labels['drop_active'],
+                'invalid_type': labels['invalid_type'],
+            },
+        }
+        request.current_app = self.name
+        return TemplateResponse(request, 'admin/system_backup.html', context)
+
+    def system_backup_download(self, request, name):
+        from . import backup as backup_service
+
+        self._require_superuser(request)
+        try:
+            path = backup_service.resolve_backup(name)
+        except backup_service.BackupError:
+            raise Http404
+        return FileResponse(open(path, 'rb'), as_attachment=True, filename=path.name, content_type='application/zip')
+
+    def system_backup_delete(self, request, name):
+        from . import backup as backup_service
+
+        self._require_superuser(request)
+        if request.method != 'POST':
+            return redirect('admin:system-backup')
+        labels = self._backup_labels()
+        try:
+            backup_service.delete_backup(name)
+            messages.success(request, labels['deleted'].format(name=name))
+        except backup_service.BackupError as exc:
+            messages.error(request, labels['failed'].format(error=self._backup_error_text(labels, exc)))
+        except OSError as exc:
+            messages.error(request, labels['failed'].format(error=exc))
+        return redirect('admin:system-backup')
+
+    def system_backup_restore(self, request, name):
+        from . import backup as backup_service
+        from django.contrib.auth import logout
+
+        self._require_superuser(request)
+        if request.method != 'POST':
+            return redirect('admin:system-backup')
+        labels = self._backup_labels()
+        try:
+            result = backup_service.restore_backup(name)
+        except backup_service.BackupError as exc:
+            messages.error(request, labels['failed'].format(error=self._backup_error_text(labels, exc)))
+            return redirect('admin:system-backup')
+        except Exception as exc:
+            logger.exception('Restoring backup %s failed.', name)
+            messages.error(request, labels['failed'].format(error=exc))
+            return redirect('admin:system-backup')
+
+        # The sessions table was flushed and the user table replaced: end this session
+        # cleanly (a new empty session is created) and send the user to the login page.
+        logout(request)
+        messages.success(request, labels['restored'].format(
+            name=result['restored']['name'], safety=result['safety_backup']['name']))
+        return redirect('{}?next={}'.format(reverse('admin:login'), reverse('admin:system-backup')))
 
     def has_permission(self, request):
         return is_staff_user(request.user)
@@ -740,6 +1063,15 @@ class CustomAdminSite(AdminSite):
                     'add_url': None,
                     'view_only': True,
                 })
+                if request.user.is_superuser:
+                    app['models'].append({
+                        'name': self._backup_labels()['title'],
+                        'object_name': 'SystemBackup',
+                        'perms': {'view': True, 'add': False, 'change': False, 'delete': False},
+                        'admin_url': reverse('admin:system-backup'),
+                        'add_url': None,
+                        'view_only': True,
+                    })
             for model in app['models']:
                 info = (app['app_label'], model['object_name'].lower())
                 try:
@@ -1754,13 +2086,13 @@ class SystemConfigAdmin(admin.ModelAdmin):
         if obj and obj.category == 'footer_items':
             if _is_zh_mode():
                 form.base_fields['value'].help_text = (
-                    'JSON 格式：{"item":{"content":"Text","href":"https://example.com"}} '
-                    '或 {"item":[{"content":"Text1"},{"content":"Text2","href":"https://example.com"}]}'
+                    '每个页脚项包含显示名称（必填）、图标和链接（选填）。'
+                    '存储格式：{"item":[{"content":"名称","icon":"fab fa-github","href":"https://example.com"}]}'
                 )
             else:
-                form.base_fields['value'].help_text = _(
-                    'JSON format: {"item":{"content":"Text","href":"https://example.com"}} '
-                    'or {"item":[{"content":"Text1"},{"content":"Text2","href":"https://example.com"}]}'
+                form.base_fields['value'].help_text = (
+                    'Each footer item has a display name (required) plus an optional icon and link. '
+                    'Stored as {"item":[{"content":"Name","icon":"fab fa-github","href":"https://example.com"}]}'
                 )
         return _apply_zh_field_labels(form, {
             'category': '分类',
@@ -1799,7 +2131,12 @@ class SystemConfigAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
     class Media:
-        js = ('js/admin/systemconfig_json_validate.js', 'js/admin/systemconfig_switch_category.js')
+        js = (
+            'js/admin/systemconfig_json_validate.js',
+            'js/admin/systemconfig_switch_category.js',
+            'js/admin/footer_items_editor.js',
+        )
+        css = {'all': ('css/admin/footer_items_editor.css',)}
     
     def get_urls(self):
         urls = super().get_urls()
@@ -1840,6 +2177,7 @@ class SystemConfigAdmin(admin.ModelAdmin):
                 current_category = obj.category
         extra_context['systemconfig_category_switch_map'] = category_switch_map
         extra_context['systemconfig_current_category'] = current_category
+        extra_context['footer_editor_labels'] = _footer_editor_labels()
         return super().changeform_view(request, object_id, form_url, extra_context)
 
 

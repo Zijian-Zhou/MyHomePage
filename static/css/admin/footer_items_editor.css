@@ -1,0 +1,120 @@
+.footer-editor {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 980px;
+  margin-bottom: 8px;
+}
+
+.footer-editor-hint {
+  margin: 0 0 8px;
+  color: var(--body-quiet-color, #666);
+}
+
+.footer-editor-scroll {
+  overflow-x: auto;
+}
+
+.footer-editor-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--hairline-color, #ddd);
+}
+
+.footer-editor-table th,
+.footer-editor-table td {
+  padding: 6px 8px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--hairline-color, #ddd);
+}
+
+.footer-editor-table th {
+  text-align: left;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--darkened-bg, #f8f8f8);
+}
+
+.footer-editor-table input[type="text"] {
+  width: 100%;
+  min-width: 140px;
+  box-sizing: border-box;
+}
+
+.footer-editor-table input.footer-editor-invalid {
+  border-color: var(--error-fg, #ba2121);
+  box-shadow: 0 0 0 1px var(--error-fg, #ba2121);
+}
+
+.footer-editor-preview-col,
+.footer-editor-preview {
+  width: 56px;
+  text-align: center;
+  font-size: 18px;
+}
+
+.footer-editor-icon-img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.footer-editor-icon-invalid {
+  color: var(--error-fg, #ba2121);
+  font-weight: 700;
+}
+
+.footer-editor-actions-col,
+.footer-editor-actions {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.footer-editor-btn {
+  min-width: 28px;
+  height: 28px;
+  margin-right: 4px;
+  padding: 0 6px;
+  border: 1px solid var(--hairline-color, #ccc);
+  border-radius: 4px;
+  background: var(--body-bg, #fff);
+  color: var(--body-fg, #333);
+  cursor: pointer;
+}
+
+.footer-editor-btn:hover:not(:disabled) {
+  border-color: var(--primary, #417690);
+  color: var(--primary, #417690);
+}
+
+.footer-editor-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.footer-editor-empty {
+  margin: 8px 0;
+  color: var(--body-quiet-color, #666);
+}
+
+.footer-editor-error {
+  margin: 6px 0 0;
+  color: var(--error-fg, #ba2121);
+}
+
+.footer-editor-error:empty {
+  display: none;
+}
+
+.footer-editor-toolbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.footer-editor-raw .footer-editor-scroll,
+.footer-editor-raw .footer-editor-empty,
+.footer-editor-raw .footer-editor-add {
+  display: none !important;
+}

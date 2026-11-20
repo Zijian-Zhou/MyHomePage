@@ -7,6 +7,7 @@
 [![Django](https://img.shields.io/badge/Django-4.2-092E20?logo=django&logoColor=white)](https://www.djangoproject.com/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/Version-v1.1.0-orange)](HomePage/version.py)
 
 [English](#english) | [简体中文](#简体中文)
 
@@ -36,7 +37,8 @@ The application supports English and Simplified Chinese, Markdown content, ORCID
 - Custom homepage sections and ordered section items with Markdown rendering.
 - Independent asynchronous pagination for each homepage section; changing one section does not reset the others or reload the whole page.
 - Empty sections are omitted from both navigation and page content.
-- Configurable JSON footer links and styled 4xx/5xx/access-denied pages.
+- Configurable footer items (display name, optional icon and link) and styled 4xx/5xx/access-denied pages.
+- The footer shows the running version (`Powered By MyHomePage v1.1.0`); the version is defined once in `HomePage/version.py`.
 
 #### Bilingual content
 
@@ -59,6 +61,7 @@ The application supports English and Simplified Chinese, Markdown content, ORCID
 - System Configuration and AI Configuration are independent top-level administration entries.
 - User/group management and localized configuration forms.
 - System resource monitor with live and historical CPU, memory, disk, and network throughput charts.
+- System backup (superusers only): create full backups of the database and media, download, delete, import external backups, and restore with an automatic pre-restore safety backup.
 
 #### Publication synchronization
 
@@ -304,21 +307,39 @@ Most content records support `is_active`, `is_draft`, and `order`. Draft and ina
 | `scholar_proxy` | Optional Google Scholar proxy; direct access is attempted when empty |
 | `orcid_client_id` / `orcid_client_secret` / `orcid_access_token` | ORCID integration credentials |
 | `highlighted_authors` | Semicolon-separated authors highlighted across publications |
-| `footer_items` | JSON-defined footer text and optional links |
+| `footer_items` | Footer items: display name (required), optional icon and link |
 | `resource_log_retention_hours` | Resource-history retention; default `168` hours |
 
-Footer JSON accepts one item or a list:
+`footer_items` is edited in a table: each row has a **display name** (required), an optional **icon** and an optional **link**, and rows can be reordered or removed. The icon accepts Font Awesome classes (for example `fab fa-github` or `fas fa-envelope`) or an image URL (`http(s)://...` or a site path such as a media-file link). Links may use `http(s)://`, `mailto:`, `tel:`, a site path starting with `/`, or a `#` anchor; other schemes such as `javascript:` are rejected. The value is stored as JSON, and the older format without icons is still accepted:
 
 ```json
 {
   "item": [
     {"content": "Research Group"},
+    {"content": "GitHub", "icon": "fab fa-github", "href": "https://github.com/example"},
     {"content": "University", "href": "https://example.com"}
   ]
 }
 ```
 
 Both browser-side and server-side validation reject malformed footer and AI configuration JSON.
+
+### System backup
+
+Superusers can open **System Backup** from the administration index. A backup is a `.zip` archive that contains:
+
+- `manifest.json`: format marker, app version, creation time, record/file counts, and the applied migrations;
+- `data.json`: every database record (content, configuration, users and groups, AI providers, admin log), exported with natural foreign keys. Sessions, content types, permissions, and resource-monitor history are not included; content types and permissions are recreated automatically;
+- `media/`: every uploaded file.
+
+Available actions:
+
+- **Create**: writes a new archive, with an optional note.
+- **Import**: uploads an external archive; it is validated (format, safe paths, CRC) and added to the list.
+- **Download / Delete**: manage the stored archives.
+- **Restore**: replaces the whole database and media directory with the archive contents. An automatic `myhomepage-pre-restore-*.zip` backup of the current state is written first. The database is replaced in one transaction, and media files are rolled back if loading fails. Archives from a newer schema (unknown migrations) are refused. Everyone is signed out afterwards and must sign in with an account stored in the backup.
+
+Archives are stored in `BACKUP_ROOT` (`backups/` locally, `docker-data/backups/` in Docker). They contain password hashes and API keys, so keep downloaded copies safe. Behind Nginx, imports are limited by `client_max_body_size` (100 MB in the sample configuration).
 
 ### Publication synchronization
 
@@ -346,6 +367,7 @@ Google Scholar may rate-limit or block automated requests. Use synchronization c
 | `ALLOWED_HOSTS` | `127.0.0.1,localhost` | Accepted hostnames, comma-separated |
 | `DATABASE_PATH` | `db.sqlite3` | SQLite database path |
 | `MEDIA_ROOT` | `media/` | Uploaded-file directory |
+| `BACKUP_ROOT` | `backups/` | System-backup archive directory (`/data/backups` in Docker) |
 | `CELERY_BROKER_URL` | Local AMQP guest URL | Celery broker connection |
 | `ENABLE_RESOURCE_MONITOR` | `True` | Starts the background resource sampler |
 | `ENABLE_IP_GEO_LANGUAGE` | `False` | Enables IP-based language selection |
@@ -446,7 +468,8 @@ MyHomePage 是一个面向研究人员、学生、实验室和专业人士的自
 - 支持自定义主页栏目和有序栏目条目，内容可使用 Markdown。
 - 每个栏目独立异步分页；切换某个栏目页码不会重置其他栏目，也不会刷新整个页面。
 - 数据数量为 0 的栏目不会出现在主页导航和内容区域。
-- 支持通过 JSON 配置页脚，并提供统一美化的 4xx、5xx 和禁止访问页面。
+- 支持配置页脚项（显示名称、可选图标和链接），并提供统一美化的 4xx、5xx 和禁止访问页面。
+- 页脚显示当前运行版本（`Powered By MyHomePage v1.1.0`），版本号统一定义在 `HomePage/version.py`。
 
 #### 中英文内容
 
@@ -469,6 +492,7 @@ MyHomePage 是一个面向研究人员、学生、实验室和专业人士的自
 - “系统配置”和“AI 配置”是后台同级入口。
 - 支持用户、用户组及本地化配置管理。
 - 系统资源监控展示实时和历史 CPU、内存、磁盘、网络上下行速度。
+- 系统备份（仅超级管理员）：一键备份数据库和 media 文件，支持下载、删除、导入外部备份，以及恢复（恢复前自动创建安全备份）。
 
 #### 出版物同步
 
@@ -679,21 +703,39 @@ python manage.py runserver
 | `scholar_proxy` | 可选 Google Scholar 代理；为空时尝试直连 |
 | `orcid_client_id` / `orcid_client_secret` / `orcid_access_token` | ORCID 接入凭据 |
 | `highlighted_authors` | 全局高亮作者，使用分号分隔 |
-| `footer_items` | 使用 JSON 配置页脚文字和可选链接 |
+| `footer_items` | 页脚项：显示名称（必填）、图标和链接（选填） |
 | `resource_log_retention_hours` | 资源监控历史保留时间，默认 `168` 小时 |
 
-页脚 JSON 可以包含单个条目或条目列表：
+`footer_items` 使用表格编辑：每行包含**显示名称**（必填）、**图标**（选填）和**链接**（选填），可以调整顺序或删除。图标可填写 Font Awesome 类名（如 `fab fa-github`、`fas fa-envelope`）或图片地址（`http(s)://...` 或媒体文件链接等站内路径）。链接支持 `http(s)://`、`mailto:`、`tel:`、以 `/` 开头的站内路径和 `#` 锚点，`javascript:` 等其他协议会被拒绝。配置以 JSON 存储，旧版不带图标的格式仍然兼容：
 
 ```json
 {
   "item": [
     {"content": "研究团队"},
+    {"content": "GitHub", "icon": "fab fa-github", "href": "https://github.com/example"},
     {"content": "学校主页", "href": "https://example.com"}
   ]
 }
 ```
 
 页脚配置和 AI 配置的 JSON 均会进行前端和后端格式校验。
+
+### 系统备份
+
+超级管理员可在后台首页进入 **系统备份**。备份文件是一个 `.zip` 压缩包，包含：
+
+- `manifest.json`：格式标识、系统版本、创建时间、记录数和文件数，以及已应用的数据库迁移；
+- `data.json`：全部数据库记录（内容、配置、用户和用户组、AI 配置、后台操作日志），使用自然外键导出。不包含会话、ContentType、权限和资源监控历史，其中 ContentType 和权限会自动重建；
+- `media/`：全部上传文件。
+
+支持的操作：
+
+- **新建备份**：生成新的备份文件，可填写备注。
+- **导入外部备份**：上传外部备份文件，校验格式、路径安全和 CRC 后加入列表。
+- **下载 / 删除**：管理已有备份文件。
+- **恢复**：用备份内容整体替换当前数据库和 media 目录。恢复前会自动生成当前状态的 `myhomepage-pre-restore-*.zip` 备份。数据库在单个事务中替换，加载失败时 media 文件也会回滚。来自更新版本（包含未知迁移）的备份会被拒绝。恢复后所有用户都会退出登录，需要使用备份中的账号重新登录。
+
+备份文件保存在 `BACKUP_ROOT`（本地默认 `backups/`，Docker 中为 `docker-data/backups/`）。备份包含密码哈希和 API 密钥，请妥善保管下载的副本。通过 Nginx 访问时，导入文件大小受 `client_max_body_size` 限制（示例配置为 100 MB）。
 
 ### 出版物同步
 
@@ -719,6 +761,7 @@ Google Scholar 可能限制或阻止自动请求，请控制同步频率并遵�
 | `ALLOWED_HOSTS` | `127.0.0.1,localhost` | 允许的主机名，逗号分隔 |
 | `DATABASE_PATH` | `db.sqlite3` | SQLite 数据库路径 |
 | `MEDIA_ROOT` | `media/` | 上传文件目录 |
+| `BACKUP_ROOT` | `backups/` | 系统备份文件目录（Docker 中为 `/data/backups`） |
 | `CELERY_BROKER_URL` | 本地 AMQP guest 地址 | Celery Broker 连接地址 |
 | `ENABLE_RESOURCE_MONITOR` | `True` | 是否启动后台资源采样线程 |
 | `ENABLE_IP_GEO_LANGUAGE` | `False` | 是否根据 IP 自动选择语言 |
