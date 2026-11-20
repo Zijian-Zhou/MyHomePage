@@ -142,7 +142,7 @@ def _footer_editor_labels():
     if _is_zh_mode():
         return {
             'title': '页脚项',
-            'hint': '页脚项按顺序显示在版权信息之后。图标可填写 Font Awesome 类名（如 fab fa-github、fas fa-envelope）或图片地址（如媒体文件链接）。',
+            'hint': '页脚项按顺序显示在版权信息之后。图标可填写 Font Awesome 类名（如 fab fa-github、fas fa-envelope）、图片地址，或点击上传按钮上传图片（PNG/JPG/GIF/WEBP/ICO，≤ 2 MB，自动保存到媒体文件）。',
             'name': '显示名称',
             'icon': '图标',
             'link': '链接',
@@ -159,10 +159,14 @@ def _footer_editor_labels():
             'name_required': '请填写所有页脚项的显示名称。',
             'raw_toggle': '编辑原始 JSON',
             'invalid_json': 'JSON 格式无效，请修正后再切换回表格编辑。',
+            'upload': '上传图标',
+            'uploading': '上传中……',
+            'upload_failed': '图标上传失败',
+            'upload_too_large': '图标文件不能超过 2 MB。',
         }
     return {
         'title': 'Footer items',
-        'hint': 'Items are shown in order after the copyright line. The icon accepts Font Awesome classes (e.g. fab fa-github, fas fa-envelope) or an image URL such as a media file link.',
+        'hint': 'Items are shown in order after the copyright line. The icon accepts Font Awesome classes (e.g. fab fa-github, fas fa-envelope), an image URL, or an uploaded image (PNG/JPG/GIF/WEBP/ICO, up to 2 MB, saved to Media Files).',
         'name': 'Display name',
         'icon': 'Icon',
         'link': 'Link',
@@ -179,6 +183,10 @@ def _footer_editor_labels():
         'name_required': 'Please fill in the display name of every footer item.',
         'raw_toggle': 'Edit raw JSON',
         'invalid_json': 'The JSON is invalid. Fix it before switching back to the table editor.',
+        'upload': 'Upload icon',
+        'uploading': 'Uploading...',
+        'upload_failed': 'Icon upload failed',
+        'upload_too_large': 'The icon must not exceed 2 MB.',
     }
 
 
@@ -2142,8 +2150,58 @@ class SystemConfigAdmin(admin.ModelAdmin):
         urls = super().get_urls()
         custom_urls = [
             path('orcid-authorize/', self.admin_site.admin_view(self.orcid_authorize), name='orcid-authorize'),
+            path('footer-icon-upload/', self.admin_site.admin_view(self.footer_icon_upload), name='systemconfig-footer-icon-upload'),
         ]
         return custom_urls + urls
+
+    FOOTER_ICON_MAX_BYTES = 2 * 1024 * 1024
+    FOOTER_ICON_FORMATS = {'PNG', 'JPEG', 'GIF', 'WEBP', 'ICO'}
+    FOOTER_ICON_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico'}
+
+    def footer_icon_upload(self, request):
+        """Store an uploaded footer icon as an active MediaFile and return its public URL.
+
+        SVG is intentionally not accepted: media files are served from this origin and
+        an SVG may carry scripts.
+        """
+        zh = _is_zh_mode()
+        if request.method != 'POST':
+            return JsonResponse({'error': 'Method not allowed.'}, status=405)
+        if not self.has_change_permission(request):
+            return JsonResponse({'error': '没有权限。' if zh else 'Permission denied.'}, status=403)
+
+        uploaded = request.FILES.get('icon')
+        if not uploaded:
+            return JsonResponse({'error': '请选择图标文件。' if zh else 'Please choose an icon file.'}, status=400)
+        if uploaded.size > self.FOOTER_ICON_MAX_BYTES:
+            return JsonResponse({'error': '图标文件不能超过 2 MB。' if zh else 'The icon must not exceed 2 MB.'}, status=400)
+
+        unsupported = (
+            '仅支持 PNG、JPG、GIF、WEBP 或 ICO 格式的图片。' if zh
+            else 'Only PNG, JPG, GIF, WEBP or ICO images are supported.'
+        )
+        if os.path.splitext(uploaded.name or '')[1].lower() not in self.FOOTER_ICON_EXTENSIONS:
+            return JsonResponse({'error': unsupported}, status=400)
+        try:
+            from PIL import Image
+            with Image.open(uploaded) as image:
+                image_format = image.format
+                image.verify()
+        except Exception:
+            return JsonResponse({'error': '文件不是有效的图片。' if zh else 'The file is not a valid image.'}, status=400)
+        if image_format not in self.FOOTER_ICON_FORMATS:
+            return JsonResponse({'error': unsupported}, status=400)
+        uploaded.seek(0)
+
+        name = str(request.POST.get('name') or '').strip()[:120]
+        title = ('页脚图标 - {}' if zh else 'Footer icon - {}').format(name or uploaded.name)[:200]
+        media_file = MediaFile(title=title, file=uploaded, is_active=True, is_draft=False)
+        media_file.save()
+        return JsonResponse({
+            'url': reverse('media_file_access', args=[media_file.access_key]),
+            'media_id': media_file.pk,
+            'title': media_file.title,
+        })
     
     def orcid_authorize(self, request):
         """触发 ORCID OAuth 授权"""
@@ -2177,7 +2235,10 @@ class SystemConfigAdmin(admin.ModelAdmin):
                 current_category = obj.category
         extra_context['systemconfig_category_switch_map'] = category_switch_map
         extra_context['systemconfig_current_category'] = current_category
-        extra_context['footer_editor_labels'] = _footer_editor_labels()
+        extra_context['footer_editor_labels'] = {
+            **_footer_editor_labels(),
+            'upload_url': reverse('admin:systemconfig-footer-icon-upload'),
+        }
         return super().changeform_view(request, object_id, form_url, extra_context)
 
 

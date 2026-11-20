@@ -310,7 +310,7 @@ Most content records support `is_active`, `is_draft`, and `order`. Draft and ina
 | `footer_items` | Footer items: display name (required), optional icon and link |
 | `resource_log_retention_hours` | Resource-history retention; default `168` hours |
 
-`footer_items` is edited in a table: each row has a **display name** (required), an optional **icon** and an optional **link**, and rows can be reordered or removed. The icon accepts Font Awesome classes (for example `fab fa-github` or `fas fa-envelope`) or an image URL (`http(s)://...` or a site path such as a media-file link). Links may use `http(s)://`, `mailto:`, `tel:`, a site path starting with `/`, or a `#` anchor; other schemes such as `javascript:` are rejected. The value is stored as JSON, and the older format without icons is still accepted:
+`footer_items` is edited in a table: each row has a **display name** (required), an optional **icon** and an optional **link**, and rows can be reordered or removed. The icon accepts Font Awesome classes (for example `fab fa-github` or `fas fa-envelope`) or an image URL (`http(s)://...` or a site path such as a media-file link). The upload button next to the icon field stores a PNG/JPG/GIF/WEBP/ICO image (up to 2 MB; SVG is not accepted) as an active Media File and fills in its link. Links may use `http(s)://`, `mailto:`, `tel:`, a site path starting with `/`, or a `#` anchor; other schemes such as `javascript:` are rejected. The value is stored as JSON, and the older format without icons is still accepted:
 
 ```json
 {
@@ -706,7 +706,7 @@ python manage.py runserver
 | `footer_items` | 页脚项：显示名称（必填）、图标和链接（选填） |
 | `resource_log_retention_hours` | 资源监控历史保留时间，默认 `168` 小时 |
 
-`footer_items` 使用表格编辑：每行包含**显示名称**（必填）、**图标**（选填）和**链接**（选填），可以调整顺序或删除。图标可填写 Font Awesome 类名（如 `fab fa-github`、`fas fa-envelope`）或图片地址（`http(s)://...` 或媒体文件链接等站内路径）。链接支持 `http(s)://`、`mailto:`、`tel:`、以 `/` 开头的站内路径和 `#` 锚点，`javascript:` 等其他协议会被拒绝。配置以 JSON 存储，旧版不带图标的格式仍然兼容：
+`footer_items` 使用表格编辑：每行包含**显示名称**（必填）、**图标**（选填）和**链接**（选填），可以调整顺序或删除。图标可填写 Font Awesome 类名（如 `fab fa-github`、`fas fa-envelope`）或图片地址（`http(s)://...` 或媒体文件链接等站内路径）。点击图标输入框旁的上传按钮，可上传 PNG/JPG/GIF/WEBP/ICO 图片（≤ 2 MB，出于安全考虑不支持 SVG），图片会保存为启用状态的媒体文件并自动填入链接。链接支持 `http(s)://`、`mailto:`、`tel:`、以 `/` 开头的站内路径和 `#` 锚点，`javascript:` 等其他协议会被拒绝。配置以 JSON 存储，旧版不带图标的格式仍然兼容：
 
 ```json
 {

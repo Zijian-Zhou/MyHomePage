@@ -120,6 +120,63 @@
       });
     }
 
+    var MAX_ICON_BYTES = 2 * 1024 * 1024;
+
+    function setUploading(btn, uploading) {
+      btn.disabled = uploading;
+      btn.classList.toggle("is-uploading", uploading);
+      btn.title = uploading ? (labels.uploading || "Uploading...") : (labels.upload || "Upload icon");
+      btn.innerHTML = "";
+      btn.appendChild(el("i", {
+        className: uploading ? "fas fa-spinner fa-spin" : "fas fa-upload",
+        "aria-hidden": "true"
+      }));
+    }
+
+    function pickAndUpload(item, iconInput, refreshPreview, btn) {
+      var picker = el("input", { type: "file", accept: ".png,.jpg,.jpeg,.gif,.webp,.ico,image/png,image/jpeg,image/gif,image/webp,image/x-icon" });
+      picker.addEventListener("change", function () {
+        var file = picker.files && picker.files[0];
+        if (!file) return;
+        var failed = labels.upload_failed || "Icon upload failed";
+        if (file.size > MAX_ICON_BYTES) {
+          errorNote.textContent = failed + ": " + (labels.upload_too_large || "The icon must not exceed 2 MB.");
+          return;
+        }
+        var token = form && form.querySelector("input[name=csrfmiddlewaretoken]");
+        var data = new FormData();
+        data.append("icon", file);
+        data.append("name", item.content.trim());
+        errorNote.textContent = "";
+        setUploading(btn, true);
+        fetch(labels.upload_url, {
+          method: "POST",
+          body: data,
+          credentials: "same-origin",
+          headers: { "X-CSRFToken": token ? token.value : "" }
+        }).then(function (response) {
+          return response.json().catch(function () {
+            return {};
+          }).then(function (payload) {
+            if (!response.ok || !payload.url) {
+              throw new Error(payload.error || ("HTTP " + response.status));
+            }
+            return payload;
+          });
+        }).then(function (payload) {
+          item.icon = payload.url;
+          iconInput.value = payload.url;
+          refreshPreview();
+          sync();
+        }).catch(function (error) {
+          errorNote.textContent = failed + ": " + error.message;
+        }).then(function () {
+          setUploading(btn, false);
+        });
+      });
+      picker.click();
+    }
+
     function actionButton(text, title, handler, disabled) {
       var btn = el("button", { type: "button", className: "footer-editor-btn", title: title, "aria-label": title, text: text });
       if (disabled) btn.disabled = true;
@@ -152,6 +209,16 @@
           refreshPreview();
           sync();
         });
+        var uploadBtn = el("button", {
+          type: "button",
+          className: "footer-editor-btn footer-editor-upload",
+          title: labels.upload || "Upload icon",
+          "aria-label": labels.upload || "Upload icon"
+        }, [el("i", { className: "fas fa-upload", "aria-hidden": "true" })]);
+        uploadBtn.addEventListener("click", function () {
+          pickAndUpload(item, iconInput, refreshPreview, uploadBtn);
+        });
+        if (!labels.upload_url) uploadBtn.style.display = "none";
         linkInput.addEventListener("input", function () {
           item.href = linkInput.value;
           sync();
@@ -160,7 +227,7 @@
 
         tbody.appendChild(el("tr", {}, [
           el("td", {}, [nameInput]),
-          el("td", {}, [iconInput]),
+          el("td", {}, [el("div", { className: "footer-editor-icon-field" }, [iconInput, uploadBtn])]),
           previewCell,
           el("td", {}, [linkInput]),
           el("td", { className: "footer-editor-actions" }, [

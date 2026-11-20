@@ -118,3 +118,26 @@
 .footer-editor-raw .footer-editor-add {
   display: none !important;
 }
+
+.footer-editor-icon-field {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.footer-editor-icon-field input[type="text"] {
+  flex: 1 1 auto;
+}
+
+.footer-editor-upload {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 30px;
+  margin-right: 0;
+  color: var(--primary, #417690);
+}
+
+.footer-editor-upload.is-uploading {
+  opacity: 0.7;
+  cursor: progress;
+}
