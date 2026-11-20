@@ -35,3 +35,6 @@ Thumbs.db
 
 # System backups created in the admin portal
 backups/
+
+# Server Pass
+.pass

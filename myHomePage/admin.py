@@ -1375,7 +1375,7 @@ class ProfileAdmin(DraftSaveMixin, BaseAdmin):
             _('Sync now')
         )
     
-    actions_column.short_description = _('操作')
+    actions_column.short_description = _('Actions')
     
     def sync_selected(self, request, queryset):
         total_imported = 0

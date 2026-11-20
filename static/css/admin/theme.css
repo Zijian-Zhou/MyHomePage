@@ -956,3 +956,36 @@ html {
         padding-right: 0;
     }
 }
+
+/* Profile list "Sync now" link: same primary look as other admin buttons. */
+/* custom.css styles .field-actions_column a with color: #333 !important. */
+#result_list .field-actions_column a.sync-button,
+#result_list a.sync-button {
+    color: var(--button-fg) !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px;
+    padding: 0 12px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: var(--button-bg);
+    color: var(--button-fg);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+#result_list .field-actions_column a.sync-button:hover,
+#result_list a.sync-button:hover {
+    background: var(--button-hover-bg);
+    border-color: transparent;
+    color: var(--button-fg) !important;
+}
+
+#result_list .sync-button.disabled {
+    background: transparent;
+    color: var(--body-quiet-color);
+    border-color: var(--hairline-color);
+}

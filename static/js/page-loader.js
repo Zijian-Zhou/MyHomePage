@@ -37,10 +37,17 @@
     };
   }
 
+  var persistent = false;
+
   function show(options) {
     var el = root();
     if (!el) return;
     options = options || {};
+    // An explicit long operation (sync, save, backup) already owns the overlay: a later
+    // generic navigation call must not replace its text or give it a timeout, otherwise
+    // the overlay disappears while the server is still working.
+    if (persistent && el.classList.contains('is-visible') && !options.persist) return;
+    persistent = !!options.persist;
     rememberDefaults(el);
     el.classList.remove('is-initial');
     el.querySelector('.page-loader-title').textContent = options.title || defaults.title;
@@ -58,6 +65,7 @@
 
   function hide() {
     var el = root();
+    persistent = false;
     window.clearTimeout(failsafeTimer);
     document.documentElement.removeAttribute('aria-busy');
     if (!el) return;
@@ -103,7 +111,7 @@
     if (!link) return;
     // Decide after every other handler had a chance to call preventDefault().
     window.setTimeout(function () {
-      if (linkShouldShow(link, event)) show();
+      if (linkShouldShow(link, event) && !isVisible()) show();
     }, 0);
   });
 
@@ -111,7 +119,11 @@
     var form = event.target;
     window.setTimeout(function () {
       if (event.defaultPrevented || !formShouldShow(form) || isVisible()) return;
-      show({ persist: form.hasAttribute('data-loader-persist') });
+      // POST submissions (admin actions, saves, sync selected...) can run longer than the
+      // navigation failsafe and never trigger downloads here: keep the overlay until the
+      // next page arrives.
+      var isPost = (form.getAttribute('method') || 'get').toLowerCase() === 'post';
+      show({ persist: isPost || form.hasAttribute('data-loader-persist') });
     }, 0);
   });
 
