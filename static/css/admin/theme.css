@@ -1013,7 +1013,7 @@ html {
 
 .audit-summary-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 12px;
 }
 
@@ -1257,4 +1257,61 @@ html[data-theme="dark"] .profile-orcid-missing { background: #713f12; color: #fd
 
 #result_list .profile-actions .sync-button {
     margin: 0;
+}
+
+/* Audit log: anomaly category / alert status / merged hit counts. */
+.audit-cat-security { background: #fde2e2; color: #9b1c1c; }
+.audit-status-alert { background: #ffedd5; color: #9a3412; }
+html[data-theme="dark"] .audit-cat-security { background: #5f1d1d; color: #fecaca; }
+html[data-theme="dark"] .audit-status-alert { background: #7c2d12; color: #fed7aa; }
+
+.audit-summary-anomalies { border-left-color: #dc2626; }
+
+#container a.audit-summary-card {
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+#container a.audit-summary-card:hover {
+    border-color: #dc2626;
+    transform: translateY(-1px);
+}
+
+.audit-hits {
+    display: inline-block;
+    min-width: 26px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: var(--selected-bg);
+    color: var(--body-fg);
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+}
+
+/* Audit log columns: one-line timestamps, readable details. */
+#result_list th.column-time_display,
+#result_list .field-time_display,
+#result_list .field-hits_display,
+#result_list .field-ip_address {
+    white-space: nowrap;
+}
+
+#result_list td.field-message_display {
+    min-width: 260px;
+}
+
+.audit-message {
+    display: block;
+    max-width: 460px;
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+/* Admin list paging (static/js/admin/list_page_cache.js): while a page is fetched. */
+#changelist-form.list-page-loading {
+    opacity: 0.55;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
 }

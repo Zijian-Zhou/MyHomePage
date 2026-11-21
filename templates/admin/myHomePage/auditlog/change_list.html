@@ -9,10 +9,10 @@
   </div>
   <div class="audit-summary-grid">
     {% for item in audit_summary %}
-    <div class="audit-summary-card audit-summary-{{ item.key }}">
+    {% if item.url %}<a class="audit-summary-card audit-summary-{{ item.key }}" href="{{ item.url }}">{% else %}<div class="audit-summary-card audit-summary-{{ item.key }}">{% endif %}
       <span class="audit-summary-value">{{ item.value }}</span>
       <span class="audit-summary-label">{{ item.label }}</span>
-    </div>
+    {% if item.url %}</a>{% else %}</div>{% endif %}
     {% endfor %}
   </div>
 </section>

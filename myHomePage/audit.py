@@ -33,6 +33,13 @@ ACTION_CATEGORY = {
     'backup_delete': 'operation',
     'audit_export': 'operation',
     'audit_prune': 'system',
+    'security_attack': 'security',
+    'security_probe': 'security',
+    'security_scanner': 'security',
+    'security_flood': 'security',
+    'security_not_found_burst': 'security',
+    'security_suspicious': 'security',
+    'security_server_error': 'security',
 }
 
 

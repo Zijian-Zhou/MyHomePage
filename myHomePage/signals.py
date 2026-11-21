@@ -1,5 +1,6 @@
 from django.contrib.auth.signals import user_logged_in
 from django.db.models.signals import post_delete, pre_save
+from django.core.signals import got_request_exception
 from django.dispatch import receiver
 from django.utils import timezone
 
@@ -12,6 +13,14 @@ def set_login_session_signature(sender, request, user, **kwargs):
     digest = identity_digest(user)
     request.session["auth_sig"] = sign_identity(digest)
     request.session["auth_ts"] = int(timezone.now().timestamp())
+
+
+@receiver(got_request_exception)
+def audit_server_error(sender, request=None, **kwargs):
+    """Unhandled exception (HTTP 500) -> audit log "Anomaly / Server error"."""
+    import sys
+    from .security_monitor import report_exception
+    report_exception(request, sys.exc_info()[1])
 
 
 @receiver(post_delete, sender=MediaFile)

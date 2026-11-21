@@ -76,6 +76,7 @@ The application supports English and Simplified Chinese, Markdown content, ORCID
 - User/group management and localized configuration forms.
 - System resource monitor with live and historical CPU, memory, disk, and network throughput charts, plus database / media / backup storage usage.
 - Audit log (superusers only): logins, failed logins, lockouts, logouts, every admin add/change/delete, publication syncs, and backup operations, with user, IP, and user agent; filters, search, 24-hour summary, CSV export, and configurable retention (`audit_log_retention_days`, default 180). The audit trail is not part of backups and survives a restore.
+- Anomaly log (audit category **Anomaly**): attack payloads in URLs/headers (SQL injection, XSS, path traversal, command injection, Log4Shell), probes for well-known attack targets (`.env`, `.git`, `wp-admin`, phpMyAdmin, `*.php`, backups), known scanner User-Agents, request floods and 404 bursts per IP, requests Django rejects (forged Host header, CSRF failures) and server errors (500). Repeats from the same source within 10 minutes are merged into one row with a hit count, and new rows are capped per minute so an attack cannot flood the database. Nothing is blocked; signed-in staff are not monitored. Thresholds: `SECURITY_FLOOD_PER_MINUTE` (300), `SECURITY_404_PER_MINUTE` (30); the rate rules need `TRUST_X_FORWARDED_FOR=True` behind Nginx.
 - System backup (superusers only): create full backups of the database and media, download, delete, import external backups, and restore with an automatic pre-restore safety backup.
 
 #### Publication synchronization
@@ -330,6 +331,7 @@ Most content records support `is_active`, `is_draft`, and `order`. Draft and ina
 | --- | --- |
 | `enable_chinese` | Enables Chinese routes, fields, controls, and content |
 | `cards_per_page` | Maximum cards shown per section page |
+| `items_per_page` | Rows per page in every admin list (default 20, 1-500). Pages are fetched one at a time and cached in the browser tab; the cache is cleared on save/delete/actions, on logout and when the tab closes |
 | `sync_interval` | Automatic publication synchronization interval in hours; default `24` |
 | `scholar_proxy` | Optional Google Scholar proxy; direct access is attempted when empty |
 | `highlighted_authors` | Semicolon-separated authors highlighted across publications |
@@ -400,6 +402,9 @@ Google Scholar may rate-limit or block automated requests. Use synchronization c
 | `ENABLE_RESOURCE_MONITOR` | `True` | Starts the background resource sampler |
 | `ENABLE_IP_GEO_LANGUAGE` | `False` | Enables IP-based language selection |
 | `TRUST_X_FORWARDED_FOR` | `False` | Read the client IP from the reverse proxy (`X-Real-IP`); set `True` behind Nginx so audit logs and login lockout see real client addresses |
+| `SECURITY_MONITOR_ENABLED` | `True` | Record anomalous / attack traffic in the audit log |
+| `SECURITY_FLOOD_PER_MINUTE` | `300` | Requests per minute from one IP that count as a flood |
+| `SECURITY_404_PER_MINUTE` | `30` | 404 responses per minute from one IP that count as a scan |
 | `LOGIN_MAX_ATTEMPTS` | `5` | Failed-login threshold |
 | `LOGIN_ATTEMPT_WINDOW_SECONDS` | `600` | Login-attempt window |
 | `LOGIN_LOCKOUT_SECONDS` | `900` | Lockout duration |
@@ -539,6 +544,7 @@ MyHomePage 是一个面向研究人员、学生、实验室和专业人士的自
 - 支持用户、用户组及本地化配置管理。
 - 系统资源监控展示实时和历史 CPU、内存、磁盘、网络上下行速度，以及数据库、媒体文件和备份文件的存储占用。
 - 日志审计（仅超级管理员）：记录登录成功/失败、锁定、登出、后台所有新增/修改/删除、出版物同步和备份操作，包含用户、IP 和浏览器信息；支持筛选、搜索、近 24 小时统计、导出 CSV，保留天数可配置（`audit_log_retention_days`，默认 180 天）。审计日志不包含在备份中，恢复备份时会完整保留。
+- 异常日志（审计分类 **异常**）：记录 URL/请求头中的攻击特征（SQL 注入、XSS、路径穿越、命令注入、Log4Shell）、对常见攻击目标的探测（`.env`、`.git`、`wp-admin`、phpMyAdmin、`*.php`、备份文件等）、已知扫描工具的 User-Agent、单个 IP 的请求过载和大量 404、Django 拒绝的请求（伪造 Host 头、CSRF 校验失败）以及服务器错误（500）。同一来源 10 分钟内的重复事件合并为一条并累计次数，每分钟新增条数有上限，攻击时不会把数据库写满。只记录不拦截；已登录的管理员不受监控。阈值：`SECURITY_FLOOD_PER_MINUTE`（300）、`SECURITY_404_PER_MINUTE`（30）；频率类规则需要在 Nginx 后面设置 `TRUST_X_FORWARDED_FOR=True`。
 - 系统备份（仅超级管理员）：一键备份数据库和 media 文件，支持下载、删除、导入外部备份，以及恢复（恢复前自动创建安全备份）。
 
 #### 出版物同步
@@ -757,6 +763,7 @@ python manage.py runserver
 | --- | --- |
 | `enable_chinese` | 开启中文路由、字段、控件和内容 |
 | `cards_per_page` | 每个栏目单页最多显示的卡片数量 |
+| `items_per_page` | 管理后台所有列表每页条数（默认 20，范围 1-500）。翻页时只请求当前页并缓存在当前标签页中；保存、删除、执行操作、退出登录或关闭页面时清除缓存 |
 | `sync_interval` | 自动同步间隔，单位为小时，默认 `24` |
 | `scholar_proxy` | 可选 Google Scholar 代理；为空时尝试直连 |
 | `highlighted_authors` | 全局高亮作者，使用分号分隔 |
@@ -827,6 +834,9 @@ Google Scholar 可能限制或阻止自动请求，请控制同步频率并遵�
 | `ENABLE_RESOURCE_MONITOR` | `True` | 是否启动后台资源采样线程 |
 | `ENABLE_IP_GEO_LANGUAGE` | `False` | 是否根据 IP 自动选择语言 |
 | `TRUST_X_FORWARDED_FOR` | `False` | 从反向代理（`X-Real-IP`）读取真实客户端 IP；部署在 Nginx 后面时设为 `True`，审计日志和登录锁定才能识别真实 IP |
+| `SECURITY_MONITOR_ENABLED` | `True` | 把异常/攻击流量记录到审计日志 |
+| `SECURITY_FLOOD_PER_MINUTE` | `300` | 单个 IP 每分钟请求数超过该值视为请求过载 |
+| `SECURITY_404_PER_MINUTE` | `30` | 单个 IP 每分钟 404 次数超过该值视为扫描 |
 | `LOGIN_MAX_ATTEMPTS` | `5` | 登录失败次数阈值 |
 | `LOGIN_ATTEMPT_WINDOW_SECONDS` | `600` | 登录失败统计窗口 |
 | `LOGIN_LOCKOUT_SECONDS` | `900` | 锁定时长 |

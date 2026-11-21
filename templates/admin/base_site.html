@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="{% static 'css/admin/custom.css' %}?v=20261120-2">
 <link rel="stylesheet" href="{% static 'css/admin/dark_mode.css' %}?v={{ app_version }}.1">
 <link rel="stylesheet" href="{% static 'css/admin/publication.css' %}">
-<link rel="stylesheet" href="{% static 'css/admin/theme.css' %}?v={{ app_version }}.28">
+<link rel="stylesheet" href="{% static 'css/admin/theme.css' %}?v={{ app_version }}.31">
 <link rel="stylesheet" href="{% static 'css/page-loader.css' %}?v={{ app_version }}.1">
 <link rel="stylesheet" href="{% static 'css/scrollbar.css' %}?v={{ app_version }}.2">
 {% endblock %}
@@ -49,6 +49,7 @@
 <script src="{% static 'js/page-loader.js' %}?v={{ app_version }}.3"></script>
 <script src="{% static 'js/admin/sticky_header.js' %}?v={{ app_version }}.2"></script>
 <script src="{% static 'js/admin/dark_mode.js' %}?v={{ app_version }}.1"></script>
+<script src="{% static 'js/admin/list_page_cache.js' %}?v={{ app_version }}.1"></script>
 {% if user.is_authenticated %}
 <script>
   window.HOMEPAGE_ADMIN_TRANSLATE_URL = "{% url 'admin:auto-translate-field' %}";

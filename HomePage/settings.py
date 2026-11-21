@@ -59,6 +59,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'myHomePage.audit.AuditContextMiddleware',
+    'myHomePage.security_monitor.SecurityMonitorMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'myHomePage.middleware.ChineseModeUrlMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -75,6 +76,36 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'HomePage.urls'
+
+# Anomaly / attack-traffic monitor (myHomePage/security_monitor.py) -> audit log "Anomaly".
+SECURITY_MONITOR_ENABLED = os.getenv('SECURITY_MONITOR_ENABLED', 'True').lower() in ('1', 'true', 'yes', 'on')
+SECURITY_FLOOD_PER_MINUTE = int(os.getenv('SECURITY_FLOOD_PER_MINUTE', '300'))
+SECURITY_404_PER_MINUTE = int(os.getenv('SECURITY_404_PER_MINUTE', '30'))
+SECURITY_MERGE_SECONDS = int(os.getenv('SECURITY_MERGE_SECONDS', '600'))
+SECURITY_MAX_NEW_ROWS_PER_MINUTE = int(os.getenv('SECURITY_MAX_NEW_ROWS_PER_MINUTE', '120'))
+# Count request/404 rates for private addresses too (normally skipped: without
+# TRUST_X_FORWARDED_FOR every request behind a proxy shares the proxy's address).
+SECURITY_MONITOR_INTERNAL_IPS = os.getenv('SECURITY_MONITOR_INTERNAL_IPS', 'False').lower() in ('1', 'true', 'yes', 'on')
+
+# django.security.* (forged Host header, CSRF failures, suspicious file operations)
+# is also written to the audit log as "Suspicious request".
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'audit_security': {
+            'level': 'WARNING',
+            'class': 'myHomePage.security_monitor.SecurityLogHandler',
+        },
+    },
+    'loggers': {
+        'django.security': {
+            'handlers': ['audit_security'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+    },
+}
 
 TEMPLATES = [
     {

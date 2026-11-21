@@ -32,6 +32,7 @@ import os
 import platform
 import shutil
 import markdown
+from django.db.models import Sum
 from contextlib import contextmanager
 from django.shortcuts import redirect
 
@@ -89,6 +90,7 @@ def _category_label_map():
         return {
             'enable_chinese': '启用中文',
             'cards_per_page': '每页卡片数',
+            'items_per_page': '后台列表每页条数',
             'scholar_proxy': 'Google Scholar 代理',
             'sync_interval': '同步间隔',
             'highlighted_authors': '高亮作者',
@@ -99,6 +101,7 @@ def _category_label_map():
     return {
         'enable_chinese': _('Enable Chinese'),
         'cards_per_page': _('Cards Per Page'),
+        'items_per_page': _('Items Per Page'),
         'scholar_proxy': _('Google Scholar Proxy'),
         'sync_interval': _('Sync Interval'),
         'highlighted_authors': _('Highlighted Authors'),
@@ -339,6 +342,17 @@ class SystemConfigAdminForm(forms.ModelForm):
             return str(parsed)
         if category == 'footer_items':
             return _validate_footer_items_json(value)
+        if category == 'items_per_page':
+            try:
+                parsed = int(float(str(value).strip() or '20'))
+            except (ValueError, TypeError):
+                parsed = 0
+            if not 1 <= parsed <= 500:
+                raise forms.ValidationError(
+                    '后台列表每页条数必须是 1 到 500 之间的整数。' if _is_zh_mode()
+                    else 'Items Per Page must be an integer between 1 and 500.'
+                )
+            return str(parsed)
         if category == 'audit_log_retention_days':
             try:
                 parsed = int(float(str(value).strip() or '180'))
@@ -1332,6 +1346,19 @@ class CustomAdminSite(AdminSite):
 
 
 admin_site = CustomAdminSite(name='admin')
+
+
+# Every list in this admin uses System Configuration > Items Per Page (default 20).
+_original_get_changelist_instance = admin.ModelAdmin.get_changelist_instance
+
+
+def _get_changelist_instance(self, request):
+    if getattr(self, 'admin_site', None) is admin_site:
+        self.list_per_page = SystemConfig.get_items_per_page()
+    return _original_get_changelist_instance(self, request)
+
+
+admin.ModelAdmin.get_changelist_instance = _get_changelist_instance
 
 class UserAdmin(DjangoUserAdmin):
     # Inherit Django's auth UserAdmin so passwords are hashed: the change form shows
@@ -2488,6 +2515,8 @@ class SystemConfigAdmin(admin.ModelAdmin):
                 default_value = '1'
             elif category == 'cards_per_page':
                 default_value = '6'
+            elif category == 'items_per_page':
+                default_value = '20'
             elif category == 'resource_log_retention_hours':
                 default_value = '168'
             elif category == 'audit_log_retention_days':
@@ -2535,6 +2564,12 @@ class SystemConfigAdmin(admin.ModelAdmin):
                 '\u8d44\u6e90\u76d1\u63a7\u5386\u53f2\u65e5\u5fd7\u4fdd\u7559\u65f6\u957f\uff08\u5c0f\u65f6\uff09\uff0c\u9ed8\u8ba4 168 \u5c0f\u65f6\u3002'
                 if _is_zh_mode()
                 else _('How long resource monitor logs are retained, in hours. Default is 168 hours.')
+            )
+        if obj and obj.category == 'items_per_page':
+            form.base_fields['value'].help_text = (
+                '管理后台所有列表每页最多显示的记录数，默认 20（1-500）。'
+                if _is_zh_mode()
+                else 'Maximum rows per page in every admin list. Default 20 (1-500).'
             )
         if obj and obj.category == 'audit_log_retention_days':
             form.base_fields['value'].help_text = (
@@ -2589,6 +2624,8 @@ class SystemConfigAdmin(admin.ModelAdmin):
             obj.value = '168'
         elif obj.category == 'audit_log_retention_days' and not value:
             obj.value = '180'
+        elif obj.category == 'items_per_page' and not value:
+            obj.value = '20'
         else:
             obj.value = value
         super().save_model(request, obj, form, change)
@@ -3412,7 +3449,7 @@ class AuditLogAdmin(admin.ModelAdmin):
     """Read-only audit trail (superusers only): logins, admin changes, operations."""
 
     change_list_template = 'admin/myHomePage/auditlog/change_list.html'
-    list_display = ('time_display', 'category_badge', 'action_display', 'status_badge',
+    list_display = ('time_display', 'category_badge', 'action_display', 'status_badge', 'hits_display',
                     'user_display', 'ip_address', 'object_display', 'message_display')
     list_display_links = ('time_display',)
     list_filter = ('category', 'action', 'status', 'created_at')
@@ -3422,7 +3459,7 @@ class AuditLogAdmin(admin.ModelAdmin):
     ordering = ('-created_at',)
     actions = ['export_csv']
     readonly_fields = ('created_at', 'category', 'action', 'status', 'user', 'username', 'ip_address',
-                       'user_agent', 'path', 'object_repr', 'message')
+                       'user_agent', 'path', 'object_repr', 'message', 'hits', 'last_seen_at')
     fields = readonly_fields
 
     PRUNE_CACHE_KEY = 'audit-log-last-prune'
@@ -3464,6 +3501,15 @@ class AuditLogAdmin(admin.ModelAdmin):
     status_badge.short_description = AuditLog._meta.get_field('status').verbose_name
     status_badge.admin_order_field = 'status'
 
+    def hits_display(self, obj):
+        """Anomaly rows merge repeats: show the count and when it was last seen."""
+        if obj.hits <= 1:
+            return '-' if obj.category != AuditLog.CATEGORY_SECURITY else '1'
+        last = timezone.localtime(obj.last_seen_at).strftime('%m-%d %H:%M') if obj.last_seen_at else ''
+        return format_html('<span class="audit-hits" title="{}">×{}</span>', last, obj.hits)
+    hits_display.short_description = AuditLog._meta.get_field('hits').verbose_name
+    hits_display.admin_order_field = 'hits'
+
     def user_display(self, obj):
         return obj.username or (obj.user.get_username() if obj.user_id else '-')
     user_display.short_description = AuditLog._meta.get_field('username').verbose_name
@@ -3491,13 +3537,15 @@ class AuditLogAdmin(admin.ModelAdmin):
         response['Content-Disposition'] = 'attachment; filename="audit-log-{}.csv"'.format(stamp)
         response.write('\ufeff')  # BOM so Excel opens UTF-8 (Chinese) correctly
         writer = csv.writer(response)
-        writer.writerow(['time', 'category', 'action', 'status', 'username', 'ip_address',
+        writer.writerow(['time', 'category', 'action', 'status', 'hits', 'last_seen', 'username', 'ip_address',
                          'object', 'message', 'path', 'user_agent'])
         count = 0
         for row in queryset.order_by('-created_at').iterator():
             writer.writerow([
                 timezone.localtime(row.created_at).strftime('%Y-%m-%d %H:%M:%S'),
-                row.category, row.action, row.status, row.username or '', row.ip_address or '',
+                row.category, row.action, row.status, row.hits,
+                timezone.localtime(row.last_seen_at).strftime('%Y-%m-%d %H:%M:%S') if row.last_seen_at else '',
+                row.username or '', row.ip_address or '',
                 row.object_repr, row.message, row.path, row.user_agent,
             ])
             count += 1
@@ -3526,6 +3574,9 @@ class AuditLogAdmin(admin.ModelAdmin):
              'value': recent.filter(action='login_locked').count()},
             {'key': 'operations', 'label': '操作数' if zh else 'Operations',
              'value': recent.filter(category=AuditLog.CATEGORY_OPERATION).count()},
+            {'key': 'anomalies', 'label': '异常事件' if zh else 'Anomalies',
+             'value': recent.filter(category=AuditLog.CATEGORY_SECURITY).aggregate(n=Sum('hits'))['n'] or 0,
+             'url': '?category__exact=' + AuditLog.CATEGORY_SECURITY},
         ]
         extra_context = extra_context or {}
         extra_context['audit_summary'] = summary

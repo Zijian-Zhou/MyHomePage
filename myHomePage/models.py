@@ -430,6 +430,7 @@ class SystemConfig(models.Model):
     CATEGORY_CHOICES = [
         ('enable_chinese', _('Enable Chinese')),
         ('cards_per_page', _('Cards Per Page')),
+        ('items_per_page', _('Items Per Page')),
         ('scholar_proxy', _('Google Scholar Proxy')),
         ('sync_interval', _('Sync Interval')),
         ('highlighted_authors', _('Highlighted Authors')),
@@ -456,6 +457,7 @@ class SystemConfig(models.Model):
             zh_labels = {
                 'enable_chinese': '启用中文',
                 'cards_per_page': '每页卡片数',
+                'items_per_page': '后台列表每页条数',
                 'scholar_proxy': 'Google Scholar 代理',
                 'sync_interval': '同步间隔',
                 'highlighted_authors': '高亮作者',
@@ -574,6 +576,14 @@ class SystemConfig(models.Model):
             return 6
 
     @classmethod
+    def get_items_per_page(cls):
+        """Rows per page in every admin list (default 20)."""
+        try:
+            return min(500, max(1, int(float(cls.get_value('items_per_page', 20)))))
+        except (ValueError, TypeError):
+            return 20
+
+    @classmethod
     def get_resource_log_retention_hours(cls):
         try:
             value = float(cls.get_value('resource_log_retention_hours', 168))
@@ -601,17 +611,21 @@ class AuditLog(models.Model):
     CATEGORY_LOGIN = 'login'
     CATEGORY_OPERATION = 'operation'
     CATEGORY_SYSTEM = 'system'
+    CATEGORY_SECURITY = 'security'
     CATEGORY_CHOICES = [
         (CATEGORY_LOGIN, _bilingual('Login', '登录')),
         (CATEGORY_OPERATION, _bilingual('Operation', '操作')),
         (CATEGORY_SYSTEM, _bilingual('System', '系统')),
+        (CATEGORY_SECURITY, _bilingual('Anomaly', '异常')),
     ]
 
     STATUS_SUCCESS = 'success'
     STATUS_FAILURE = 'failure'
+    STATUS_ALERT = 'alert'
     STATUS_CHOICES = [
         (STATUS_SUCCESS, _bilingual('Success', '成功')),
         (STATUS_FAILURE, _bilingual('Failure', '失败')),
+        (STATUS_ALERT, _bilingual('Alert', '告警')),
     ]
 
     ACTION_CHOICES = [
@@ -629,6 +643,14 @@ class AuditLog(models.Model):
         ('backup_delete', _bilingual('Backup deleted', '删除备份')),
         ('audit_export', _bilingual('Audit log exported', '导出审计日志')),
         ('audit_prune', _bilingual('Audit log pruned', '清理审计日志')),
+        # Anomaly / attack traffic (myHomePage/security_monitor.py)
+        ('security_attack', _bilingual('Attack payload', '攻击特征')),
+        ('security_probe', _bilingual('Vulnerability probe', '漏洞探测')),
+        ('security_scanner', _bilingual('Scanner detected', '扫描工具')),
+        ('security_flood', _bilingual('Request flood', '请求过载')),
+        ('security_not_found_burst', _bilingual('404 burst', '大量 404')),
+        ('security_suspicious', _bilingual('Suspicious request', '可疑请求')),
+        ('security_server_error', _bilingual('Server error', '服务器错误')),
     ]
 
     created_at = models.DateTimeField(_bilingual('Time', '时间'), auto_now_add=True, db_index=True)
@@ -644,6 +666,9 @@ class AuditLog(models.Model):
     path = models.CharField(_bilingual('Request path', '请求路径'), max_length=300, blank=True)
     object_repr = models.CharField(_bilingual('Object', '对象'), max_length=200, blank=True)
     message = models.TextField(_bilingual('Details', '详情'), blank=True)
+    # Anomaly rows merge repeats from the same source: how often, and when last seen.
+    hits = models.PositiveIntegerField(_bilingual('Hits', '次数'), default=1)
+    last_seen_at = models.DateTimeField(_bilingual('Last seen', '最近一次'), null=True, blank=True)
 
     class Meta:
         verbose_name = _bilingual('Audit Log', '审计日志')
