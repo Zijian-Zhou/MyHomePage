@@ -4,7 +4,7 @@ from .models import Profile, Publication, PublicationFile, Research, News, Secti
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
-from .services import ORCIDOAuth
+from .services import ORCIDOAuth, ORCID_OAUTH_SESSION_KEY
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.http import FileResponse, HttpResponse, JsonResponse, Http404
@@ -13,6 +13,8 @@ from django.db.models import Prefetch
 from PIL import Image, ImageDraw, ImageOps
 from io import BytesIO
 import logging
+import secrets
+from django.utils import timezone
 import os
 
 from django.views.static import serve as static_serve
@@ -238,53 +240,52 @@ def research_detail(request, pk):
     return render(request, 'research_detail.html', context)
 
 @login_required
-def orcid_authorize(request):
-    """ORCID OAuth 授权视图"""
-    try:
-        oauth = ORCIDOAuth()
-        redirect_uri = request.build_absolute_uri('/orcid/callback/')
-        auth_url = oauth.get_authorization_url(redirect_uri)
-        return redirect(auth_url)
-    except ValueError as e:
-        messages.error(request, str(e))
-        return redirect('admin:index')
-
-@login_required
+@user_passes_test(lambda u: u.is_staff)
 def orcid_callback(request):
-    """处理 ORCID OAuth 回调"""
-    logger.info('Received ORCID callback request')
-    logger.info('Request GET parameters: %s', request.GET)
-    
-    # 检查是否有错误
+    """ORCID OAuth callback: store the token on the profile that started the flow.
+
+    The flow is started from the profile's admin page, which saves a random `state`
+    and the profile id in the session; a callback without that exact state is refused.
+    """
+    from . import audit
+
+    pending = request.session.pop(ORCID_OAUTH_SESSION_KEY, None) or {}
+    profile_id = pending.get('profile_id')
+    fallback = redirect('admin:myHomePage_profile_changelist')
+
+    state = request.GET.get('state', '')
+    if not pending.get('state') or not state or not secrets.compare_digest(str(pending['state']), state):
+        messages.error(request, _('ORCID authorization could not be verified; please start it again from the profile page.'))
+        return fallback
+
+    profile = Profile.objects.filter(pk=profile_id).first()
+    if profile is None:
+        messages.error(request, _('The profile to authorize no longer exists.'))
+        return fallback
+    back = redirect('admin:myHomePage_profile_change', profile.pk)
+
     if 'error' in request.GET:
         error_msg = request.GET.get('error_description', request.GET.get('error', 'Unknown error'))
         logger.error('ORCID authorization error: %s', error_msg)
         messages.error(request, _('ORCID authorization failed: %(error)s') % {'error': error_msg})
-        return redirect('admin:index')
-    
-    # 获取授权码
+        return back
+
     code = request.GET.get('code')
     if not code:
-        logger.error('No authorization code received')
         messages.error(request, _('No authorization code received from ORCID'))
-        return redirect('admin:index')
-    
+        return back
+
     try:
-        # 获取访问令牌
-        oauth = ORCIDOAuth()
-        # 使用不带语言前缀的回调 URL
+        oauth = ORCIDOAuth(profile)
+        # The same language-neutral callback URL that was sent to ORCID.
         redirect_uri = request.build_absolute_uri('/orcid/callback/')
-        logger.info('Using redirect URI: %s', redirect_uri)
         access_token = oauth.get_access_token(code, redirect_uri)
-        
-        # 保存访问令牌
-        SystemConfig.set_value(
-            'orcid_access_token',
-            access_token,
-            'ORCID访问令牌'
-        )
-        
-        logger.info('Successfully saved ORCID access token')
+        if not access_token:
+            raise ValueError(_('ORCID did not return an access token'))
+        profile.orcid_access_token = access_token
+        profile.orcid_authorized_at = timezone.now()
+        profile.save(update_fields=['orcid_access_token', 'orcid_authorized_at'])
+        audit.record('object_change', object_repr='Profile: {}'.format(profile), message='ORCID authorized')
         messages.success(request, _('Successfully obtained ORCID access token'))
     except ValueError as e:
         logger.error('Failed to get access token: %s', str(e))
@@ -292,8 +293,7 @@ def orcid_callback(request):
     except Exception as e:
         logger.error('Unexpected error during ORCID callback: %s', str(e))
         messages.error(request, _('An unexpected error occurred during ORCID authorization'))
-    
-    return redirect('admin:index')
+    return back
 
 @login_required
 @user_passes_test(lambda u: u.is_staff)

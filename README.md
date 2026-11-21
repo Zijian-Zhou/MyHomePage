@@ -309,7 +309,17 @@ For scheduled synchronization outside Docker, install a compatible Celery releas
 2. Add publications, research projects, and news entries.
 3. Add custom sections when additional homepage blocks are needed.
 4. Review `SystemConfig`, especially Chinese mode, cards per page, synchronization interval, highlighted authors, footer JSON, and resource-log retention.
-5. Upload reusable assets through Media Files and use their generated links in Markdown.
+5. Upload reusable assets in **File Manager** (the Media Files page) and use their copied links or Markdown snippets in content.
+
+### File Manager
+
+The Media Files page is a small file manager over everything uploaded to the site (`MEDIA_ROOT`), one folder per purpose: **Uploads** (`markdown_assets/`), profile, news, publication and research images, and the private publication files.
+
+- **Uploads** is the free area: upload (drag and drop, up to 50 MB per file; HTML/SVG/scripts are refused), create folders, rename, move, edit a file's title and Active/Draft flags, copy its link or Markdown snippet, and delete.
+- The other folders belong to their records: files can be browsed, previewed and downloaded, and a file no record uses any more can be deleted. A file still used by a record cannot be deleted.
+- Every file shows where it is used (record fields and links in Markdown/settings). Renaming, moving or deleting a file that content links to asks for confirmation first; `/media-file/<key>/` links keep working after a rename or move.
+- **Preview** shows images, video, audio, PDF and plain-text files (`.txt/.md/.csv/.json/.bib/.tex`) in the browser; Office documents are download-only.
+- **Unused files** lists every file nothing references, for clean-up. All file operations are recorded in the audit log.
 6. Configure ORCID, Google Scholar, or one or more AI providers only when needed.
 
 Most content records support `is_active`, `is_draft`, and `order`. Draft and inactive records are excluded from the public homepage. Higher positive `order` values are displayed first for models whose ordering is descending.
@@ -322,7 +332,6 @@ Most content records support `is_active`, `is_draft`, and `order`. Draft and ina
 | `cards_per_page` | Maximum cards shown per section page |
 | `sync_interval` | Automatic publication synchronization interval in hours; default `24` |
 | `scholar_proxy` | Optional Google Scholar proxy; direct access is attempted when empty |
-| `orcid_client_id` / `orcid_client_secret` / `orcid_access_token` | ORCID integration credentials |
 | `highlighted_authors` | Semicolon-separated authors highlighted across publications |
 | `footer_items` | Footer items: display name (required), optional icon and link |
 | `resource_log_retention_hours` | Resource-history retention; default `168` hours |
@@ -366,10 +375,12 @@ python manage.py sync_publications
 
 Enable `auto_sync_orcid` and/or `auto_sync_google_scholar` on the relevant profile. The scheduled task runs frequently but only synchronizes a profile after its configured interval has elapsed.
 
-ORCID diagnostics:
+ORCID, GitHub and LinkedIn credentials are stored per profile, right below each platform's ID / link (followed by its auto-sync switch). Fill in the ORCID Client ID / Client Secret from ORCID Developer Tools, register the redirect URI shown there (`https://<your-domain>/orcid/callback/`) and click **Authorize ORCID**; the access token is saved on that profile. Secret values are never shown again after saving (leave the box blank to keep them, tick **Clear** to remove them).
+
+ORCID diagnostics (`--profile <id>` defaults to the first active profile):
 
 ```bash
-python manage.py check_orcid_config
+python manage.py check_orcid_config --check
 python manage.py check_orcid_config --token YOUR_ORCID_ACCESS_TOKEN
 ```
 
@@ -725,7 +736,17 @@ python manage.py runserver
 2. 添加出版物、研究项目和新闻。
 3. 需要额外主页内容时添加自定义栏目。
 4. 检查 `SystemConfig`，特别是中文模式、每页卡片数、同步间隔、高亮作者、页脚 JSON 和资源日志保留时间。
-5. 通过“媒体文件”上传可复用资源，并把生成的链接用于 Markdown。
+5. 在 **文件管理**（原“媒体文件”页面）上传可复用资源，复制链接或 Markdown 片段用于内容中。
+
+### 文件管理
+
+“媒体文件”页面是一个简单的文件管理器，管理网站上传的所有文件（`MEDIA_ROOT`），按用途分文件夹：**上传文件**（`markdown_assets/`）、头像、新闻、论文、研究图片，以及私有的论文附件。
+
+- **上传文件** 是自由区域：可上传（支持拖拽，单个文件 ≤ 50 MB，拒绝 HTML/SVG/脚本）、新建文件夹、重命名、移动、编辑标题和启用/草稿状态、复制链接或 Markdown 片段、删除。
+- 其他文件夹由对应的内容记录管理：可以浏览、预览、下载；不再被任何记录使用的文件可以删除，仍被记录使用的文件不能删除。
+- 每个文件都会显示使用位置（记录字段以及 Markdown/配置中的链接）。重命名、移动或删除被内容链接的文件前会先确认；`/media-file/<key>/` 形式的链接在重命名或移动后仍然有效。
+- **预览** 支持图片、视频、音频、PDF 和纯文本文件（`.txt/.md/.csv/.json/.bib/.tex`）；Office 文档只能下载。
+- **未使用的文件** 列出所有没有被引用的文件，方便清理。所有文件操作都会写入日志审计。
 6. 仅在需要时配置 ORCID、Google Scholar 或 AI Provider。
 
 多数内容记录支持 `is_active`、`is_draft` 和 `order`。草稿和未激活记录不会显示在公开主页。对于采用倒序排序的模型，较大的正数 `order` 会优先显示。
@@ -738,7 +759,6 @@ python manage.py runserver
 | `cards_per_page` | 每个栏目单页最多显示的卡片数量 |
 | `sync_interval` | 自动同步间隔，单位为小时，默认 `24` |
 | `scholar_proxy` | 可选 Google Scholar 代理；为空时尝试直连 |
-| `orcid_client_id` / `orcid_client_secret` / `orcid_access_token` | ORCID 接入凭据 |
 | `highlighted_authors` | 全局高亮作者，使用分号分隔 |
 | `footer_items` | 页脚项：显示名称（必填）、图标和链接（选填） |
 | `resource_log_retention_hours` | 资源监控历史保留时间，默认 `168` 小时 |
@@ -782,8 +802,12 @@ python manage.py sync_publications
 
 需要先在对应 Profile 中启用 `auto_sync_orcid` 和/或 `auto_sync_google_scholar`。定时任务会高频检查，但只有达到系统配置的同步间隔后才会真正同步。
 
+ORCID、GitHub、LinkedIn 的凭据按个人资料分别保存，紧跟在各平台的 ID / 链接下方（其后是该平台的自动同步开关）。填写在 ORCID 开发者工具中获取的 Client ID / Client Secret，登记页面上显示的回调地址（`https://<你的域名>/orcid/callback/`），然后点击 **授权 ORCID**，访问令牌会保存到该个人资料。密钥保存后不再显示（留空即保持不变，勾选 **清除** 可删除）。
+
+ORCID 诊断命令（`--profile <id>` 默认为第一个启用的个人资料）：
+
 ```bash
-python manage.py check_orcid_config
+python manage.py check_orcid_config --check
 python manage.py check_orcid_config --token YOUR_ORCID_ACCESS_TOKEN
 ```
 

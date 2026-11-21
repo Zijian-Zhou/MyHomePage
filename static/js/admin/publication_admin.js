@@ -120,12 +120,39 @@ window.addEventListener('load', function() {
                 // 处理导入按钮点击
                 importBtn.on('click', function(e) {
                     e.preventDefault();
-                    importModal.show();
+                    importModal.css('display', 'flex');  // flex: the dialog is centred
+                    bibtexInput.trigger('focus');
                 });
 
                 // 处理关闭按钮点击
                 closeBtn.on('click', function() {
                     importModal.hide();
+                });
+                importModal.find('.bibtex-cancel').on('click', function() {
+                    importModal.hide();
+                });
+                $(document).on('keydown', function(e) {
+                    if (e.key === 'Escape' && importModal.is(':visible')) importModal.hide();
+                });
+
+                // File picker: show the chosen name; also accept a file dropped on it.
+                const dropzone = importModal.find('[data-bibtex-dropzone]');
+                bibtexFile.on('change', function() {
+                    const file = this.files && this.files[0];
+                    importModal.find('[data-bibtex-filename]').text(file ? file.name : '');
+                });
+                dropzone.on('dragenter dragover', function(e) {
+                    e.preventDefault();
+                    dropzone.addClass('is-dragover');
+                }).on('dragleave dragend', function() {
+                    dropzone.removeClass('is-dragover');
+                }).on('drop', function(e) {
+                    e.preventDefault();
+                    dropzone.removeClass('is-dragover');
+                    const files = e.originalEvent.dataTransfer && e.originalEvent.dataTransfer.files;
+                    if (!files || !files.length) return;
+                    bibtexFile[0].files = files;
+                    bibtexFile.trigger('change');
                 });
 
                 // 点击模态框外部关闭

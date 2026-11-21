@@ -1,0 +1,272 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/admin/file_manager.css' %}?v={{ app_version }}.5">
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} file-manager-page{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% if LANGUAGE_CODE|slice:":2" == "zh" %}首页{% else %}Home{% endif %}</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+  &rsaquo; {{ labels.title }}
+</div>
+{% endblock %}
+
+{% block content %}
+{{ js_labels|json_script:"file-manager-labels" }}
+{{ move_targets|json_script:"file-manager-folders" }}
+{{ file_meta|json_script:"file-manager-files" }}
+<div class="file-manager" data-file-manager>
+  <div class="fm-layout">
+    <aside class="fm-sidebar" aria-label="{{ labels.folders }}">
+      <a class="fm-side-link{% if mode == 'folder' and not current %} is-active{% endif %}" href="?">
+        <i class="fas fa-hard-drive" aria-hidden="true"></i>
+        <span class="fm-side-name">{{ labels.all_files }}</span>
+        <span class="fm-side-meta">{{ total_files }}</span>
+      </a>
+      <div class="fm-side-title">{{ labels.folders }}</div>
+      {% for folder in top_folders %}
+      <a class="fm-side-link{% if mode == 'folder' and active_root == folder.path %} is-active{% endif %}" href="?path={{ folder.path|urlencode }}">
+        <i class="fas {% if folder.path == upload_root %}fa-folder-open{% elif folder.path == 'publication_files' %}fa-lock{% else %}fa-folder{% endif %}" aria-hidden="true"></i>
+        <span class="fm-side-name">{{ folder.label }}</span>
+        <span class="fm-side-meta">{{ folder.file_count }}</span>
+      </a>
+      {% endfor %}
+      <a class="fm-side-link fm-side-unused{% if mode == 'global' and current_filter == 'unused' %} is-active{% endif %}" href="?filter=unused">
+        <i class="fas fa-broom" aria-hidden="true"></i>
+        <span class="fm-side-name">{{ labels.unused_files }}</span>
+        <span class="fm-side-meta">{{ unused_total }}</span>
+      </a>
+      <div class="fm-side-total">{{ labels.total }}: {{ total_files }} {{ labels.files_unit }} · {{ total_size|filesizeformat }}</div>
+    </aside>
+
+    <section class="fm-main">
+      <div class="fm-toolbar">
+        <form method="get" class="fm-search" role="search" data-no-loader>
+          {% if current %}<input type="hidden" name="path" value="{{ current }}">{% endif %}
+          <input type="search" name="q" value="{{ q }}" placeholder="{{ labels.search_placeholder }}" aria-label="{{ labels.search_placeholder }}">
+          <button type="submit" class="button">{{ labels.search }}</button>
+          {% if q %}<a class="button fm-secondary" href="?{% if current %}path={{ current|urlencode }}{% endif %}">{{ labels.clear }}</a>{% endif %}
+        </form>
+        <div class="fm-toolbar-actions">
+          {% if editable_here and can_add %}
+          <button type="button" class="button fm-secondary" data-fm-new-folder><i class="fas fa-folder-plus" aria-hidden="true"></i> {{ labels.new_folder }}</button>
+          <button type="button" class="button" data-fm-upload-trigger><i class="fas fa-cloud-arrow-up" aria-hidden="true"></i> {{ labels.upload }}</button>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="fm-subbar">
+        <nav class="fm-path" aria-label="Path">
+          {% if mode == 'search' %}
+            <span>{{ labels.search_results }} “{{ q }}”</span>
+          {% else %}
+            <a href="?">{{ labels.root }}</a>
+            {% for crumb in crumbs %}
+              <span class="fm-path-sep">/</span>
+              {% if forloop.last %}<strong>{{ crumb.label }}</strong>{% else %}<a href="?path={{ crumb.path|urlencode }}">{{ crumb.label }}</a>{% endif %}
+            {% endfor %}
+          {% endif %}
+        </nav>
+        <div class="fm-filters">
+          {% for value, text in filters %}
+          <a class="fm-chip{% if current_filter == value %} is-active{% endif %}" href="?{% if current %}path={{ current|urlencode }}&amp;{% endif %}{% if q %}q={{ q|urlencode }}&amp;{% endif %}filter={{ value }}{% if sort != 'name' %}&amp;sort={{ sort }}{% endif %}">{{ text }}</a>
+          {% endfor %}
+          <form method="get" class="fm-sort" data-no-loader>
+            {% if current %}<input type="hidden" name="path" value="{{ current }}">{% endif %}
+            {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+            {% if current_filter != 'all' %}<input type="hidden" name="filter" value="{{ current_filter }}">{% endif %}
+            <label>
+              <span class="fm-sort-label">{{ labels.sort }}</span>
+              <select name="sort" data-fm-autosubmit>
+                {% for value, text in sorts %}<option value="{{ value }}"{% if sort == value %} selected{% endif %}>{{ text }}</option>{% endfor %}
+              </select>
+            </label>
+          </form>
+        </div>
+      </div>
+
+      {% if private_here %}<div class="fm-note fm-note-private"><i class="fas fa-lock" aria-hidden="true"></i> {{ labels.private_note }}</div>
+      {% elif readonly_here %}<div class="fm-note"><i class="fas fa-circle-info" aria-hidden="true"></i> {{ labels.readonly_note }}</div>{% endif %}
+
+      {% if editable_here and can_add %}
+      <form method="post" action="{% url 'admin:mediafile-file-action' %}" enctype="multipart/form-data" class="fm-upload" data-fm-upload-form>
+        {% csrf_token %}
+        <input type="hidden" name="action" value="upload">
+        <input type="hidden" name="folder" value="{{ current }}">
+        <input type="hidden" name="return_path" value="{{ current }}">
+        <label class="fm-dropzone" data-fm-dropzone>
+          <input type="file" name="files" multiple accept="{{ upload_extensions }}" data-fm-file-input>
+          <i class="fas fa-cloud-arrow-up fm-dropzone-icon" aria-hidden="true"></i>
+          <span class="fm-dropzone-title">{{ labels.drop_title }}</span>
+          <span class="fm-dropzone-sub">{{ labels.drop_hint }}</span>
+        </label>
+      </form>
+      {% endif %}
+
+      <div class="fm-bulkbar" data-fm-bulkbar hidden>
+        <span data-fm-selected-count></span>
+        {% if can_delete %}<button type="button" class="button fm-danger" data-fm-bulk-delete><i class="fas fa-trash" aria-hidden="true"></i> {{ labels.delete_selected }}</button>{% endif %}
+      </div>
+
+      {% if folders or files %}
+      <div class="fm-table-wrap">
+        <table class="fm-table">
+          <thead>
+            <tr>
+              <th class="fm-col-check">{% if can_delete %}<input type="checkbox" data-fm-select-all aria-label="{{ labels.select_all }}">{% endif %}</th>
+              <th class="fm-col-name" colspan="2">{{ labels.col_name }}</th>
+              <th class="fm-col-size">{{ labels.col_size }}</th>
+              <th class="fm-col-modified">{{ labels.col_modified }}</th>
+              <th class="fm-col-actions">{{ labels.col_actions }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if mode == 'folder' and current %}
+            <tr class="fm-row fm-row-up">
+              <td class="fm-col-check"></td>
+              <td class="fm-col-thumb"><span class="fm-icon"><i class="fas fa-turn-up" aria-hidden="true"></i></span></td>
+              <td class="fm-col-name"><a href="?{% if parent %}path={{ parent|urlencode }}{% endif %}">{{ labels.up }}</a></td>
+              <td colspan="3"></td>
+            </tr>
+            {% endif %}
+            {% for folder in folders %}
+            <tr class="fm-row fm-row-folder" data-path="{{ folder.path }}" data-name="{{ folder.name }}" data-dir="1">
+              <td class="fm-col-check">{% if can_delete and folder.editable and not folder.file_count %}<input type="checkbox" data-fm-select value="{{ folder.path }}" aria-label="{{ folder.name }}">{% endif %}</td>
+              <td class="fm-col-thumb"><span class="fm-icon fm-icon-folder"><i class="fas {% if folder.path == 'publication_files' %}fa-lock{% else %}fa-folder{% endif %}" aria-hidden="true"></i></span></td>
+              <td class="fm-col-name"><a href="?path={{ folder.path|urlencode }}" class="fm-name">{{ folder.label|default:folder.name }}</a>
+                <div class="fm-used fm-muted">{{ folder.file_count }} {{ labels.files_unit }}</div></td>
+              <td class="fm-col-size">{{ folder.size|filesizeformat }}</td>
+              <td class="fm-col-modified">{{ folder.modified|date:"Y-m-d H:i" }}</td>
+              <td class="fm-col-actions">
+                <div class="fm-actions">
+                {% if folder.editable %}
+                  {% if can_change %}
+                  <button type="button" class="fm-action" data-fm-rename title="{{ labels.rename }}" aria-label="{{ labels.rename }}"><i class="fas fa-pen" aria-hidden="true"></i></button>
+                  <button type="button" class="fm-action" data-fm-move title="{{ labels.move }}" aria-label="{{ labels.move }}"><i class="fas fa-right-left" aria-hidden="true"></i></button>
+                  {% endif %}
+                  {% if can_delete and not folder.file_count %}
+                  <button type="button" class="fm-action fm-action-danger" data-fm-delete title="{{ labels.delete }}" aria-label="{{ labels.delete }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                  {% endif %}
+                {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+            {% for file in files %}
+            <tr class="fm-row fm-row-file" data-path="{{ file.path }}" data-name="{{ file.name }}"
+                data-links="{% for ref in file.references %}{% if ref.via != 'field' %}{{ ref.label }}&#10;{% endif %}{% endfor %}"
+                data-path-links="{% for ref in file.references %}{% if ref.via == 'path' %}{{ ref.label }}&#10;{% endif %}{% endfor %}">
+              <td class="fm-col-check">{% if can_delete and not file.field_references %}<input type="checkbox" data-fm-select value="{{ file.path }}" aria-label="{{ file.name }}">{% endif %}</td>
+              <td class="fm-col-thumb">
+                {% if file.kind == 'image' %}
+                <a href="{% url 'admin:mediafile-file-raw' %}?path={{ file.path|urlencode }}&amp;inline=1" target="_blank" rel="noopener" class="fm-thumb">
+                  <img src="{% url 'admin:mediafile-file-raw' %}?path={{ file.path|urlencode }}&amp;inline=1" alt="" loading="lazy">
+                </a>
+                {% else %}
+                <span class="fm-icon fm-icon-{{ file.kind }}"><i class="fas {% if file.kind == 'pdf' %}fa-file-pdf{% elif file.kind == 'document' %}fa-file-lines{% elif file.kind == 'archive' %}fa-file-zipper{% elif file.kind == 'audio' %}fa-file-audio{% elif file.kind == 'video' %}fa-file-video{% else %}fa-file{% endif %}" aria-hidden="true"></i></span>
+                {% endif %}
+              </td>
+              <td class="fm-col-name">
+                <span class="fm-name" title="{{ file.path }}">{{ file.name }}</span>
+                {% if mode != 'folder' %}<span class="fm-path-hint">{{ file.folder }}</span>{% endif %}
+                <span class="fm-badges">
+                  {% if file.private %}<span class="fm-badge fm-badge-private">{{ labels.private }}</span>{% endif %}
+                  {% if file.path|slice:":16" == "markdown_assets/" and not file.record %}<span class="fm-badge fm-badge-warn">{{ labels.unregistered }}</span>{% endif %}
+                  {% if file.record and not file.record.is_active %}<span class="fm-badge fm-badge-muted">{{ labels.inactive }}</span>{% endif %}
+                  {% if file.record and file.record.is_draft %}<span class="fm-badge fm-badge-warn">{{ labels.draft }}</span>{% endif %}
+                </span>
+                <div class="fm-used">
+                  {% for ref in file.references|slice:":3" %}
+                    <span class="fm-ref">{% if ref.url %}<a href="{{ ref.url }}">{{ ref.label }}</a>{% else %}{{ ref.label }}{% endif %}{% if ref.via == 'path' %} <span class="fm-muted">({{ labels.linked_path }})</span>{% elif ref.via == 'key' %} <span class="fm-muted">({{ labels.linked_key }})</span>{% endif %}</span>
+                  {% empty %}
+                    <span class="fm-badge fm-badge-muted">{{ labels.unused }}</span>
+                  {% endfor %}
+                  {% if file.references|length > 3 %}<span class="fm-muted">+{{ file.references|length|add:"-3" }}</span>{% endif %}
+                </div>
+              </td>
+              <td class="fm-col-size">{{ file.size|filesizeformat }}</td>
+              <td class="fm-col-modified">{{ file.modified|date:"Y-m-d H:i" }}</td>
+              <td class="fm-col-actions">
+                <div class="fm-actions">
+                  {% if file.preview %}
+                  <button type="button" class="fm-action" data-fm-preview title="{{ labels.preview }}" aria-label="{{ labels.preview }}"><i class="fas fa-eye" aria-hidden="true"></i></button>
+                  {% else %}
+                  <span class="fm-action is-disabled" aria-hidden="true"><i class="fas fa-eye-slash"></i></span>
+                  {% endif %}
+                  {% if file.editable and can_change %}
+                  <button type="button" class="fm-action" data-fm-edit title="{{ labels.edit }}" aria-label="{{ labels.edit }}"><i class="fas fa-pen" aria-hidden="true"></i></button>
+                  {% else %}
+                  <button type="button" class="fm-action" data-fm-edit="info" title="{{ labels.details }}" aria-label="{{ labels.details }}"><i class="fas fa-circle-info" aria-hidden="true"></i></button>
+                  {% endif %}
+                  {% if file.public_url %}
+                  <button type="button" class="fm-action" data-fm-copy="{{ file.public_url }}" data-fm-absolute title="{{ labels.copy_link }}" aria-label="{{ labels.copy_link }}"><i class="fas fa-link" aria-hidden="true"></i></button>
+                  {% else %}
+                  <span class="fm-action is-disabled" aria-hidden="true"><i class="fas fa-link-slash"></i></span>
+                  {% endif %}
+                  {% if can_delete %}
+                    {% if file.field_references %}
+                    <span class="fm-action is-disabled" title="{{ labels.cannot_delete }}" aria-label="{{ labels.cannot_delete }}"><i class="fas fa-trash" aria-hidden="true"></i></span>
+                    {% else %}
+                    <button type="button" class="fm-action fm-action-danger" data-fm-delete title="{{ labels.delete }}" aria-label="{{ labels.delete }}"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                    {% endif %}
+                  {% endif %}
+                  <div class="fm-more">
+                    <button type="button" class="fm-action" data-fm-more title="{{ labels.more }}" aria-label="{{ labels.more }}" aria-haspopup="true" aria-expanded="false"><i class="fas fa-ellipsis" aria-hidden="true"></i></button>
+                    <div class="fm-menu" role="menu" hidden>
+                      {% if file.public_url %}
+                      <button type="button" role="menuitem" data-fm-copy="{{ file.markdown }}"><i class="fab fa-markdown" aria-hidden="true"></i> {{ labels.copy_markdown }}</button>
+                      {% endif %}
+                      <a role="menuitem" href="{% url 'admin:mediafile-file-raw' %}?path={{ file.path|urlencode }}" download><i class="fas fa-download" aria-hidden="true"></i> {{ labels.download }}</a>
+                      {% if file.editable %}
+                        {% if not file.record and can_add %}
+                        <button type="button" role="menuitem" data-fm-register><i class="fas fa-globe" aria-hidden="true"></i> {{ labels.publish }}</button>
+                        {% endif %}
+                        {% if can_change %}
+                        <button type="button" role="menuitem" data-fm-move><i class="fas fa-right-left" aria-hidden="true"></i> {{ labels.move }}</button>
+                        {% endif %}
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="fm-empty">
+        {% if mode == 'folder' and current %}
+        <p><a href="?{% if parent %}path={{ parent|urlencode }}{% endif %}">&larr; {{ labels.up }}</a></p>
+        {% endif %}
+        <p>{% if mode == 'folder' and current_filter == 'all' %}{{ labels.empty }}{% else %}{{ labels.no_results }}{% endif %}</p>
+      </div>
+      {% endif %}
+    </section>
+  </div>
+
+  <form method="post" action="{% url 'admin:mediafile-file-action' %}" data-fm-action-form hidden>
+    {% csrf_token %}
+    <input type="hidden" name="action">
+    <input type="hidden" name="path">
+    <input type="hidden" name="name">
+    <input type="hidden" name="dest">
+    <input type="hidden" name="folder" value="{{ current }}">
+    <input type="hidden" name="force">
+    <input type="hidden" name="title">
+    <input type="hidden" name="is_active">
+    <input type="hidden" name="is_draft">
+    <input type="hidden" name="return_path" value="{{ current }}">
+    <input type="hidden" name="q" value="{{ q }}">
+    <input type="hidden" name="filter" value="{{ current_filter }}">
+    <input type="hidden" name="sort" value="{{ sort }}">
+    <div data-fm-paths></div>
+  </form>
+</div>
+<script src="{% static 'js/admin/file_manager.js' %}?v={{ app_version }}.2"></script>
+{% endblock %}

@@ -73,6 +73,14 @@ class Profile(models.Model):
     researchgate_url = models.URLField(blank=True, help_text="ResearchGate Profile URL")
     linkedin_url = models.URLField(blank=True, help_text="LinkedIn Profile URL")
     
+    # API credentials (per profile; edited next to each platform's ID in the admin)
+    orcid_client_id = models.CharField(_('ORCID Client ID'), max_length=200, blank=True, default='')
+    orcid_client_secret = models.CharField(_('ORCID Client Secret'), max_length=255, blank=True, default='')
+    orcid_access_token = models.CharField(_('ORCID Access Token'), max_length=255, blank=True, default='')
+    orcid_authorized_at = models.DateTimeField(_('ORCID Authorized At'), null=True, blank=True)
+    github_token = models.CharField(_('GitHub Token'), max_length=255, blank=True, default='')
+    linkedin_token = models.CharField(_('LinkedIn Token'), max_length=1000, blank=True, default='')
+
     # 自动同步设置
     auto_sync_orcid = models.BooleanField(default=False, help_text=_("Automatically sync publications from ORCID"))
     auto_sync_google_scholar = models.BooleanField(default=False, help_text=_("Automatically sync publications from Google Scholar"))
@@ -422,14 +430,8 @@ class SystemConfig(models.Model):
     CATEGORY_CHOICES = [
         ('enable_chinese', _('Enable Chinese')),
         ('cards_per_page', _('Cards Per Page')),
-        ('orcid_client_id', _('ORCID Client ID')),
-        ('orcid_client_secret', _('ORCID Client Secret')),
-        ('orcid_access_token', _('ORCID Access Token')),
         ('scholar_proxy', _('Google Scholar Proxy')),
         ('sync_interval', _('Sync Interval')),
-        ('github_token', _('GitHub Token')),
-        ('researchgate_token', _('ResearchGate Token')),
-        ('linkedin_token', _('LinkedIn Token')),
         ('highlighted_authors', _('Highlighted Authors')),
         ('footer_items', _('Footer Items')),
         ('resource_log_retention_hours', _('Resource Log Retention Hours')),
@@ -454,14 +456,8 @@ class SystemConfig(models.Model):
             zh_labels = {
                 'enable_chinese': '启用中文',
                 'cards_per_page': '每页卡片数',
-                'orcid_client_id': 'ORCID Client ID',
-                'orcid_client_secret': 'ORCID Client Secret',
-                'orcid_access_token': 'ORCID Access Token',
                 'scholar_proxy': 'Google Scholar 代理',
                 'sync_interval': '同步间隔',
-                'github_token': 'GitHub 令牌',
-                'researchgate_token': 'ResearchGate 令牌',
-                'linkedin_token': 'LinkedIn 令牌',
                 'highlighted_authors': '高亮作者',
                 'footer_items': '页脚显示项',
                 'resource_log_retention_hours': '\u8d44\u6e90\u76d1\u63a7\u65e5\u5fd7\u4fdd\u7559\u65f6\u957f',
@@ -508,49 +504,9 @@ class SystemConfig(models.Model):
         return int(cls.get_sync_interval_hours() * 3600)
 
     @classmethod
-    def get_orcid_token(cls):
-        """Get ORCID access token"""
-        return cls.get_value('orcid_access_token', '')
-
-    @classmethod
     def get_scholar_proxy(cls):
         """Get Google Scholar proxy"""
         return cls.get_value('scholar_proxy', '')
-
-    @classmethod
-    def migrate_old_configs(cls):
-        """迁移旧配置"""
-        old_configs = {
-            'orcid_client_id': ('orcid', 'client_id'),
-            'orcid_client_secret': ('orcid', 'client_secret'),
-            'orcid_access_token': ('orcid', 'access_token'),
-            'google_scholar_proxy': ('scholar', 'proxy'),
-            'sync_interval': ('sync', 'interval'),
-        }
-
-        for old_category, (new_category, name) in old_configs.items():
-            try:
-                old_config = cls.objects.get(category=old_category)
-                cls.set_value(
-                    category=new_category,
-                    value=old_config.value,
-                    description=old_config.description
-                )
-                old_config.delete()
-            except cls.DoesNotExist:
-                pass
-
-    @classmethod
-    def get_github_token(cls):
-        return cls.get_value('github_token', '')
-
-    @classmethod
-    def get_researchgate_token(cls):
-        return cls.get_value('researchgate_token', '')
-
-    @classmethod
-    def get_linkedin_token(cls):
-        return cls.get_value('linkedin_token', '')
 
     @classmethod
     def get_highlighted_authors(cls):

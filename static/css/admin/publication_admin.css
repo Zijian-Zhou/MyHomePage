@@ -135,65 +135,190 @@
     background-color: var(--form-field-bg, var(--body-bg));
 }
 
-/* Modal styles */
-.modal {
-    display: none;
+/* BibTeX import dialog: same look as the other admin dialogs (theme variables, so
+   light and dark mode both apply). */
+#import-bibtex-modal.modal {
     position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.4);
+    inset: 0;
+    z-index: 1400;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(15, 23, 42, 0.45);
     overflow-y: auto;
 }
 
-.modal-content {
-    background-color: #fefefe;
-    margin: 5% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 800px;
-    border-radius: 4px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    position: relative;
-    max-height: 90vh;
+#import-bibtex-modal .modal-content {
     display: flex;
     flex-direction: column;
+    width: min(680px, 100%);
+    max-height: calc(100vh - 32px);
+    margin: auto;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--hairline-color);
+    border-radius: 12px;
+    background: var(--body-bg);
+    color: var(--body-fg);
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.3);
 }
 
-.modal-header {
+#import-bibtex-modal .modal-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--hairline-color);
     flex-shrink: 0;
 }
 
-.modal-header h2 {
+#import-bibtex-modal .modal-header h2 {
     margin: 0;
-    color: #417690;
+    padding: 0;
+    background: none;
+    color: var(--body-fg);
+    font-size: 17px;
+    font-weight: 600;
+    text-transform: none;
 }
 
-.close {
-    color: #aaa;
-    font-size: 28px;
-    font-weight: bold;
+#import-bibtex-modal .close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--body-quiet-color);
+    font-size: 22px;
+    line-height: 1;
     cursor: pointer;
-    padding: 0 5px;
 }
 
-.close:hover {
-    color: black;
+#import-bibtex-modal .close:hover {
+    background: var(--darkened-bg);
+    color: var(--body-fg);
 }
 
-.modal-body {
-    flex: 1;
+#import-bibtex-modal .modal-body {
+    flex: 1 1 auto;
     overflow-y: auto;
-    padding-right: 10px;
+    padding: 20px;
+}
+
+.bibtex-dropzone {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 18px 16px;
+    border: 2px dashed var(--hairline-color);
+    border-radius: 10px;
+    background: var(--darkened-bg);
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.bibtex-dropzone:hover,
+.bibtex-dropzone.is-dragover {
+    border-color: var(--primary);
+    background: var(--selected-bg);
+}
+
+.bibtex-dropzone input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.bibtex-dropzone-icon {
+    font-size: 22px;
+    color: var(--primary);
+}
+
+.bibtex-dropzone-title {
+    font-weight: 600;
+}
+
+.bibtex-dropzone-file {
+    color: var(--primary);
+    font-size: 12px;
+    word-break: break-all;
+}
+
+.bibtex-dropzone-file:empty {
+    display: none;
+}
+
+.bibtex-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 14px 0;
+    color: var(--body-quiet-color);
+    font-size: 12px;
+}
+
+.bibtex-divider::before,
+.bibtex-divider::after {
+    content: "";
+    flex: 1 1 auto;
+    border-top: 1px solid var(--hairline-color);
+}
+
+#import-bibtex-modal .bibtex-label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+#import-bibtex-modal textarea {
+    display: block;
+    width: 100%;
+    min-height: 200px;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12.5px;
+    line-height: 1.55;
+    resize: vertical;
+}
+
+.bibtex-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+#container #import-bibtex-modal .bibtex-actions .button,
+#container #import-bibtex-modal .bibtex-actions input[type="submit"] {
+    height: 34px;
+    margin: 0;
+    padding: 0 18px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+#container #import-bibtex-modal .bibtex-cancel {
+    border: 1px solid var(--hairline-color);
+    background: var(--darkened-bg);
+    color: var(--body-fg);
+}
+
+#container #import-bibtex-modal .bibtex-cancel:hover {
+    background: var(--selected-bg);
 }
 
 .form-row {

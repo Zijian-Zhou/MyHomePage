@@ -27,25 +27,33 @@ def _request_without_env_proxy(method, url, **kwargs):
     return session.request(method, url, **kwargs)
 
 
+# Session key holding the pending ORCID authorization (state + profile id).
+ORCID_OAUTH_SESSION_KEY = 'orcid_oauth'
+
+
 class ORCIDOAuth:
-    """ORCID OAuth 认证处理"""
-    
-    def __init__(self):
-        self.client_id = SystemConfig.get_value('orcid_client_id')
-        self.client_secret = SystemConfig.get_value('orcid_client_secret')
+    """ORCID OAuth for one profile (credentials live on the Profile)."""
+
+    def __init__(self, profile):
+        self.client_id = (profile.orcid_client_id or '').strip()
+        self.client_secret = (profile.orcid_client_secret or '').strip()
         if not self.client_id or not self.client_secret:
-            raise ValueError(_('ORCID Client ID and Client Secret must be configured first'))
+            raise ValueError(_msg(
+                'Fill in the ORCID Client ID and Client Secret on this profile (below its ORCID ID) first.',
+                '请先在此个人资料中（ORCID ID 下方）填写 ORCID Client ID 和 Client Secret。',
+            ))
         self.base_url = 'https://orcid.org'
         self.token_url = f'{self.base_url}/oauth/token'
         logger.info('ORCIDOAuth initialized with client_id: %s', self.client_id)
     
-    def get_authorization_url(self, redirect_uri):
-        """获取授权 URL"""
+    def get_authorization_url(self, redirect_uri, state):
+        """Authorization URL; `state` is checked again in the callback."""
         params = {
             'client_id': self.client_id,
             'response_type': 'code',
             'scope': '/authenticate',
             'redirect_uri': redirect_uri,
+            'state': state,
         }
         auth_url = f'{self.base_url}/oauth/authorize?{urlencode(params)}'
         logger.info('Generated authorization URL: %s', auth_url)
@@ -82,11 +90,14 @@ class ORCIDService:
     """ORCID API服务"""
     BASE_URL = "https://pub.orcid.org/v3.0"
     
-    def __init__(self, orcid_id):
+    def __init__(self, orcid_id, access_token):
         self.orcid_id = orcid_id
-        self.access_token = SystemConfig.get_orcid_token()
+        self.access_token = (access_token or '').strip()
         if not self.access_token:
-            error_msg = _("ORCID access token not configured. Please complete OAuth authorization first by clicking the 'Authorize ORCID' button in the system configuration page.")
+            error_msg = _msg(
+                'ORCID access token not configured. Open this profile and click "Authorize ORCID" below its ORCID ID.',
+                '尚未配置 ORCID 访问令牌。请打开此个人资料，点击 ORCID ID 下方的“授权 ORCID”。',
+            )
             logger.error(error_msg)
             raise ValueError(error_msg)
             
@@ -644,7 +655,7 @@ def sync_publications(profile):
     # 同步ORCID出版物
     if profile.auto_sync_orcid and profile.orcid_id:
         try:
-            orcid_service = ORCIDService(profile.orcid_id)
+            orcid_service = ORCIDService(profile.orcid_id, profile.orcid_access_token)
             imported = orcid_service.sync_publications(profile)
             # 获取所有ORCID出版物
             orcid_pubs = Publication.objects.filter(bibtex_key__startswith='orcid_')

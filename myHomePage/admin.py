@@ -14,7 +14,11 @@ from .models import Profile, Publication, PublicationFile, Research, SystemConfi
 from .models import footer_icon_type, is_safe_footer_href
 from .models import AuditLog
 from . import audit
+from . import file_manager as fm
+from urllib.parse import urlencode
 from .services import sync_publications, ORCIDService, GoogleScholarService, ORCIDOAuth, deduplicate_publications
+from .services import ORCID_OAUTH_SESSION_KEY
+import secrets
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.admin.sites import AdminSite
 from django.template.response import TemplateResponse
@@ -85,14 +89,8 @@ def _category_label_map():
         return {
             'enable_chinese': '启用中文',
             'cards_per_page': '每页卡片数',
-            'orcid_client_id': 'ORCID Client ID',
-            'orcid_client_secret': 'ORCID Client Secret',
-            'orcid_access_token': 'ORCID Access Token',
             'scholar_proxy': 'Google Scholar 代理',
             'sync_interval': '同步间隔',
-            'github_token': 'GitHub 令牌',
-            'researchgate_token': 'ResearchGate 令牌',
-            'linkedin_token': 'LinkedIn 令牌',
             'highlighted_authors': '高亮作者',
             'footer_items': '页脚显示项',
             'resource_log_retention_hours': '\u8d44\u6e90\u76d1\u63a7\u65e5\u5fd7\u4fdd\u7559\u65f6\u957f',
@@ -101,14 +99,8 @@ def _category_label_map():
     return {
         'enable_chinese': _('Enable Chinese'),
         'cards_per_page': _('Cards Per Page'),
-        'orcid_client_id': _('ORCID Client ID'),
-        'orcid_client_secret': _('ORCID Client Secret'),
-        'orcid_access_token': _('ORCID Access Token'),
         'scholar_proxy': _('Google Scholar Proxy'),
         'sync_interval': _('Sync Interval'),
-        'github_token': _('GitHub Token'),
-        'researchgate_token': _('ResearchGate Token'),
-        'linkedin_token': _('LinkedIn Token'),
         'highlighted_authors': _('Highlighted Authors'),
         'footer_items': _('Footer Items'),
         'resource_log_retention_hours': _('Resource Log Retention Hours'),
@@ -269,6 +261,28 @@ def _apply_zh_field_labels(form, label_map):
     for field_name, label in label_map.items():
         if field_name in form.base_fields:
             form.base_fields[field_name].label = label
+    return form
+
+
+def _mark_detail_content(form, en_field, zh_field):
+    """Label a detail-page Markdown field pair "Detail Content" and give it a Preview button
+    (static/js/admin/markdown_preview.js picks up textareas with data-markdown-preview)."""
+    zh = _is_zh_mode()
+    labels = {
+        en_field: '详情内容' if zh else 'Detail Content',
+        zh_field: '详情内容（中文）' if zh else 'Detail Content (Chinese)',
+    }
+    help_text = (
+        '详情页显示的内容，支持 Markdown，可使用文件管理中复制的链接。' if zh
+        else 'Shown on the detail page. Markdown is supported; links copied from File Manager can be used.'
+    )
+    for name, label in labels.items():
+        field = form.base_fields.get(name)
+        if field is None:
+            continue
+        field.label = label
+        field.help_text = help_text
+        field.widget.attrs['data-markdown-preview'] = '1'
     return form
 
 
@@ -1280,7 +1294,7 @@ class CustomAdminSite(AdminSite):
             'aiconfig': _('AI Configurations'),
             'news': _('News'),
             'section': _('Custom Sections'),
-            'mediafile': _('Media Files'),
+            'mediafile': '文件管理' if _is_zh_mode() else 'File Manager',
             'auditlog': '日志审计' if _is_zh_mode() else 'Audit Logs',
         }
 
@@ -1379,12 +1393,127 @@ class BaseAdmin(admin.ModelAdmin):
     # second time after theme.css (overriding it) and created a duplicate theme toggle.
     pass
 
+
+class _SecretInput(forms.PasswordInput):
+    """Password box that never renders the stored value, followed by a "Clear" checkbox
+    (named <field>__clear) when a value is saved."""
+
+    def __init__(self, saved=False, clear_label='Clear', attrs=None):
+        super().__init__(attrs=attrs, render_value=False)
+        self.saved = saved
+        self.clear_label = clear_label
+
+    def render(self, name, value, attrs=None, renderer=None):
+        box = super().render(name, value, attrs, renderer)
+        if not self.saved:
+            return box
+        return format_html(
+            '<span class="secret-input">{}<label class="secret-clear">'
+            '<input type="checkbox" name="{}__clear" value="1"> {}</label></span>',
+            box, name, self.clear_label,
+        )
+
+
+class _SecretField(forms.CharField):
+    """A credential input that never renders the stored value.
+
+    Left blank it keeps the saved value (so it does not count as a change); the
+    matching "Clear" checkbox empties it.
+    """
+
+    def has_changed(self, initial, data):
+        return bool((data or '').strip()) and (data or '').strip() != (initial or '')
+
+
+class ProfileAdminForm(forms.ModelForm):
+    SECRET_FIELDS = ('orcid_client_secret', 'orcid_access_token', 'github_token', 'linkedin_token')
+
+    class Meta:
+        model = Profile
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        zh = _is_zh_mode()
+        labels = {
+            'orcid_id': ('ORCID ID', 'ORCID ID'),
+            'google_scholar_id': ('Google Scholar ID', 'Google Scholar ID'),
+            'github_username': ('GitHub Username', 'GitHub 用户名'),
+            'linkedin_url': ('LinkedIn URL', 'LinkedIn 链接'),
+            'researchgate_url': ('ResearchGate URL', 'ResearchGate 链接'),
+            'auto_sync_orcid': ('Auto-sync ORCID', '自动同步 ORCID'),
+            'auto_sync_google_scholar': ('Auto-sync Google Scholar', '自动同步 Google Scholar'),
+            'orcid_client_id': ('ORCID Client ID', 'ORCID Client ID'),
+            'orcid_client_secret': ('ORCID Client Secret', 'ORCID Client Secret'),
+            'orcid_access_token': ('ORCID Access Token', 'ORCID 访问令牌'),
+            'github_token': ('GitHub Token', 'GitHub 令牌'),
+            'linkedin_token': ('LinkedIn Token', 'LinkedIn 令牌'),
+        }
+        helps = {
+            'orcid_client_id': (
+                'From ORCID Developer Tools (orcid.org > Developer tools). Register the redirect URI shown below.',
+                '在 ORCID 开发者工具（orcid.org > Developer tools）中获取，并登记下方显示的回调地址。',
+            ),
+            'orcid_access_token': (
+                'Filled in by "Authorize ORCID"; can also be pasted manually.',
+                '点击“授权 ORCID”后自动填入，也可以手动粘贴。',
+            ),
+            'github_token': (
+                'Optional. A read-only fine-grained personal access token (public repositories), for GitHub features.',
+                '可选。只读的细粒度个人访问令牌（公开仓库即可），供 GitHub 相关功能使用。',
+            ),
+            'linkedin_token': (
+                'Optional. Reserved for LinkedIn features; LinkedIn member tokens usually expire after 60 days.',
+                '可选。预留给 LinkedIn 相关功能；LinkedIn 个人令牌通常 60 天后过期。',
+            ),
+        }
+        for name, (en, zh_label) in labels.items():
+            if name in self.fields:
+                self.fields[name].label = zh_label if zh else en
+                if name in helps:
+                    self.fields[name].help_text = helps[name][1] if zh else helps[name][0]
+        for name in self.SECRET_FIELDS:
+            if name not in self.fields:
+                continue
+            old = self.fields[name]
+            saved = bool(getattr(self.instance, name, ''))
+            placeholder = ('已保存，留空则保持不变' if zh else 'Saved - leave blank to keep') if saved else ''
+            self.fields[name] = _SecretField(
+                required=False,
+                max_length=old.max_length,
+                label=old.label,
+                help_text=old.help_text,
+                widget=_SecretInput(saved=saved, clear_label='清除' if zh else 'Clear', attrs={
+                    'autocomplete': 'new-password', 'class': 'vTextField', 'placeholder': placeholder,
+                }),
+            )
+
+    def clean(self):
+        data = super().clean()
+        for name in self.SECRET_FIELDS:
+            if name not in self.fields:
+                continue
+            saved = getattr(self.instance, name, '') or ''
+            typed = (data.get(name) or '').strip()
+            if self.data.get(self.add_prefix(name) + '__clear'):
+                data[name] = ''
+            elif typed:
+                data[name] = typed
+            else:
+                data[name] = saved
+            if name == 'orcid_access_token' and data[name] != saved:
+                self.instance.orcid_authorized_at = timezone.now() if data[name] else None
+        return data
+
+
 @admin.register(Profile)
 class ProfileAdmin(DraftSaveMixin, BaseAdmin):
     list_display = ('get_admin_display_name', 'orcid_link', 'google_scholar_link', 'sync_status', 'actions_column')
     list_filter = ('auto_sync_orcid', 'auto_sync_google_scholar', 'is_draft')
     search_fields = ('user__username', 'orcid_id', 'google_scholar_id')
     actions = ['sync_selected']
+    form = ProfileAdminForm
+    readonly_fields = ('orcid_authorization',)
     
     class Media:
         css = {
@@ -1397,6 +1526,72 @@ class ProfileAdmin(DraftSaveMixin, BaseAdmin):
         if SystemConfig.is_chinese_enabled():
             return fields
         return tuple(f for f in fields if f not in ('bio_zh', 'address_zh'))
+
+    # ---------------------------------------------------------- platforms & credentials
+    # Each platform's credentials sit right after its ID / link, followed by its
+    # auto-sync switch, instead of in a separate group at the bottom.
+    PLATFORM_FIELDS = (
+        'orcid_id', 'orcid_client_id', 'orcid_client_secret', 'orcid_access_token',
+        'orcid_authorization', 'auto_sync_orcid',
+        'google_scholar_id', 'auto_sync_google_scholar',
+        'github_username', 'github_token',
+        'linkedin_url', 'linkedin_token',
+        'researchgate_url',
+    )
+
+    def get_fieldsets(self, request, obj=None):
+        fields = [f for f in self.get_fields(request, obj) if f != 'orcid_authorized_at']
+        platform = [f for f in self.PLATFORM_FIELDS if f in fields]
+        rest = [f for f in fields if f not in self.PLATFORM_FIELDS]
+        anchor = len(rest)
+        for name in ('address_zh', 'address', 'phone', 'email'):
+            if name in rest:
+                anchor = rest.index(name) + 1
+                break
+        return [(None, {'fields': rest[:anchor] + platform + rest[anchor:]})]
+
+    def orcid_authorization(self, obj):
+        zh = _is_zh_mode()
+        if not obj or not obj.pk:
+            return '保存个人资料后即可授权。' if zh else 'Save the profile first, then authorize.'
+        request = audit.current_request()
+        callback = request.build_absolute_uri('/orcid/callback/') if request else '/orcid/callback/'
+        if obj.orcid_access_token:
+            when = timezone.localtime(obj.orcid_authorized_at).strftime('%Y-%m-%d %H:%M') if obj.orcid_authorized_at else ''
+            status = format_html('<span class="profile-orcid-ok">{}</span>',
+                                 ('已授权 {}' if zh else 'Authorized {}').format(when).strip())
+            button = '重新授权' if zh else 'Re-authorize'
+        else:
+            status = format_html('<span class="profile-orcid-missing">{}</span>', '未授权' if zh else 'Not authorized')
+            button = '授权 ORCID' if zh else 'Authorize ORCID'
+        return format_html(
+            '<div class="profile-orcid-auth">{}<a class="button" href="{}">{}</a></div>'
+            '<div class="profile-orcid-callback">{} <code>{}</code></div>',
+            status,
+            reverse('admin:myHomePage_profile_orcid_authorize', args=[obj.pk]),
+            button,
+            '在 ORCID 开发者工具中登记的回调地址：' if zh else 'Redirect URI to register in ORCID Developer Tools:',
+            callback,
+        )
+    orcid_authorization.short_description = _bilingual_label('ORCID Authorization', 'ORCID 授权')
+
+    def orcid_authorize(self, request, pk):
+        """Start ORCID OAuth for this profile; the callback stores the token on it."""
+        profile = self.get_object(request, str(pk))
+        if profile is None:
+            raise Http404
+        if not self.has_change_permission(request, profile):
+            raise PermissionDenied
+        change_url = reverse('admin:myHomePage_profile_change', args=[profile.pk])
+        try:
+            oauth = ORCIDOAuth(profile)
+        except ValueError as exc:
+            messages.error(request, str(exc))
+            return redirect(change_url)
+        state = secrets.token_urlsafe(32)
+        request.session[ORCID_OAUTH_SESSION_KEY] = {'state': state, 'profile_id': profile.pk}
+        # Language-neutral callback URL; it must match the one registered at ORCID.
+        return redirect(oauth.get_authorization_url(request.build_absolute_uri('/orcid/callback/'), state))
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
@@ -1445,6 +1640,8 @@ class ProfileAdmin(DraftSaveMixin, BaseAdmin):
         urls = super().get_urls()
         custom_urls = [
             path('preview-bio/', self.admin_site.admin_view(self.preview_bio), name='profile-preview-bio'),
+            path('<int:pk>/orcid-authorize/', self.admin_site.admin_view(self.orcid_authorize),
+                 name='myHomePage_profile_orcid_authorize'),
             path('sync/<int:profile_id>/', self.admin_site.admin_view(self.sync_publications), name='sync-publications'),
         ]
         return custom_urls + urls
@@ -1478,7 +1675,7 @@ class ProfileAdmin(DraftSaveMixin, BaseAdmin):
             # 同步 ORCID 出版物
             if profile.orcid_id:
                 try:
-                    orcid_service = ORCIDService(profile.orcid_id)
+                    orcid_service = ORCIDService(profile.orcid_id, profile.orcid_access_token)
                     imported_count += orcid_service.sync_publications(profile)
                 except Exception as e:
                     error_msg = _('ORCID sync failed: %(error)s') % {'error': str(e)}
@@ -1583,14 +1780,20 @@ class ProfileAdmin(DraftSaveMixin, BaseAdmin):
     sync_status.short_description = _('Sync Status')
     
     def actions_column(self, obj):
-        if not (obj.orcid_id or obj.google_scholar_id):
-            return format_html('<span class="sync-button disabled">{}</span>', _('Not configured'))
-        
-        return format_html(
-            '<a href="{}" class="sync-button">{}</a>',
-            reverse('admin:sync-publications', args=[obj.id]),
-            _('Sync now')
+        edit = format_html(
+            '<a href="{}" class="profile-edit-button"><i class="fas fa-pen" aria-hidden="true"></i> {}</a>',
+            reverse('admin:myHomePage_profile_change', args=[obj.id]),
+            '编辑' if _is_zh_mode() else 'Edit',
         )
+        if not (obj.orcid_id or obj.google_scholar_id):
+            sync = format_html('<span class="sync-button disabled">{}</span>', _('Not configured'))
+        else:
+            sync = format_html(
+                '<a href="{}" class="sync-button">{}</a>',
+                reverse('admin:sync-publications', args=[obj.id]),
+                _('Sync now')
+            )
+        return format_html('<div class="profile-actions">{}{}</div>', edit, sync)
     
     actions_column.short_description = _('Actions')
     
@@ -1615,7 +1818,7 @@ class ProfileAdmin(DraftSaveMixin, BaseAdmin):
                 
                 # 同步 ORCID 出版物
                 if profile.orcid_id:
-                    orcid_service = ORCIDService(profile.orcid_id)
+                    orcid_service = ORCIDService(profile.orcid_id, profile.orcid_access_token)
                     imported_count += orcid_service.sync_publications(profile)
                 
                 # 同步 Google Scholar 出版物
@@ -2236,13 +2439,11 @@ class ResearchAdmin(DraftSaveMixin, BaseAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
-        return _apply_zh_field_labels(form, {
+        form = _apply_zh_field_labels(form, {
             'title': '\u6807\u9898',
             'title_zh': '\u6807\u9898\uff08\u4e2d\u6587\uff09',
             'summary': '\u6458\u8981',
             'summary_zh': '\u6458\u8981\uff08\u4e2d\u6587\uff09',
-            'description': '\u63cf\u8ff0',
-            'description_zh': '\u63cf\u8ff0\uff08\u4e2d\u6587\uff09',
             'enable_detail': '\u5f00\u542f\u8be6\u60c5\u9875',
             'start_date': '\u5f00\u59cb\u65f6\u95f4',
             'end_date': '\u7ed3\u675f\u65f6\u95f4',
@@ -2252,12 +2453,16 @@ class ResearchAdmin(DraftSaveMixin, BaseAdmin):
             'is_draft': '\u8349\u7a3f',
             'order': '\u6392\u5e8f',
         })
+        return _mark_detail_content(form, 'description', 'description_zh')
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super().get_fieldsets(request, obj)
         if not SystemConfig.is_chinese_enabled():
             return _strip_zh_fields(fieldsets)
         return fieldsets
+
+    class Media:
+        js = (_static_v('js/admin/markdown_preview.js'),)
 
 @admin.register(SystemConfig)
 class SystemConfigAdmin(admin.ModelAdmin):
@@ -2399,7 +2604,6 @@ class SystemConfigAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            path('orcid-authorize/', self.admin_site.admin_view(self.orcid_authorize), name='orcid-authorize'),
             path('footer-icon-upload/', self.admin_site.admin_view(self.footer_icon_upload), name='systemconfig-footer-icon-upload'),
         ]
         return custom_urls + urls
@@ -2453,23 +2657,8 @@ class SystemConfigAdmin(admin.ModelAdmin):
             'title': media_file.title,
         })
     
-    def orcid_authorize(self, request):
-        """触发 ORCID OAuth 授权"""
-        try:
-            oauth = ORCIDOAuth()
-            # 使用不带语言前缀的回调 URL
-            redirect_uri = request.build_absolute_uri('/orcid/callback/')
-            auth_url = oauth.get_authorization_url(redirect_uri)
-            logger.info('Redirecting to ORCID authorization URL: %s', auth_url)
-            return redirect(auth_url)
-        except ValueError as e:
-            self.message_user(request, str(e), level=messages.ERROR)
-            return redirect('admin:myHomePage_systemconfig_changelist')
-    
     def changelist_view(self, request, extra_context=None):
         self._ensure_config_entries()
-        extra_context = extra_context or {}
-        extra_context['show_orcid_auth'] = True
         return super().changelist_view(request, extra_context=extra_context)
 
     def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
@@ -2668,19 +2857,21 @@ class NewsAdmin(DraftSaveMixin, BaseAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
-        return _apply_zh_field_labels(form, {
+        form = _apply_zh_field_labels(form, {
             'title': '标题',
             'title_zh': '标题（中文）',
             'summary': '\u6458\u8981',
             'summary_zh': '\u6458\u8981\uff08\u4e2d\u6587\uff09',
-            'content': '内容',
-            'content_zh': '内容（中文）',
             'enable_detail': '\u5f00\u542f\u8be6\u60c5\u9875',
             'image': '图片',
             'is_active': '启用',
             'is_draft': '草稿',
             'order': '排序',
         })
+        return _mark_detail_content(form, 'content', 'content_zh')
+
+    class Media:
+        js = (_static_v('js/admin/markdown_preview.js'),)
 
 
 
@@ -2834,6 +3025,373 @@ class MediaFileAdmin(DraftSaveMixin, BaseAdmin):
             'is_active': '启用',
             'is_draft': '草稿',
         })
+
+    # ------------------------------------------------------------ file manager
+    # The changelist is replaced by a file manager over MEDIA_ROOT (myHomePage/file_manager.py).
+    # The add/change forms stay available for a record's title and Active/Draft flags.
+
+    FM_SORTS = ('name', '-name', 'size', '-size', 'modified', '-modified')
+    FM_FILTERS = ('all', 'image', 'document', 'unused')
+
+    def get_urls(self):
+        custom = [
+            path('files/action/', self.admin_site.admin_view(self.file_action), name='mediafile-file-action'),
+            path('files/raw/', self.admin_site.admin_view(self.file_raw), name='mediafile-file-raw'),
+        ]
+        return custom + super().get_urls()
+
+    @staticmethod
+    def _fm_labels(zh):
+        pairs = {
+            'title': ('File Manager', '文件管理'),
+            'folders': ('Folders', '文件夹'),
+            'all_files': ('All media', '全部文件'),
+            'unused_files': ('Unused files', '未使用的文件'),
+            'total': ('Total', '合计'),
+            'files_unit': ('files', '个文件'),
+            'search_placeholder': ('Search all file names', '搜索所有文件名'),
+            'search': ('Search', '搜索'),
+            'clear': ('Clear', '清除'),
+            'filter_all': ('All', '全部'),
+            'filter_image': ('Images', '图片'),
+            'filter_document': ('Documents', '文档'),
+            'filter_unused': ('Unused', '未使用'),
+            'sort': ('Sort', '排序'),
+            'sort_name': ('Name A-Z', '名称 A-Z'),
+            'sort_-name': ('Name Z-A', '名称 Z-A'),
+            'sort_size': ('Smallest first', '从小到大'),
+            'sort_-size': ('Largest first', '从大到小'),
+            'sort_modified': ('Oldest first', '最早修改'),
+            'sort_-modified': ('Newest first', '最近修改'),
+            'new_folder': ('New Folder', '新建文件夹'),
+            'upload': ('Upload Files', '上传文件'),
+            'drop_title': ('Drop files here or click to choose', '拖拽文件到这里，或点击选择'),
+            'drop_hint': ('Images, PDF, Office documents, archives, audio and video; up to 50 MB each. HTML and SVG are not accepted.',
+                          '支持图片、PDF、Office 文档、压缩包、音视频，单个不超过 50 MB；不接受 HTML 和 SVG。'),
+            'readonly_note': ('Files in this folder are managed by their records. Files no record uses any more can be deleted here.',
+                              '此文件夹中的文件由对应的内容记录管理；不再被使用的文件可以在这里删除。'),
+            'private_note': ('Private folder: these files are only downloadable through their publication pages, never by direct link.',
+                             '私有文件夹：这些文件只能通过论文页面下载，不能直接链接访问。'),
+            'col_name': ('Name', '名称'),
+            'col_size': ('Size', '大小'),
+            'col_modified': ('Modified', '修改时间'),
+            'col_used_by': ('Used by', '使用位置'),
+            'col_actions': ('Actions', '操作'),
+            'unused': ('Unused', '未使用'),
+            'unregistered': ('Not published', '未发布'),
+            'inactive': ('Inactive', '未启用'),
+            'draft': ('Draft', '草稿'),
+            'private': ('Private', '私有'),
+            'linked_path': ('linked by path', '按路径链接'),
+            'linked_key': ('linked', '已链接'),
+            'copy_link': ('Copy link', '复制链接'),
+            'copy_markdown': ('Copy Markdown', '复制 Markdown'),
+            'copied': ('Copied', '已复制'),
+            'download': ('Download', '下载'),
+            'rename': ('Rename', '重命名'),
+            'move': ('Move', '移动'),
+            'details': ('Details', '详情'),
+            'publish': ('Publish', '发布'),
+            'delete': ('Delete', '删除'),
+            'delete_selected': ('Delete selected', '删除所选'),
+            'selected': ('selected', '项已选'),
+            'select_all': ('Select all', '全选'),
+            'empty': ('This folder is empty.', '此文件夹为空。'),
+            'no_results': ('No files match.', '没有匹配的文件。'),
+            'search_results': ('Search results for', '搜索结果：'),
+            'up': ('Parent folder', '上一级'),
+            'root': ('Media', '媒体根目录'),
+            'cancel': ('Cancel', '取消'),
+            'ok': ('OK', '确定'),
+            'folder_name': ('Folder name', '文件夹名称'),
+            'new_name': ('New name', '新名称'),
+            'move_to': ('Move to folder', '移动到文件夹'),
+            'confirm_delete': ('Delete {n} item(s)? This cannot be undone.', '确定删除 {n} 项吗？此操作无法撤销。'),
+            'confirm_links': ('These records link to it and the links will break:', '以下内容链接了它，删除后链接会失效：'),
+            'confirm_move_links': ('These records link to it by path; renaming or moving breaks those links:', '以下内容按路径链接了它，重命名或移动后链接会失效：'),
+            'cannot_delete': ('Used by a record; change it there first', '仍被内容记录使用，请先在记录中修改'),
+            'preview': ('Preview', '预览'),
+            'edit': ('Edit', '编辑'),
+            'more': ('More', '更多'),
+            'edit_title': ('Edit file', '编辑文件'),
+            'file_name': ('File name', '文件名'),
+            'title_label': ('Title', '标题'),
+            'title_hint': ('Used as the link text in Markdown snippets.', '用作 Markdown 片段中的链接文字。'),
+            'active_label': ('Active - the public link works', '启用 - 公开链接可以访问'),
+            'draft_label': ('Draft', '草稿'),
+            'info_path': ('Path', '路径'),
+            'info_type': ('Type', '类型'),
+            'info_size': ('Size', '大小'),
+            'info_modified': ('Modified', '修改时间'),
+            'info_dimensions': ('Dimensions', '尺寸'),
+            'info_used_by': ('Used by', '使用位置'),
+            'info_link': ('Public link', '公开链接'),
+            'none': ('None', '无'),
+            'save': ('Save', '保存'),
+            'managed_note': ('This file belongs to its record; change it from the record.', '此文件属于对应的内容记录，请在记录中修改。'),
+            'open_record': ('Open record', '打开记录'),
+            'loading': ('Loading...', '加载中…'),
+            'preview_failed': ('Preview failed to load.', '预览加载失败。'),
+            'too_large': ('This file is too large to preview; download it instead.', '文件过大，无法预览，请下载查看。'),
+            'truncated': ('Only the beginning of the file is shown.', '仅显示文件开头部分。'),
+        }
+        return {key: (zh_text if zh else en) for key, (en, zh_text) in pairs.items()}
+
+    def _fm_redirect(self, request, source=None):
+        source = source if source is not None else request.POST
+        params = {
+            'path': source.get('return_path', source.get('path', '')),
+            'q': source.get('q', ''),
+            'filter': source.get('filter', ''),
+            'sort': source.get('sort', ''),
+        }
+        query = urlencode({k: v for k, v in params.items() if v and v != 'all' and v != 'name'})
+        url = reverse('admin:myHomePage_mediafile_changelist')
+        return redirect(url + ('?' + query if query else ''))
+
+    @staticmethod
+    def _fm_meta(entry):
+        """Per-file data for the Edit / Preview dialogs."""
+        from django.template.defaultfilters import filesizeformat
+        owner = next((ref for ref in entry.references if ref.via == 'field'), None)
+        return {
+            'path': entry.path,
+            'name': entry.name,
+            'ext': os.path.splitext(entry.name)[1].lstrip('.').upper(),
+            'kind': entry.kind,
+            'preview': entry.preview,
+            'size': entry.size,
+            'size_label': str(filesizeformat(entry.size)),
+            'modified': timezone.localtime(entry.modified).strftime('%Y-%m-%d %H:%M'),
+            'editable': entry.editable,
+            'title': entry.record.title if entry.record else '',
+            'is_active': entry.record.is_active if entry.record else True,
+            'is_draft': entry.record.is_draft if entry.record else False,
+            'url': entry.public_url,
+            'raw_url': reverse('admin:mediafile-file-raw') + '?' + urlencode({'path': entry.path}),
+            'owner_url': owner.url if owner else '',
+            'refs': [{'label': r.label, 'url': r.url, 'via': r.via} for r in entry.references],
+        }
+
+    def changelist_view(self, request, extra_context=None):
+        if not self.has_view_or_change_permission(request):
+            raise PermissionDenied
+        zh = _is_zh_mode()
+        labels = self._fm_labels(zh)
+        os.makedirs(os.path.join(fm.media_root(), fm.UPLOAD_ROOT), exist_ok=True)
+
+        q = (request.GET.get('q') or '').strip()[:100]
+        current_filter = request.GET.get('filter') if request.GET.get('filter') in self.FM_FILTERS else 'all'
+        sort = request.GET.get('sort') if request.GET.get('sort') in self.FM_SORTS else 'name'
+        try:
+            current = fm.normalize(request.GET.get('path', ''))
+            if current and not os.path.isdir(fm.absolute(current)):
+                raise fm.FileManagerError('Folder not found.', '文件夹不存在。')
+        except fm.FileManagerError as exc:
+            messages.error(request, exc.text(zh))
+            current = ''
+
+        index = fm.ReferenceIndex()
+        all_files = index.annotate(fm.walk_files(''))
+        unused_total = sum(1 for f in all_files if not f.used)
+        top_folders, _top_files = fm.list_folder('', zh)
+
+        if q:
+            mode = 'search'
+            folders = []
+            files = [f for f in all_files if q.lower() in f.name.lower()][:fm.SEARCH_LIMIT]
+        elif current_filter != 'all' and not current:
+            mode = 'global'
+            folders, files = [], all_files
+        else:
+            mode = 'folder'
+            folders, files = fm.list_folder(current, zh)
+            index.annotate(files)
+        if current_filter == 'image':
+            files = [f for f in files if f.kind == 'image']
+        elif current_filter == 'document':
+            files = [f for f in files if f.kind in ('pdf', 'document')]
+        elif current_filter == 'unused':
+            files = [f for f in files if not f.used]
+        if current_filter != 'all':
+            folders = []
+
+        key, reverse_order = sort.lstrip('-'), sort.startswith('-')
+        sort_key = {
+            'name': lambda e: (e.label or e.name).lower(),
+            'size': lambda e: e.size,
+            'modified': lambda e: e.modified,
+        }[key]
+        folders = sorted(folders, key=sort_key, reverse=reverse_order)
+        files = sorted(files, key=sort_key, reverse=reverse_order)
+
+        crumbs = []
+        if current:
+            parts = current.split('/')
+            for i, part in enumerate(parts):
+                crumbs.append({
+                    'label': fm.folder_label(part, zh) if i == 0 else part,
+                    'path': '/'.join(parts[:i + 1]),
+                })
+        editable_here = mode == 'folder' and fm.is_editable(current)
+        context = {
+            **self.admin_site.each_context(request),
+            'title': labels['title'],
+            'labels': labels,
+            'opts': self.model._meta,
+            'current': current,
+            'parent': current.rsplit('/', 1)[0] if '/' in current else '',
+            'active_root': fm.top_folder(current),
+            'crumbs': crumbs,
+            'mode': mode,
+            'q': q,
+            'current_filter': current_filter,
+            'sort': sort,
+            'sorts': [(s, labels['sort_' + s]) for s in self.FM_SORTS],
+            'filters': [(f, labels['filter_' + f]) for f in self.FM_FILTERS],
+            'folders': folders,
+            'files': files,
+            'top_folders': top_folders,
+            'total_files': len(all_files),
+            'total_size': sum(f.size for f in all_files),
+            'unused_total': unused_total,
+            'editable_here': editable_here,
+            'readonly_here': mode == 'folder' and bool(current) and not fm.is_editable(current),
+            'private_here': mode == 'folder' and fm.is_private(current),
+            'upload_root': fm.UPLOAD_ROOT,
+            'can_add': self.has_add_permission(request),
+            'can_change': self.has_change_permission(request),
+            'can_delete': self.has_delete_permission(request),
+            'move_targets': fm.editable_folders(),
+            'upload_extensions': ','.join(sorted(fm.UPLOAD_EXTENSIONS)),
+            'js_labels': {k: labels[k] for k in (
+                'copied', 'cancel', 'ok', 'folder_name', 'new_name', 'move_to', 'confirm_delete',
+                'confirm_links', 'confirm_move_links', 'new_folder', 'rename', 'move', 'drop_title',
+                'selected', 'upload', 'delete', 'preview', 'edit', 'edit_title', 'file_name', 'title_label',
+                'title_hint', 'active_label', 'draft_label', 'info_path', 'info_type', 'info_size',
+                'info_modified', 'info_dimensions', 'info_used_by', 'info_link', 'none', 'save',
+                'managed_note', 'open_record', 'loading', 'preview_failed', 'too_large', 'truncated',
+                'download', 'linked_path', 'linked_key')} | {'uploads_label': fm.folder_label(fm.UPLOAD_ROOT, zh)},
+            'file_meta': {f.path: self._fm_meta(f) for f in files},
+        }
+        request.current_app = self.admin_site.name
+        return TemplateResponse(request, 'admin/myHomePage/mediafile/file_manager.html', context)
+
+    def file_action(self, request):
+        if request.method != 'POST':
+            return JsonResponse({'error': 'Method not allowed.'}, status=405)
+        zh = _is_zh_mode()
+        action = request.POST.get('action', '')
+        force = request.POST.get('force') == '1'
+        needed = {
+            'upload': self.has_add_permission, 'mkdir': self.has_add_permission,
+            'register': self.has_add_permission, 'rename': self.has_change_permission,
+            'move': self.has_change_permission, 'update': self.has_change_permission,
+            'delete': self.has_delete_permission,
+        }.get(action)
+        if needed is None:
+            messages.error(request, '未知操作。' if zh else 'Unknown action.')
+            return self._fm_redirect(request)
+        if not needed(request):
+            raise PermissionDenied
+
+        def report(exc):
+            text = exc.text(zh)
+            if exc.references:
+                text += ' ' + '; '.join(ref.label for ref in exc.references[:5])
+            messages.error(request, text)
+
+        index = fm.ReferenceIndex()
+        target = request.POST.get('path', '')
+        try:
+            if action == 'upload':
+                folder = request.POST.get('folder', '')
+                saved, errors = fm.upload(folder, request.FILES.getlist('files'))
+                for exc in errors:
+                    report(exc)
+                for name in saved:
+                    audit.record('object_add', object_repr='media/' + name, message='File manager: uploaded')
+                if saved:
+                    messages.success(request, ('已上传 {} 个文件。' if zh else 'Uploaded {} file(s).').format(len(saved)))
+                elif not errors:
+                    messages.warning(request, '请选择要上传的文件。' if zh else 'Please choose files to upload.')
+            elif action == 'mkdir':
+                rel = fm.make_folder(request.POST.get('folder', ''), request.POST.get('name', ''))
+                audit.record('object_add', object_repr='media/' + rel, message='File manager: created folder')
+                messages.success(request, ('已创建文件夹 {}。' if zh else 'Created folder {}.').format(rel.rsplit('/', 1)[-1]))
+            elif action == 'rename':
+                rel = fm.rename(target, request.POST.get('name', ''), index, force)
+                audit.record('object_change', object_repr='media/' + rel,
+                             message='File manager: renamed from media/{}'.format(fm.normalize(target)))
+                messages.success(request, ('已重命名为 {}。' if zh else 'Renamed to {}.').format(rel.rsplit('/', 1)[-1]))
+            elif action == 'move':
+                rel = fm.move(target, request.POST.get('dest', ''), index, force)
+                audit.record('object_change', object_repr='media/' + rel,
+                             message='File manager: moved from media/{}'.format(fm.normalize(target)))
+                messages.success(request, ('已移动到 {}。' if zh else 'Moved to {}.').format(rel.rsplit('/', 1)[0]))
+            elif action == 'update':
+                before = fm.normalize(target)
+                rel = fm.update_meta(
+                    target, index,
+                    name=request.POST.get('name', ''),
+                    title=request.POST.get('title', ''),
+                    is_active=request.POST.get('is_active') == '1',
+                    is_draft=request.POST.get('is_draft') == '1',
+                    force=force,
+                )
+                note = '' if rel == before else ' (renamed from media/{})'.format(before)
+                audit.record('object_change', object_repr='media/' + rel, message='File manager: edited' + note)
+                messages.success(request, ('已保存 {}。' if zh else 'Saved {}.').format(rel.rsplit('/', 1)[-1]))
+            elif action == 'register':
+                record = fm.register(target)
+                audit.record('object_add', object_repr='media/' + record.file.name, message='File manager: published')
+                messages.success(request, '已发布，现在可以复制链接。' if zh else 'Published; the link can be copied now.')
+            elif action == 'delete':
+                paths = request.POST.getlist('paths') or ([target] if target else [])
+                done = 0
+                for rel in paths:
+                    try:
+                        fm.delete(rel, index, force)
+                    except fm.FileManagerError as exc:
+                        report(exc)
+                        continue
+                    done += 1
+                    audit.record('object_delete', object_repr='media/' + fm.normalize(rel), message='File manager: deleted')
+                if done:
+                    messages.success(request, ('已删除 {} 项。' if zh else 'Deleted {} item(s).').format(done))
+        except fm.FileManagerError as exc:
+            report(exc)
+        except OSError as exc:
+            logger.exception('File manager action %s failed', action)
+            messages.error(request, ('操作失败：{}' if zh else 'Operation failed: {}').format(exc.strerror or exc))
+        return self._fm_redirect(request)
+
+    def file_raw(self, request):
+        """Serve any media file to staff: inline for raster images (thumbnails), else as a download."""
+        if not self.has_view_or_change_permission(request):
+            raise PermissionDenied
+        try:
+            rel = fm.normalize(request.GET.get('path', ''))
+            path = fm.absolute(rel)
+        except fm.FileManagerError:
+            raise Http404
+        if not rel or not os.path.isfile(path):
+            raise Http404
+        preview = fm.preview_type(rel)
+        inline = request.GET.get('inline') == '1' and bool(preview)
+        response = FileResponse(open(path, 'rb'), as_attachment=not inline, filename=os.path.basename(path))
+        if inline and preview == 'text':
+            # Text is always shown as plain text (never rendered as HTML/Markdown).
+            response['Content-Type'] = 'text/plain; charset=utf-8'
+        response['X-Content-Type-Options'] = 'nosniff'
+        if inline and preview == 'pdf':
+            # The browser's PDF viewer will not run inside a CSP sandbox; it is shown in
+            # a same-origin frame of the preview dialog.
+            response['X-Frame-Options'] = 'SAMEORIGIN'
+        else:
+            response['Content-Security-Policy'] = "default-src 'none'; img-src 'self'; media-src 'self'; sandbox"
+        response['Cache-Control'] = 'private, max-age=60'
+        return response
 
     class Media:
         css = {'all': (_static_v('css/admin/mediafile_admin.css'),)}

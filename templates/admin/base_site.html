@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="{% static 'css/admin/custom.css' %}?v=20261120-2">
 <link rel="stylesheet" href="{% static 'css/admin/dark_mode.css' %}?v={{ app_version }}.1">
 <link rel="stylesheet" href="{% static 'css/admin/publication.css' %}">
-<link rel="stylesheet" href="{% static 'css/admin/theme.css' %}?v={{ app_version }}.25">
+<link rel="stylesheet" href="{% static 'css/admin/theme.css' %}?v={{ app_version }}.28">
 <link rel="stylesheet" href="{% static 'css/page-loader.css' %}?v={{ app_version }}.1">
 <link rel="stylesheet" href="{% static 'css/scrollbar.css' %}?v={{ app_version }}.2">
 {% endblock %}
@@ -18,12 +18,37 @@
 {% block extrahead %}
 {{ block.super }}
 <script>
-/* Apply the saved theme before the first paint (no light flash in dark mode). */
-(function () { try { var t = localStorage.getItem('theme'); if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t); } catch (e) {} })();
-    </script>
+/* Two theme states only: light and dark.
+   - Applied before the first paint (no light flash in dark mode).
+   - Django's "auto" (or no choice yet) is resolved once to the system's current
+     scheme, so Django's own theme.js later reads light/dark and never shows "auto".
+   - The header toggle (.theme-toggle) is taken over in the capture phase so it flips
+     light <-> dark instead of cycling auto -> light -> dark. */
+(function () {
+  var root = document.documentElement;
+  var theme;
+  try { theme = localStorage.getItem('theme'); } catch (e) {}
+  if (theme !== 'dark' && theme !== 'light') {
+    theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    try { localStorage.setItem('theme', theme); } catch (e) {}
+  }
+  root.setAttribute('data-theme', theme);
+
+  document.addEventListener('click', function (event) {
+    var toggle = event.target && event.target.closest ? event.target.closest('.theme-toggle') : null;
+    if (!toggle) return;
+    event.preventDefault();
+    event.stopPropagation();  // Django's cycleTheme listener on the button never runs
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('theme', next); } catch (e) {}
+    document.dispatchEvent(new CustomEvent('admin:themechange', { detail: { theme: next } }));
+  }, true);
+})();
+</script>
 <script src="{% static 'js/page-loader.js' %}?v={{ app_version }}.3"></script>
 <script src="{% static 'js/admin/sticky_header.js' %}?v={{ app_version }}.2"></script>
-<script src="{% static 'js/admin/dark_mode.js' %}"></script>
+<script src="{% static 'js/admin/dark_mode.js' %}?v={{ app_version }}.1"></script>
 {% if user.is_authenticated %}
 <script>
   window.HOMEPAGE_ADMIN_TRANSLATE_URL = "{% url 'admin:auto-translate-field' %}";

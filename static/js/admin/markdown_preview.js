@@ -1,5 +1,6 @@
 /*
- * Markdown preview buttons for inline content fields (custom section items).
+ * Markdown preview buttons: custom-section item content (inline formsets) and any
+ * textarea marked with data-markdown-preview (News / Research "Detail Content").
  *
  * Adds a "Preview" button under every `<prefix>-content` / `<prefix>-content_zh`
  * textarea of an inline formset, next to the Translate button when present, and shows
@@ -13,7 +14,8 @@
     '.inline-group textarea[name$="-content"]',
     '.inline-group textarea[name$="-content_zh"]',
     '.inline-group textarea[name$="-detail_content"]',
-    '.inline-group textarea[name$="-detail_content_zh"]'
+    '.inline-group textarea[name$="-detail_content_zh"]',
+    'textarea[data-markdown-preview]'  // e.g. News / Research "Detail Content"
   ].join(', ');
 
   function isZhPage() {

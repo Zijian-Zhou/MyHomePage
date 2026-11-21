@@ -1086,3 +1086,175 @@ html[data-theme="dark"] .audit-status-failure { background: #7f1d1d; color: #fec
     margin-left: 6px;
     display: inline;
 }
+
+/* Changelist headers (templates/admin/change_list_results.html): label first, then the
+   sort priority / direction right next to it, so a sorted column no longer looks like an
+   extra column headed "1" or "2". */
+#changelist table thead th .th-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+#changelist table thead th .th-inner .text {
+    display: inline-block;
+    padding-right: 0;
+}
+
+#changelist table thead th.sorted .th-inner .text a {
+    padding-right: 0;
+}
+
+#changelist table thead th .th-inner .sortoptions {
+    float: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin: 0;
+    padding: 0 6px 0 0;
+}
+
+#changelist table thead th .th-inner .sortoptions a {
+    float: none;
+    position: static;
+    margin: 0;
+}
+
+#changelist table thead th .th-inner .sortpriority {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 15px;
+    height: 15px;
+    padding: 0 3px;
+    border-radius: 999px;
+    background: var(--selected-bg);
+    color: var(--body-quiet-color);
+    line-height: 1;
+}
+
+/* "Remove from sorting" only on hover, as in Django. */
+#changelist table thead th .th-inner .sortoptions a.sortremove {
+    visibility: hidden;
+}
+
+#changelist table thead th:hover .th-inner .sortoptions a.sortremove {
+    visibility: visible;
+}
+
+/* Changelist rows: Django renders the first column as <th> (vertical-align: top) and the
+   rest as <td> (middle), so in tall rows the first column sat higher than the others. */
+#changelist #result_list tbody th {
+    vertical-align: middle;
+}
+
+/* Profile > API Credentials */
+.secret-input {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    max-width: 100%;
+}
+
+.secret-clear {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    color: var(--body-quiet-color);
+    font-size: 13px;
+    font-weight: normal;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+#container .form-row .secret-clear input[type="checkbox"] {
+    margin: 0;
+}
+
+#container .form-row.field-orcid_authorization .readonly {
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: 0;
+}
+
+.profile-orcid-auth {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+}
+
+#container .profile-orcid-auth .button {
+    display: inline-flex;
+    align-items: center;
+    height: 30px;
+    padding: 0 14px;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.profile-orcid-ok,
+.profile-orcid-missing {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.profile-orcid-ok { background: #dcfce7; color: #166534; }
+.profile-orcid-missing { background: #fef3c7; color: #92400e; }
+
+html[data-theme="dark"] .profile-orcid-ok { background: #14532d; color: #bbf7d0; }
+html[data-theme="dark"] .profile-orcid-missing { background: #713f12; color: #fde68a; }
+
+.profile-orcid-callback {
+    margin-top: 6px;
+    color: var(--body-quiet-color);
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+/* Profile list actions: Edit (secondary) + Sync now (primary). */
+#result_list .profile-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+#result_list .field-actions_column a.profile-edit-button,
+#result_list a.profile-edit-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 30px;
+    margin: 0;
+    padding: 0 12px;
+    border: 1px solid var(--hairline-color);
+    border-radius: 6px;
+    background: var(--darkened-bg);
+    color: var(--body-fg) !important;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+#result_list .field-actions_column a.profile-edit-button:hover,
+#result_list a.profile-edit-button:hover {
+    border-color: var(--primary);
+    background: var(--selected-bg);
+    color: var(--primary) !important;
+}
+
+#result_list .profile-actions .sync-button {
+    margin: 0;
+}

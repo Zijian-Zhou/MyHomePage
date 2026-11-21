@@ -1,7 +1,7 @@
 {% extends "admin/change_list.html" %}
 {% load i18n static %}
 
-{# publication_admin.css comes from PublicationAdmin.Media #}
+{# publication_admin.css / .js come from PublicationAdmin.Media #}
 
 {% block object-tools-items %}
 {{ block.super }}
@@ -16,33 +16,34 @@
 {{ block.super }}
 
 <!-- BibTeX Import Modal -->
-<div id="import-bibtex-modal" class="modal" style="display: none;">
+{% with zh=LANGUAGE_CODE|slice:":2" %}
+<div id="import-bibtex-modal" class="modal bibtex-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="import-bibtex-title">
     <div class="modal-content">
         <div class="modal-header">
-            <h2>{% trans "Import BibTeX" %}</h2>
-            <span class="close">&times;</span>
+            <h2 id="import-bibtex-title">{% trans "Import BibTeX" %}</h2>
+            <button type="button" class="close" aria-label="{% if zh == 'zh' %}关闭{% else %}Close{% endif %}">&times;</button>
         </div>
         <div class="modal-body">
             <form id="import-bibtex-form" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                <div class="form-row">
-                    <label for="id_bibtex_file">{% trans "BibTeX File" %}:</label>
-                    <input type="file" name="bibtex_file" id="id_bibtex_file" accept=".bib">
-                </div>
-                <div class="form-row">
-                    <label for="id_bibtex_text">{% trans "Or paste BibTeX here" %}:</label>
-                    <textarea name="bibtex_text" id="id_bibtex_text" rows="10"></textarea>
-                </div>
-                <div class="submit-row">
+                <label class="bibtex-dropzone" for="id_bibtex_file" data-bibtex-dropzone>
+                    <input type="file" name="bibtex_file" id="id_bibtex_file" accept=".bib,.txt">
+                    <i class="fas fa-file-import bibtex-dropzone-icon" aria-hidden="true"></i>
+                    <span class="bibtex-dropzone-title">{% if zh == 'zh' %}选择 .bib 文件，或拖拽到这里{% else %}Choose a .bib file or drop it here{% endif %}</span>
+                    <span class="bibtex-dropzone-file" data-bibtex-filename></span>
+                </label>
+                <div class="bibtex-divider"><span>{% if zh == 'zh' %}或{% else %}or{% endif %}</span></div>
+                <label class="bibtex-label" for="id_bibtex_text">{% trans "Or paste BibTeX here" %}</label>
+                <textarea name="bibtex_text" id="id_bibtex_text" rows="10" spellcheck="false" placeholder="@article{key,&#10;  title  = {...},&#10;  author = {...},&#10;  year   = {2025}&#10;}"></textarea>
+                <div class="bibtex-actions">
+                    <button type="button" class="button bibtex-cancel">{% if zh == 'zh' %}取消{% else %}Cancel{% endif %}</button>
                     <input type="submit" value="{% trans 'Import' %}" class="default">
                 </div>
             </form>
         </div>
     </div>
 </div>
+{% endwith %}
 {% endblock %}
 
-{% block extrajs %}
-{{ block.super }}
-<script src="{% static 'js/admin/publication_admin.js' %}"></script>
-{% endblock %} 
+{# publication_admin.js is loaded once, by PublicationAdmin.Media #} 

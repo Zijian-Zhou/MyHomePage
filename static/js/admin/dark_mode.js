@@ -25,6 +25,13 @@ document.addEventListener('DOMContentLoaded', function() {
             '<i class="fas fa-moon"></i>' : 
             '<i class="fas fa-sun"></i>';
     });
+
+    // Keep this button's icon in step when the header toggle switches the theme.
+    document.addEventListener('admin:themechange', function (event) {
+        toggleButton.innerHTML = event.detail && event.detail.theme === 'dark' ?
+            '<i class="fas fa-moon"></i>' :
+            '<i class="fas fa-sun"></i>';
+    });
 });
 
 function updateThemeIcon() {
