@@ -5,7 +5,8 @@ A backup is a zip archive containing:
 * ``manifest.json`` - format marker, app version, creation time, counts and the
   applied migrations of the source database;
 * ``data.json``     - all database records (``dumpdata`` with natural foreign keys,
-  without content types, permissions, sessions and resource-monitor history);
+  without content types, permissions and sessions), including the audit log and the
+  resource-monitor history;
 * ``media/...``     - every file under ``MEDIA_ROOT``.
 
 Restoring first writes an automatic "pre-restore" backup of the current state,
@@ -36,11 +37,10 @@ DATA_NAME = 'data.json'
 MEDIA_PREFIX = 'media/'
 
 # Content types and permissions are recreated by migrations (records reference them
-# by natural key); sessions and resource-monitor samples are transient.
-# The audit trail is not part of a backup: restoring must never roll it back (it is
-# preserved across a restore instead, see restore_backup()).
-DUMP_EXCLUDES = ['contenttypes', 'auth.permission', 'sessions', 'myHomePage.ResourceMetricLog',
-                 'myHomePage.AuditLog']
+# by natural key); sessions are transient.
+# The audit log and the resource-monitor history ARE backed up, but a restore merges
+# them with the current history instead of rolling it back (see restore_backup()).
+DUMP_EXCLUDES = ['contenttypes', 'auth.permission', 'sessions']
 
 BACKUP_NAME_RE = re.compile(r'^[A-Za-z0-9][A-Za-z0-9._-]{0,150}\.zip$')
 KIND_MANUAL = 'manual'
@@ -312,25 +312,76 @@ def _clear_children(directory):
             child.unlink()
 
 
-def _snapshot_audit_log():
-    from .models import AuditLog
-    return list(AuditLog.objects.values())
+AUDIT_IDENTITY = ('created_at', 'category', 'action', 'username', 'ip_address', 'path',
+                  'object_repr', 'message')
 
 
-def _restore_audit_log(rows):
-    """Put the pre-restore audit trail back; drop links to users that no longer exist."""
+def _ms(value):
+    """dumpdata stores datetimes with millisecond precision; compare at that precision."""
+    if value is None or not hasattr(value, 'microsecond'):
+        return value
+    return value.replace(microsecond=value.microsecond // 1000 * 1000)
+
+
+def _audit_key(row):
+    return tuple(_ms(row.get(f)) if f == 'created_at' else row.get(f) for f in AUDIT_IDENTITY)
+
+
+def _snapshot_history():
+    """Current audit log and resource-monitor samples, taken just before a restore."""
+    from .models import AuditLog, ResourceMetricLog
+    return {
+        'audit': list(AuditLog.objects.values()),
+        'metrics': list(ResourceMetricLog.objects.values()),
+    }
+
+
+def _merge_history(snapshot):
+    """Merge the pre-restore history into the restored database (union, no duplicates).
+
+    The backup's own rows were loaded with the data; rows that exist only in the current
+    history (e.g. everything recorded after the backup was taken, or a different
+    server's history) are added with new ids, so a restore never rolls the audit trail
+    or the monitor history back. Anomaly rows present in both keep the larger hit count
+    and the later "last seen".
+    """
     from django.contrib.auth.models import User
-    from .models import AuditLog
-    if not rows:
-        return
-    existing_users = set(User.objects.values_list('pk', flat=True))
-    objects = []
-    for row in rows:
-        row = dict(row)
-        if row.get('user_id') not in existing_users:
-            row['user_id'] = None
-        objects.append(AuditLog(**row))
-    AuditLog.objects.bulk_create(objects, batch_size=500)
+    from .models import AuditLog, ResourceMetricLog
+
+    audit_rows = snapshot.get('audit') or []
+    if audit_rows:
+        existing_users = set(User.objects.values_list('pk', flat=True))
+        loaded = {
+            _audit_key(row): row
+            for row in AuditLog.objects.values('pk', 'hits', 'last_seen_at', *AUDIT_IDENTITY)
+        }
+        new_rows = []
+        for row in audit_rows:
+            match = loaded.get(_audit_key(row))
+            if match:
+                hits = max(match['hits'] or 1, row.get('hits') or 1)
+                seen = max(filter(None, [match['last_seen_at'], row.get('last_seen_at')]), default=None)
+                if hits != match['hits'] or seen != match['last_seen_at']:
+                    AuditLog.objects.filter(pk=match['pk']).update(hits=hits, last_seen_at=seen)
+                continue
+            row = dict(row)
+            row.pop('id', None)
+            if row.get('user_id') not in existing_users:
+                row['user_id'] = None
+            new_rows.append(AuditLog(**row))
+        AuditLog.objects.bulk_create(new_rows, batch_size=500)
+
+    metric_rows = snapshot.get('metrics') or []
+    if metric_rows:
+        loaded_times = {_ms(v) for v in ResourceMetricLog.objects.values_list('created_at', flat=True)}
+        new_rows = []
+        for row in metric_rows:
+            if _ms(row.get('created_at')) in loaded_times:
+                continue
+            row = dict(row)
+            row.pop('id', None)
+            new_rows.append(ResourceMetricLog(**row))
+        ResourceMetricLog.objects.bulk_create(new_rows, batch_size=500)
 
 
 def restore_backup(name):
@@ -365,10 +416,10 @@ def restore_backup(name):
         try:
             _move_children(new_media, media_root)
             with transaction.atomic():
-                audit_rows = _snapshot_audit_log()
+                history = _snapshot_history()
                 call_command('flush', interactive=False, verbosity=0)
                 call_command('loaddata', str(work / DATA_NAME), ignore=True, verbosity=0)
-                _restore_audit_log(audit_rows)
+                _merge_history(history)
         except Exception:
             _clear_children(media_root)
             _move_children(old_media, media_root)

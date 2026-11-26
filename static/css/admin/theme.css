@@ -1315,3 +1315,65 @@ html[data-theme="dark"] .audit-status-alert { background: #7c2d12; color: #fed7a
     pointer-events: none;
     transition: opacity 0.15s ease;
 }
+
+/* Read-only field values (audit log detail, timestamps, ...). custom.css hard-codes a
+   light #f9f9f9 box with #666 text, which showed as white blocks in dark mode. */
+#container .form-row .readonly {
+    display: inline-block;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 6px 10px;
+    border: 1px solid var(--hairline-color);
+    border-radius: 6px;
+    background: var(--darkened-bg);
+    color: var(--body-fg);
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+#container .form-row.field-message .readonly,
+#container .form-row.field-user_agent .readonly,
+#container .form-row.field-path .readonly {
+    display: block;
+    white-space: pre-wrap;
+}
+
+/* Audit log: "Export all logs" button in the summary header row. */
+.audit-summary-tools {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px 14px;
+}
+
+#container a.audit-export-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    padding: 0 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.audit-export-count {
+    padding: 0 7px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.22);
+    font-size: 11px;
+    line-height: 18px;
+}
+
+/* Empty read-only values: a muted dash instead of an empty box. */
+#container .form-row .readonly:empty::before {
+    content: "-";
+    color: var(--body-quiet-color);
+}
+
+.audit-summary-head {
+    align-items: center;
+}

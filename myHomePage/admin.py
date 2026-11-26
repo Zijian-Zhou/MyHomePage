@@ -422,7 +422,7 @@ class CustomAdminSite(AdminSite):
         if _is_zh_mode():
             return {
                 'title': '系统备份',
-                'subtitle': '备份内容包括全部数据库记录（内容、配置、用户、AI 配置等）和 media 目录下的所有上传文件。',
+                'subtitle': '备份内容包括全部数据库记录（内容、配置、用户、AI 配置、审计日志、资源监控历史等）和 media 目录下的所有上传文件。',
                 'create_title': '新建备份',
                 'note': '备注',
                 'note_placeholder': '选填，如 升级前备份',
@@ -455,7 +455,7 @@ class CustomAdminSite(AdminSite):
                 'storage': '备份存储目录',
                 'current_version': '当前版本',
                 'processing': '处理中，请勿关闭页面……',
-                'warning': '恢复会用备份内容整体替换当前的数据库和 media 文件，所有用户需要使用备份中的账号重新登录。恢复前系统会自动创建一份“恢复前自动备份”。备份文件包含密码哈希和 API 密钥，请妥善保管。',
+                'warning': '恢复会用备份内容整体替换当前的数据库和 media 文件，所有用户需要使用备份中的账号重新登录。恢复前系统会自动创建一份“恢复前自动备份”。审计日志和资源监控历史不会被回滚，而是与备份中的记录合并。备份文件包含密码哈希和 API 密钥，请妥善保管。',
                 'confirm_restore': '确定要从备份“{name}”恢复吗？\n\n当前数据库和 media 文件将被整体替换（系统会先自动备份当前状态），恢复完成后需要重新登录。',
                 'confirm_delete': '确定要删除备份“{name}”吗？此操作无法撤销。',
                 'created': '备份已创建：{name}',
@@ -480,7 +480,7 @@ class CustomAdminSite(AdminSite):
             }
         return {
             'title': 'System Backup',
-            'subtitle': 'A backup contains every database record (content, configuration, users, AI settings, ...) and all uploaded files under media.',
+            'subtitle': 'A backup contains every database record (content, configuration, users, AI settings, audit log, resource-monitor history, ...) and all uploaded files under media.',
             'create_title': 'Create backup',
             'note': 'Note',
             'note_placeholder': 'Optional, e.g. before upgrade',
@@ -513,7 +513,7 @@ class CustomAdminSite(AdminSite):
             'storage': 'Backup directory',
             'current_version': 'Current version',
             'processing': 'Processing, please keep this page open...',
-            'warning': 'Restoring replaces the whole database and media directory with the backup contents, and everyone has to sign in again with the accounts stored in the backup. An automatic "before restore" backup of the current state is created first. Backups contain password hashes and API keys, so keep them safe.',
+            'warning': 'Restoring replaces the whole database and media directory with the backup contents, and everyone has to sign in again with the accounts stored in the backup. An automatic "before restore" backup of the current state is created first. The audit log and resource-monitor history are not rolled back but merged with the records in the backup. Backups contain password hashes and API keys, so keep them safe.',
             'confirm_restore': 'Restore from backup "{name}"?\n\nThe current database and media files will be replaced (the current state is backed up automatically first) and you will need to sign in again.',
             'confirm_delete': 'Delete backup "{name}"? This cannot be undone.',
             'created': 'Backup created: {name}',
@@ -3464,6 +3464,18 @@ class AuditLogAdmin(admin.ModelAdmin):
 
     PRUNE_CACHE_KEY = 'audit-log-last-prune'
 
+    def get_urls(self):
+        custom = [
+            path('export-all/', self.admin_site.admin_view(self.export_all_view), name='myHomePage_auditlog_export_all'),
+        ]
+        return custom + super().get_urls()
+
+    def export_all_view(self, request):
+        """Download every audit entry (ignores the current filters and page)."""
+        if not self.has_view_permission(request):
+            raise PermissionDenied
+        return self._csv_response(request, AuditLog.objects.all(), 'all')
+
     # ---- permissions: superusers may read; nobody may add, edit or delete ----
     def has_module_permission(self, request):
         return request.user.is_active and request.user.is_superuser
@@ -3528,29 +3540,49 @@ class AuditLogAdmin(admin.ModelAdmin):
     message_display.short_description = AuditLog._meta.get_field('message').verbose_name
 
     # ---- export ----
-    def export_csv(self, request, queryset):
-        import csv
-        from django.http import HttpResponse
+    CSV_HEADER = ['time', 'category', 'action', 'status', 'hits', 'last_seen', 'username', 'ip_address',
+                  'object', 'message', 'path', 'user_agent']
 
-        response = HttpResponse(content_type='text/csv; charset=utf-8')
+    @staticmethod
+    def _csv_row(row):
+        return [
+            timezone.localtime(row.created_at).strftime('%Y-%m-%d %H:%M:%S'),
+            row.category, row.action, row.status, row.hits,
+            timezone.localtime(row.last_seen_at).strftime('%Y-%m-%d %H:%M:%S') if row.last_seen_at else '',
+            row.username or '', row.ip_address or '',
+            row.object_repr, row.message, row.path, row.user_agent,
+        ]
+
+    def _csv_response(self, request, queryset, label):
+        """Stream the rows as UTF-8 CSV (with BOM so Excel shows Chinese correctly)."""
+        import csv
+        from django.http import StreamingHttpResponse
+
+        class _Echo:
+            def write(self, value):
+                return value
+
+        writer = csv.writer(_Echo())
+        counter = {'n': 0}
+
+        def rows():
+            yield '\ufeff'  # BOM so Excel opens UTF-8 (Chinese) correctly
+            yield writer.writerow(self.CSV_HEADER)
+            for row in queryset.order_by('-created_at').iterator(chunk_size=2000):
+                counter['n'] += 1
+                yield writer.writerow(self._csv_row(row))
+            # Runs while the response streams, i.e. after the request middleware finished:
+            # pass the request / user explicitly.
+            audit.record('audit_export', request=request, user=request.user,
+                         message='Exported {} entries as CSV ({}).'.format(counter['n'], label))
+
+        response = StreamingHttpResponse(rows(), content_type='text/csv; charset=utf-8')
         stamp = timezone.localtime().strftime('%Y%m%d-%H%M%S')
-        response['Content-Disposition'] = 'attachment; filename="audit-log-{}.csv"'.format(stamp)
-        response.write('\ufeff')  # BOM so Excel opens UTF-8 (Chinese) correctly
-        writer = csv.writer(response)
-        writer.writerow(['time', 'category', 'action', 'status', 'hits', 'last_seen', 'username', 'ip_address',
-                         'object', 'message', 'path', 'user_agent'])
-        count = 0
-        for row in queryset.order_by('-created_at').iterator():
-            writer.writerow([
-                timezone.localtime(row.created_at).strftime('%Y-%m-%d %H:%M:%S'),
-                row.category, row.action, row.status, row.hits,
-                timezone.localtime(row.last_seen_at).strftime('%Y-%m-%d %H:%M:%S') if row.last_seen_at else '',
-                row.username or '', row.ip_address or '',
-                row.object_repr, row.message, row.path, row.user_agent,
-            ])
-            count += 1
-        audit.record('audit_export', message='Exported {} entries as CSV.'.format(count))
+        response['Content-Disposition'] = 'attachment; filename="audit-log-{}-{}.csv"'.format(label, stamp)
         return response
+
+    def export_csv(self, request, queryset):
+        return self._csv_response(request, queryset, 'selected')
     export_csv.short_description = _bilingual_label('Export selected as CSV', '导出所选为 CSV')
 
     # ---- changelist: 24-hour summary and lazy retention cleanup ----
@@ -3581,6 +3613,9 @@ class AuditLogAdmin(admin.ModelAdmin):
         extra_context = extra_context or {}
         extra_context['audit_summary'] = summary
         extra_context['audit_summary_title'] = '近 24 小时' if zh else 'Last 24 hours'
+        extra_context['audit_export_all_url'] = reverse('admin:myHomePage_auditlog_export_all')
+        extra_context['audit_export_all_label'] = '导出全部日志' if zh else 'Export all logs'
+        extra_context['audit_total'] = AuditLog.objects.count()
         extra_context['audit_retention_note'] = (
             '日志保留 {} 天（可在系统配置中修改）'.format(SystemConfig.get_audit_log_retention_days()) if zh
             else 'Entries are kept for {} days (configurable in System Configuration).'.format(

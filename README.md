@@ -75,7 +75,7 @@ The application supports English and Simplified Chinese, Markdown content, ORCID
 - Footer items are edited in a table with live icon preview and icon upload (PNG/JPG/GIF/WEBP/ICO, stored as Media Files).
 - User/group management and localized configuration forms.
 - System resource monitor with live and historical CPU, memory, disk, and network throughput charts, plus database / media / backup storage usage.
-- Audit log (superusers only): logins, failed logins, lockouts, logouts, every admin add/change/delete, publication syncs, and backup operations, with user, IP, and user agent; filters, search, 24-hour summary, CSV export, and configurable retention (`audit_log_retention_days`, default 180). The audit trail is not part of backups and survives a restore.
+- Audit log (superusers only): logins, failed logins, lockouts, logouts, every admin add/change/delete, publication syncs, and backup operations, with user, IP, and user agent; filters, search, 24-hour summary, CSV export (selected rows, or **Export all logs**), and configurable retention (`audit_log_retention_days`, default 180). The audit trail is included in backups; a restore merges it with the current trail instead of rolling it back.
 - Anomaly log (audit category **Anomaly**): attack payloads in URLs/headers (SQL injection, XSS, path traversal, command injection, Log4Shell), probes for well-known attack targets (`.env`, `.git`, `wp-admin`, phpMyAdmin, `*.php`, backups), known scanner User-Agents, request floods and 404 bursts per IP, requests Django rejects (forged Host header, CSRF failures) and server errors (500). Repeats from the same source within 10 minutes are merged into one row with a hit count, and new rows are capped per minute so an attack cannot flood the database. Nothing is blocked; signed-in staff are not monitored. Thresholds: `SECURITY_FLOOD_PER_MINUTE` (300), `SECURITY_404_PER_MINUTE` (30); the rate rules need `TRUST_X_FORWARDED_FOR=True` behind Nginx.
 - System backup (superusers only): create full backups of the database and media, download, delete, import external backups, and restore with an automatic pre-restore safety backup.
 
@@ -357,7 +357,7 @@ Both browser-side and server-side validation reject malformed footer and AI conf
 Superusers can open **System Backup** from the administration index. A backup is a `.zip` archive that contains:
 
 - `manifest.json`: format marker, app version, creation time, record/file counts, and the applied migrations;
-- `data.json`: every database record (content, configuration, users and groups, AI providers, admin log), exported with natural foreign keys. Sessions, content types, permissions, and resource-monitor history are not included; content types and permissions are recreated automatically;
+- `data.json`: every database record (content, configuration, users and groups, AI providers, admin log, audit log, resource-monitor history), exported with natural foreign keys. Sessions, content types and permissions are not included; content types and permissions are recreated automatically. On restore the audit log and resource-monitor history are merged with the current ones (nothing recorded since the backup is lost);
 - `media/`: every uploaded file.
 
 Available actions:
@@ -543,7 +543,7 @@ MyHomePage 是一个面向研究人员、学生、实验室和专业人士的自
 - 页脚项以表格方式编辑，支持图标实时预览和图标上传（PNG/JPG/GIF/WEBP/ICO，保存到媒体文件）。
 - 支持用户、用户组及本地化配置管理。
 - 系统资源监控展示实时和历史 CPU、内存、磁盘、网络上下行速度，以及数据库、媒体文件和备份文件的存储占用。
-- 日志审计（仅超级管理员）：记录登录成功/失败、锁定、登出、后台所有新增/修改/删除、出版物同步和备份操作，包含用户、IP 和浏览器信息；支持筛选、搜索、近 24 小时统计、导出 CSV，保留天数可配置（`audit_log_retention_days`，默认 180 天）。审计日志不包含在备份中，恢复备份时会完整保留。
+- 日志审计（仅超级管理员）：记录登录成功/失败、锁定、登出、后台所有新增/修改/删除、出版物同步和备份操作，包含用户、IP 和浏览器信息；支持筛选、搜索、近 24 小时统计、导出 CSV（所选记录或“导出全部日志”），保留天数可配置（`audit_log_retention_days`，默认 180 天）。审计日志包含在备份中；恢复时会与当前日志合并，不会被回滚。
 - 异常日志（审计分类 **异常**）：记录 URL/请求头中的攻击特征（SQL 注入、XSS、路径穿越、命令注入、Log4Shell）、对常见攻击目标的探测（`.env`、`.git`、`wp-admin`、phpMyAdmin、`*.php`、备份文件等）、已知扫描工具的 User-Agent、单个 IP 的请求过载和大量 404、Django 拒绝的请求（伪造 Host 头、CSRF 校验失败）以及服务器错误（500）。同一来源 10 分钟内的重复事件合并为一条并累计次数，每分钟新增条数有上限，攻击时不会把数据库写满。只记录不拦截；已登录的管理员不受监控。阈值：`SECURITY_FLOOD_PER_MINUTE`（300）、`SECURITY_404_PER_MINUTE`（30）；频率类规则需要在 Nginx 后面设置 `TRUST_X_FORWARDED_FOR=True`。
 - 系统备份（仅超级管理员）：一键备份数据库和 media 文件，支持下载、删除、导入外部备份，以及恢复（恢复前自动创建安全备份）。
 
@@ -789,7 +789,7 @@ python manage.py runserver
 超级管理员可在后台首页进入 **系统备份**。备份文件是一个 `.zip` 压缩包，包含：
 
 - `manifest.json`：格式标识、系统版本、创建时间、记录数和文件数，以及已应用的数据库迁移；
-- `data.json`：全部数据库记录（内容、配置、用户和用户组、AI 配置、后台操作日志），使用自然外键导出。不包含会话、ContentType、权限和资源监控历史，其中 ContentType 和权限会自动重建；
+- `data.json`：全部数据库记录（内容、配置、用户和用户组、AI 配置、后台操作日志、审计日志、资源监控历史），使用自然外键导出。不包含会话、ContentType 和权限，其中 ContentType 和权限会自动重建。恢复时审计日志和资源监控历史与当前记录合并，备份之后新增的记录不会丢失；
 - `media/`：全部上传文件。
 
 支持的操作：

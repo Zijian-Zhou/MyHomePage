@@ -1,11 +1,21 @@
 {% extends "admin/change_list.html" %}
 
+
 {% block content %}
 {% if audit_summary %}
 <section class="audit-summary" aria-label="{{ audit_summary_title }}">
   <div class="audit-summary-head">
     <strong>{{ audit_summary_title }}</strong>
-    <span>{{ audit_retention_note }}</span>
+    <span class="audit-summary-tools">
+      <span>{{ audit_retention_note }}</span>
+      {% if audit_export_all_url %}
+      <a href="{{ audit_export_all_url }}" class="button audit-export-all" download
+         title="{{ audit_export_all_label }} ({{ audit_total }})">
+        <i class="fas fa-file-csv" aria-hidden="true"></i> {{ audit_export_all_label }}
+        <span class="audit-export-count">{{ audit_total }}</span>
+      </a>
+      {% endif %}
+    </span>
   </div>
   <div class="audit-summary-grid">
     {% for item in audit_summary %}
